@@ -19,8 +19,9 @@ let server
 async function start() {
     await connectToDB()
 
-    server = app.listen(config.port, () => {
-        logger.info(`Server is running on port ${config.port} [${config.nodeEnv}]`)
+    const host = '0.0.0.0'
+    server = app.listen(config.port, host, () => {
+        logger.info(`Server is running on ${host}:${config.port} [${config.nodeEnv}]`)
     })
 }
 
