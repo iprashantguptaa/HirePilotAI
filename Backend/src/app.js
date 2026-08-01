@@ -28,6 +28,11 @@ app.use(cors({
 }))
 app.use(morgan(config.isProduction ? "combined" : "dev", { stream: logger.stream }))
 
+// Health check endpoint - MUST be before rate limiter for Railway/Render/etc
+app.get("/api/health", (req, res) => {
+    res.status(200).json({ status: "ok", uptime: process.uptime() })
+})
+
 // Applies to every route. Individual routers can layer stricter limits
 // (e.g. login/register) on top of this baseline.
 const globalRateLimiter = rateLimit({
@@ -38,10 +43,6 @@ const globalRateLimiter = rateLimit({
     message: { message: "Too many requests, please try again later." }
 })
 app.use("/api", globalRateLimiter)
-
-app.get("/api/health", (req, res) => {
-    res.status(200).json({ status: "ok", uptime: process.uptime() })
-})
 
 /* require all the routes here */
 const authRouter = require("./routes/auth.routes")
