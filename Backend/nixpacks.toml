@@ -1,5 +1,5 @@
 [phases.setup]
-nixpkgs = ["nodejs_20", "chromium"]
+nixpkgs = ["nodejs_20", "chromium", "cairo", "pango", "giflib", "libjpeg", "librsvg", "pixman"]
 
 [phases.install]
 cmds = ["npm install --production"]
