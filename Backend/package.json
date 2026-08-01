@@ -1,15 +1,15 @@
 {
-  "name": "yt-genai",
+  "name": "hirepilot-ai-backend",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "HirePilot AI - Backend API Server",
+  "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js",
     "dev": "npx nodemon server.js",
     "create-admin": "node scripts/createAdmin.js"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": ["interview", "ai", "mern", "hiring"],
+  "author": "HirePilot AI Team",
   "license": "ISC",
   "dependencies": {
     "@google/genai": "^1.42.0",
