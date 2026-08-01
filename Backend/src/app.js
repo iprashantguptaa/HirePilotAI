@@ -18,6 +18,15 @@ const app = express()
 // and protocol instead of the proxy's.
 app.set("trust proxy", 1)
 
+// Root health check - BEFORE all middleware for Railway/PaaS health checks
+app.get("/", (req, res) => {
+    res.status(200).json({ status: "ok", message: "HirePilot AI API is running" })
+})
+
+app.get("/api/health", (req, res) => {
+    res.status(200).json({ status: "ok", uptime: process.uptime() })
+})
+
 app.use(helmet())
 app.use(compression())
 app.use(express.json({ limit: "50kb" }))
@@ -27,11 +36,6 @@ app.use(cors({
     credentials: true
 }))
 app.use(morgan(config.isProduction ? "combined" : "dev", { stream: logger.stream }))
-
-// Health check endpoint - MUST be before rate limiter for Railway/Render/etc
-app.get("/api/health", (req, res) => {
-    res.status(200).json({ status: "ok", uptime: process.uptime() })
-})
 
 // Applies to every route. Individual routers can layer stricter limits
 // (e.g. login/register) on top of this baseline.
