@@ -1,4 +1,10 @@
-require("dotenv").config()
+// Load .env file if it exists (development), Railway injects env vars directly in production
+try {
+    require("dotenv").config({ path: ".env" })
+} catch (err) {
+    // .env file doesn't exist in production, which is fine
+    console.log("No .env file found, using environment variables from Railway")
+}
 
 // Loaded first and on purpose: this validates all required environment
 // variables and throws immediately with a readable message if any are
