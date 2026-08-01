@@ -1,0 +1,35 @@
+// ============================================================================
+// HirePilot AI - Main Styles Entry Point
+// ============================================================================
+
+// Import tokens with compatibility layer (includes design-tokens via @forward)
+@use "./styles/tokens.scss" as *;
+
+// Import base styles
+@use "./styles/base.scss";
+
+// Import utility classes
+@use "./styles/utilities.scss";
+
+// Legacy button styles (for backward compatibility)
+@use "./style/button.scss";
+
+// Import UI component styles
+@use "./components/ui/Button/Button.scss";
+@use "./components/ui/Input/Input.scss";
+@use "./components/ui/Textarea/Textarea.scss";
+@use "./components/ui/Card/Card.scss";
+@use "./components/ui/Skeleton/Skeleton.scss";
+@use "./components/ui/EmptyState/EmptyState.scss";
+@use "./components/ui/Modal/Modal.scss";
+@use "./components/ui/Badge/Badge.scss";
+@use "./components/ui/Alert/Alert.scss";
+@use "./components/ui/Tabs/Tabs.scss";
+@use "./components/ui/EnhancedMetricCard/EnhancedMetricCard.scss";
+@use "./components/ui/TrendChart/TrendChart.scss";
+@use "./components/ui/SkillGapChart/SkillGapChart.scss";
+@use "./components/ui/FileUpload/FileUpload.scss";
+
+// Import layout component styles
+@use "./components/layout/AuthLayout.scss";
+@use "./components/layout/AuthFormCard.scss";

@@ -1,0 +1,225 @@
+// ============================================================================
+// HirePilot AI - Chat Panel (AI Assistant)
+// ============================================================================
+// Using design tokens for consistent, premium UI
+// ============================================================================
+
+@use '../../../styles/design-tokens.scss' as *;
+
+.chat-panel {
+    display: flex;
+    flex-direction: column;
+    height: min(700px, 75vh);
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--radius-lg);
+    background: var(--color-surface-card);
+    overflow: hidden;
+    box-shadow: var(--shadow-lg);
+}
+
+.chat-panel__intro {
+    padding: var(--spacing-6);
+    border-bottom: 2px solid var(--color-border-subtle);
+    background: var(--gradient-radial-primary);
+
+    h3 {
+        font-size: var(--text-xl);
+        font-weight: var(--font-weight-semibold);
+        color: var(--color-text-primary);
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-3);
+        
+        &::before {
+            content: '';
+            width: 32px;
+            height: 32px;
+            background: var(--gradient-primary);
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: var(--shadow-primary);
+        }
+    }
+
+    p {
+        font-size: var(--text-sm);
+        color: var(--color-text-secondary);
+        margin-top: var(--spacing-2);
+        line-height: var(--line-height-relaxed);
+        padding-left: 44px;
+    }
+}
+
+.chat-panel__messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: var(--spacing-6);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-4);
+    background: var(--color-surface-base);
+    
+    &::-webkit-scrollbar {
+        width: 8px;
+    }
+    
+    &::-webkit-scrollbar-track {
+        background: var(--color-surface-base);
+    }
+    
+    &::-webkit-scrollbar-thumb {
+        background: var(--color-border-strong);
+        border-radius: var(--radius-sm);
+        
+        &:hover {
+            background: var(--color-border-interactive);
+        }
+    }
+}
+
+.chat-panel__muted {
+    color: var(--color-text-faint);
+    font-size: var(--text-base);
+    text-align: center;
+    margin-top: var(--spacing-8);
+    padding: var(--spacing-6);
+    background: var(--color-surface-raised);
+    border-radius: var(--radius-md);
+    border: 1px dashed var(--color-border-subtle);
+}
+
+.chat-message {
+    max-width: 75%;
+    padding: var(--spacing-4) var(--spacing-5);
+    border-radius: var(--radius-lg);
+    font-size: var(--text-base);
+    line-height: var(--line-height-relaxed);
+    white-space: pre-wrap;
+    animation: messageSlideIn var(--duration-normal) var(--ease-out);
+    box-shadow: var(--shadow-sm);
+    transition: all var(--duration-fast) var(--ease-out);
+    
+    &:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-md);
+    }
+}
+
+@keyframes messageSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.chat-message--user {
+    align-self: flex-end;
+    background: var(--gradient-primary);
+    color: var(--color-text-primary);
+    border-bottom-right-radius: var(--radius-sm);
+    box-shadow: var(--shadow-primary);
+}
+
+.chat-message--assistant {
+    align-self: flex-start;
+    background: var(--color-surface-card);
+    border: 1px solid var(--color-border-subtle);
+    border-bottom-left-radius: var(--radius-sm);
+    color: var(--color-text-primary);
+}
+
+.chat-message--typing {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: var(--spacing-4) var(--spacing-5);
+}
+
+.chat-typing-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--color-primary-500);
+    animation: chat-typing-bounce 1.4s infinite ease-in-out;
+    box-shadow: 0 0 8px var(--color-primary-500);
+
+    &:nth-child(2) { animation-delay: 0.2s; }
+    &:nth-child(3) { animation-delay: 0.4s; }
+}
+
+@keyframes chat-typing-bounce {
+    0%, 60%, 100% { 
+        transform: translateY(0) scale(1); 
+        opacity: 0.6; 
+    }
+    30% { 
+        transform: translateY(-6px) scale(1.1); 
+        opacity: 1; 
+    }
+}
+
+.chat-panel__composer {
+    display: flex;
+    gap: var(--spacing-3);
+    padding: var(--spacing-6);
+    border-top: 2px solid var(--color-border-subtle);
+    background: var(--color-surface-raised);
+
+    input {
+        flex: 1;
+        padding: var(--spacing-3) var(--spacing-5);
+        border-radius: var(--radius-full);
+        border: 1px solid var(--color-border-subtle);
+        background: var(--color-surface-card);
+        color: var(--color-text-primary);
+        font-family: var(--font-family-sans);
+        font-size: var(--text-base);
+        transition: all var(--duration-fast) var(--ease-out);
+
+        &::placeholder {
+            color: var(--color-text-faint);
+        }
+
+        &:focus {
+            outline: none;
+            border-color: var(--color-primary-500);
+            box-shadow: var(--shadow-primary);
+            background: var(--color-surface-raised);
+        }
+        
+        &:hover:not(:focus) {
+            border-color: var(--color-border-interactive);
+        }
+
+        &:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+    }
+
+    .button {
+        border-radius: var(--radius-full);
+        padding: var(--spacing-3) var(--spacing-5);
+        min-width: 48px;
+        height: 48px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all var(--duration-fast) var(--ease-out);
+        
+        &:hover:not(:disabled) {
+            transform: scale(1.05);
+        }
+        
+        &:active:not(:disabled) {
+            transform: scale(0.95);
+        }
+    }
+}

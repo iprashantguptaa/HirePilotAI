@@ -1,0 +1,137 @@
+// ============================================================================
+// HirePilot AI Design System - Alert Styles
+// ============================================================================
+
+.hp-alert {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border-radius: var(--radius-lg);
+  border: 1px solid;
+  
+  // ============================================================================
+  // VARIANTS
+  // ============================================================================
+  
+  &--success {
+    background-color: var(--color-success-bg);
+    border-color: var(--color-success);
+    color: var(--color-success-text);
+    
+    .hp-alert__icon {
+      color: var(--color-success);
+    }
+  }
+  
+  &--warning {
+    background-color: var(--color-warning-bg);
+    border-color: var(--color-warning);
+    color: var(--color-warning-text);
+    
+    .hp-alert__icon {
+      color: var(--color-warning);
+    }
+  }
+  
+  &--error {
+    background-color: var(--color-error-bg);
+    border-color: var(--color-error);
+    color: var(--color-error-text);
+    
+    .hp-alert__icon {
+      color: var(--color-error);
+    }
+  }
+  
+  &--info {
+    background-color: var(--color-info-bg);
+    border-color: var(--color-info);
+    color: var(--color-info-text);
+    
+    .hp-alert__icon {
+      color: var(--color-info);
+    }
+  }
+
+  // ============================================================================
+  // ELEMENTS
+  // ============================================================================
+  
+  &__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--icon-size-md);
+    height: var(--icon-size-md);
+    flex-shrink: 0;
+    
+    svg {
+      width: 100%;
+      height: 100%;
+    }
+  }
+  
+  &__content {
+    flex: 1;
+    min-width: 0;
+  }
+  
+  &__title {
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-semibold);
+    line-height: var(--line-height-snug);
+    margin-bottom: var(--space-1);
+  }
+  
+  &__message {
+    font-size: var(--font-size-sm);
+    line-height: var(--line-height-relaxed);
+    
+    a {
+      text-decoration: underline;
+      font-weight: var(--font-weight-medium);
+      
+      &:hover {
+        opacity: 0.8;
+      }
+    }
+  }
+  
+  &__close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.5rem;
+    height: 1.5rem;
+    padding: 0;
+    color: currentColor;
+    background: transparent;
+    border: none;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: opacity var(--duration-fast) var(--ease-out);
+    flex-shrink: 0;
+    opacity: 0.7;
+    
+    &:hover {
+      opacity: 1;
+    }
+    
+    &:focus-visible {
+      outline: 2px solid currentColor;
+      outline-offset: 2px;
+    }
+  }
+}
+
+// ============================================================================
+// REDUCED MOTION
+// ============================================================================
+
+@media (prefers-reduced-motion: reduce) {
+  .hp-alert__close {
+    transition: none;
+  }
+}

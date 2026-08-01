@@ -1,0 +1,159 @@
+// ============================================================================
+// HirePilot AI Design System - Textarea Styles
+// ============================================================================
+
+.hp-textarea-wrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  
+  &--full-width {
+    width: 100%;
+  }
+
+  // ============================================================================
+  // LABEL
+  // ============================================================================
+  
+  .hp-textarea__label {
+    display: block;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text-primary);
+    line-height: 1;
+  }
+  
+  .hp-textarea__required {
+    color: var(--color-error);
+    margin-left: var(--space-1);
+  }
+
+  // ============================================================================
+  // TEXTAREA
+  // ============================================================================
+  
+  .hp-textarea {
+    width: 100%;
+    padding: var(--space-3);
+    background-color: var(--color-surface);
+    color: var(--color-text-primary);
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-normal);
+    font-family: var(--font-sans);
+    line-height: var(--line-height-relaxed);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    outline: none;
+    transition: all var(--duration-fast) var(--ease-out);
+    
+    &::placeholder {
+      color: var(--color-text-tertiary);
+    }
+    
+    &:hover {
+      border-color: var(--color-border-hover);
+    }
+    
+    &:focus {
+      border-color: var(--color-border-focus);
+      box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+    }
+    
+    &:disabled {
+      cursor: not-allowed;
+      opacity: 0.5;
+      background-color: var(--color-surface);
+      border-color: var(--color-border);
+      
+      &:hover {
+        border-color: var(--color-border);
+      }
+    }
+    
+    // Resize options
+    &--resize-none {
+      resize: none;
+    }
+    
+    &--resize-vertical {
+      resize: vertical;
+    }
+    
+    &--resize-horizontal {
+      resize: horizontal;
+    }
+    
+    &--resize-both {
+      resize: both;
+    }
+  }
+
+  // ============================================================================
+  // STATES
+  // ============================================================================
+  
+  &--focused {
+    .hp-textarea {
+      border-color: var(--color-border-focus);
+      box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+    }
+  }
+  
+  &--error {
+    .hp-textarea {
+      border-color: var(--color-error);
+      
+      &:hover {
+        border-color: var(--color-error);
+      }
+      
+      &:focus {
+        border-color: var(--color-error);
+        box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+      }
+    }
+  }
+  
+  &--disabled {
+    .hp-textarea {
+      cursor: not-allowed;
+    }
+  }
+
+  // ============================================================================
+  // FOOTER
+  // ============================================================================
+  
+  .hp-textarea__footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2);
+    font-size: var(--font-size-sm);
+    line-height: 1;
+  }
+  
+  .hp-textarea__helper {
+    color: var(--color-text-tertiary);
+  }
+  
+  .hp-textarea__error {
+    color: var(--color-error);
+  }
+  
+  .hp-textarea__count {
+    color: var(--color-text-tertiary);
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+// ============================================================================
+// REDUCED MOTION
+// ============================================================================
+
+@media (prefers-reduced-motion: reduce) {
+  .hp-textarea {
+    transition: none;
+  }
+}

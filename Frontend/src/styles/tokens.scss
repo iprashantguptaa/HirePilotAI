@@ -1,0 +1,47 @@
+// ============================================================================
+// HirePilot AI Design System - Token Compatibility Layer
+// ============================================================================
+// This file provides backward compatibility for existing components
+// while forwarding to the new design-tokens.scss
+// ============================================================================
+
+@forward './design-tokens.scss';
+
+// ============================================================================
+// LEGACY TOKEN ALIASES (for backward compatibility)
+// ============================================================================
+// These map old token names to new ones
+// Components should be gradually migrated to use new token names directly
+
+:root {
+    // Old brand color → New primary color
+    --color-brand: var(--color-primary-600);
+    --color-brand-hover: var(--color-primary-500);
+    --color-brand-contrast: var(--color-text-inverse);
+    
+    // Old surface names
+    --color-surface-raised: var(--color-elevated);
+    --color-border-strong: var(--color-border-hover);
+    
+    // Old text names
+    --color-text: var(--color-text-primary);
+    --color-text-muted: var(--color-text-secondary);
+    --color-text-faint: var(--color-text-tertiary);
+    
+    // Old status colors (already compatible, but ensure consistency)
+    --color-danger: var(--color-error);
+    
+    // Old motion tokens
+    --transition-fast: var(--duration-fast) var(--ease-out);
+    --transition-base: var(--duration-base) var(--ease-out);
+    
+    // Old layout tokens
+    --header-height: 4rem;
+    --content-max-width: var(--container-max-width);
+}
+
+[data-theme="light"] {
+    // Ensure legacy tokens work in light mode too
+    --color-brand: var(--color-primary-600);
+    --color-brand-hover: var(--color-primary-500);
+}

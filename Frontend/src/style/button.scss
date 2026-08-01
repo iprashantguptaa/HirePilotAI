@@ -1,0 +1,113 @@
+// ============================================================================
+// Legacy Button Styles (Backward Compatibility)
+// ============================================================================
+// These styles support existing markup with className="button primary-button"
+// New code should use the Button component from @/components/ui instead
+// ============================================================================
+
+.button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    border: 1px solid transparent;
+    outline: none;
+    padding-inline: 1.5rem;
+    padding-block: 0.75rem;
+    border-radius: var(--radius-md);
+    font-family: var(--font-sans);
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-semibold);
+    line-height: 1;
+    cursor: pointer;
+    transition: all var(--duration-fast) var(--ease-out);
+
+    &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    &:active:not(:disabled) {
+        transform: scale(0.98);
+    }
+    
+    &:focus-visible {
+        outline: 2px solid var(--color-border-focus);
+        outline-offset: 2px;
+    }
+
+    // =========================================================================
+    // VARIANTS (Legacy class names)
+    // =========================================================================
+    
+    &.primary-button {
+        background-color: var(--color-primary-600);
+        color: var(--color-text-inverse);
+
+        &:hover:not(:disabled) {
+            background-color: var(--color-primary-700);
+            box-shadow: var(--shadow-md);
+        }
+    }
+
+    &.secondary-button {
+        background-color: transparent;
+        border-color: var(--color-border);
+        color: var(--color-text-primary);
+
+        &:hover:not(:disabled) {
+            border-color: var(--color-primary-600);
+            background-color: var(--color-surface-hover);
+            color: var(--color-primary-600);
+        }
+    }
+
+    &.ghost-button {
+        background-color: transparent;
+        color: var(--color-text-secondary);
+
+        &:hover:not(:disabled) {
+            background-color: var(--color-surface-hover);
+            color: var(--color-text-primary);
+        }
+    }
+
+    &.danger-button {
+        background-color: var(--color-error);
+        color: var(--color-text-inverse);
+
+        &:hover:not(:disabled) {
+            background-color: #dc2626;
+            box-shadow: 0 10px 15px -3px rgb(239 68 68 / 0.3),
+                        0 4px 6px -2px rgb(239 68 68 / 0.2);
+        }
+    }
+
+    // =========================================================================
+    // SIZES
+    // =========================================================================
+    
+    &.button-sm {
+        padding-inline: var(--space-3);
+        padding-block: var(--space-2);
+        font-size: var(--font-size-sm);
+    }
+
+    &.button-block {
+        width: 100%;
+    }
+}
+
+// ============================================================================
+// REDUCED MOTION
+// ============================================================================
+
+@media (prefers-reduced-motion: reduce) {
+    .button {
+        transition: none;
+        
+        &:active:not(:disabled) {
+            transform: none;
+        }
+    }
+}

@@ -1,0 +1,88 @@
+// ============================================================================
+// HirePilot AI - ProgressBar Component (Refactored)
+// ============================================================================
+
+.progress-bar {
+    margin-bottom: var(--space-4);
+}
+
+.progress-bar__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text-secondary);
+    margin-bottom: var(--space-2);
+    line-height: 1;
+    
+    span:last-child {
+        color: var(--color-text-primary);
+        font-weight: var(--font-weight-semibold);
+        font-variant-numeric: tabular-nums;
+    }
+}
+
+.progress-bar__track {
+    height: 8px;
+    border-radius: var(--radius-full);
+    background-color: var(--color-border);
+    overflow: hidden;
+    position: relative;
+}
+
+.progress-bar__fill {
+    height: 100%;
+    border-radius: var(--radius-full);
+    background: linear-gradient(
+        90deg,
+        var(--color-primary-600) 0%,
+        var(--color-primary-500) 100%
+    );
+    transition: width var(--duration-slow) var(--ease-out);
+    position: relative;
+    
+    // Subtle shimmer effect
+    &::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(
+            90deg,
+            transparent 0%,
+            rgba(255, 255, 255, 0.2) 50%,
+            transparent 100%
+        );
+        animation: progress-shimmer 2s infinite;
+    }
+}
+
+// ============================================================================
+// ANIMATIONS
+// ============================================================================
+
+@keyframes progress-shimmer {
+    0% {
+        transform: translateX(-100%);
+    }
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+// ============================================================================
+// REDUCED MOTION
+// ============================================================================
+
+@media (prefers-reduced-motion: reduce) {
+    .progress-bar__fill {
+        transition: none;
+        
+        &::after {
+            animation: none;
+        }
+    }
+}

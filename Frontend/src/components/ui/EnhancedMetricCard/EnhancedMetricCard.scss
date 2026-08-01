@@ -1,0 +1,231 @@
+// ============================================================================
+// HirePilot AI - Enhanced Metric Card Styles
+// ============================================================================
+
+@use "../../../styles/tokens" as *;
+
+.enhanced-metric-card {
+  position: relative;
+  padding: var(--space-6);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  display: flex;
+  gap: var(--space-4);
+  align-items: flex-start;
+  overflow: hidden;
+  transition: all var(--duration-fast) var(--ease-out);
+
+  // Background gradient accent
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--gradient-primary);
+    opacity: 0;
+    transition: opacity var(--duration-fast) var(--ease-out);
+  }
+
+  &:hover::before {
+    opacity: 1;
+  }
+
+  // ============================================================================
+  // ICON
+  // ============================================================================
+
+  &__icon {
+    flex-shrink: 0;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-surface-raised);
+    border-radius: var(--radius-md);
+    color: var(--color-primary-600);
+    transition: all var(--duration-fast) var(--ease-out);
+
+    svg {
+      width: 24px;
+      height: 24px;
+    }
+  }
+
+  &:hover &__icon {
+    background: var(--color-primary-600);
+    color: white;
+    transform: scale(1.05);
+  }
+
+  // ============================================================================
+  // CONTENT
+  // ============================================================================
+
+  &__content {
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__label {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text-secondary);
+    margin-bottom: var(--space-2);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  &__value {
+    font-size: var(--font-size-3xl);
+    font-weight: var(--font-weight-bold);
+    line-height: 1;
+    color: var(--color-text-primary);
+    margin-bottom: var(--space-3);
+    font-variant-numeric: tabular-nums;
+  }
+
+  &__footer {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    flex-wrap: wrap;
+  }
+
+  // ============================================================================
+  // TREND
+  // ============================================================================
+
+  &__trend {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    padding: var(--space-1) var(--space-2);
+    border-radius: var(--radius-sm);
+
+    svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    &--positive {
+      color: var(--color-success);
+      background: color-mix(in srgb, var(--color-success) 10%, transparent);
+    }
+
+    &--negative {
+      color: var(--color-error);
+      background: color-mix(in srgb, var(--color-error) 10%, transparent);
+    }
+  }
+
+  &__hint {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-tertiary);
+  }
+
+  // ============================================================================
+  // COLOR VARIANTS
+  // ============================================================================
+
+  &--primary {
+    border-color: var(--color-primary-600);
+    background: linear-gradient(135deg, 
+      color-mix(in srgb, var(--color-primary-600) 5%, var(--color-surface)) 0%,
+      var(--color-surface) 100%
+    );
+
+    &::before {
+      background: var(--gradient-primary);
+      opacity: 1;
+    }
+
+    .enhanced-metric-card__icon {
+      background: var(--color-primary-600);
+      color: white;
+    }
+  }
+
+  &--success {
+    border-color: var(--color-success);
+    background: linear-gradient(135deg, 
+      color-mix(in srgb, var(--color-success) 5%, var(--color-surface)) 0%,
+      var(--color-surface) 100%
+    );
+
+    &::before {
+      background: var(--color-success);
+      opacity: 1;
+    }
+
+    .enhanced-metric-card__icon {
+      background: var(--color-success);
+      color: white;
+    }
+  }
+
+  &--warning {
+    border-color: var(--color-warning);
+    background: linear-gradient(135deg, 
+      color-mix(in srgb, var(--color-warning) 5%, var(--color-surface)) 0%,
+      var(--color-surface) 100%
+    );
+
+    &::before {
+      background: var(--color-warning);
+      opacity: 1;
+    }
+
+    .enhanced-metric-card__icon {
+      background: var(--color-warning);
+      color: white;
+    }
+  }
+
+  &--error {
+    border-color: var(--color-error);
+    background: linear-gradient(135deg, 
+      color-mix(in srgb, var(--color-error) 5%, var(--color-surface)) 0%,
+      var(--color-surface) 100%
+    );
+
+    &::before {
+      background: var(--color-error);
+      opacity: 1;
+    }
+
+    .enhanced-metric-card__icon {
+      background: var(--color-error);
+      color: white;
+    }
+  }
+}
+
+// ============================================================================
+// RESPONSIVE
+// ============================================================================
+
+@media (max-width: 640px) {
+  .enhanced-metric-card {
+    padding: var(--space-4);
+
+    &__value {
+      font-size: var(--font-size-2xl);
+    }
+
+    &__icon {
+      width: 40px;
+      height: 40px;
+
+      svg {
+        width: 20px;
+        height: 20px;
+      }
+    }
+  }
+}

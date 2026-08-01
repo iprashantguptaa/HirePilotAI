@@ -1,0 +1,101 @@
+@use "../../styles/tokens";
+
+.app-footer {
+    margin-top: var(--space-10);
+    border-top: 1px solid var(--color-border);
+    background-color: var(--color-surface);
+}
+
+.app-footer__inner {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: var(--space-8);
+    padding-block: var(--space-8);
+}
+
+.app-footer__brand {
+    max-width: 320px;
+
+    p {
+        margin-top: var(--space-2);
+        color: var(--color-text-secondary);
+        font-size: var(--font-size-sm);
+        line-height: 1.5;
+    }
+}
+
+.app-footer__logo {
+    font-size: var(--font-size-lg);
+    font-weight: 800;
+}
+
+.app-footer__columns {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-8);
+}
+
+.app-footer__column {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    min-width: 140px;
+
+    h4 {
+        font-size: var(--font-size-sm);
+        color: var(--color-text-tertiary);
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        margin-bottom: var(--space-1);
+    }
+
+    a {
+        color: var(--color-text-secondary);
+        font-size: var(--font-size-sm);
+
+        &:hover {
+            color: var(--color-text-primary);
+        }
+    }
+}
+
+.app-footer__bottom {
+    padding-block: var(--space-4);
+    border-top: 1px solid var(--color-border);
+    color: var(--color-text-tertiary);
+    font-size: var(--font-size-xs);
+}
+
+.app-footer__bottom-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: var(--space-4);
+}
+
+.app-footer__social {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    
+    a {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 2rem;
+        height: 2rem;
+        color: var(--color-text-tertiary);
+        transition: color var(--duration-fast) var(--ease-out);
+        
+        &:hover {
+            color: var(--color-primary-600);
+        }
+        
+        svg {
+            width: 18px;
+            height: 18px;
+        }
+    }
+}

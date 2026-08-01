@@ -1,0 +1,83 @@
+// ============================================================================
+// HirePilot AI - StatCard Component (Refactored)
+// ============================================================================
+
+.stat-card {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-4);
+    padding: var(--space-6);
+    border-radius: var(--radius-lg);
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    box-shadow: var(--shadow-sm);
+    transition: transform var(--duration-fast) var(--ease-out), 
+                box-shadow var(--duration-fast) var(--ease-out), 
+                border-color var(--duration-fast) var(--ease-out);
+
+    &:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-md);
+        border-color: var(--color-border-hover);
+    }
+}
+
+.stat-card__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: var(--radius-md);
+    background-color: rgba(124, 58, 237, 0.1);
+    color: var(--color-primary-600);
+    flex-shrink: 0;
+    
+    svg {
+        width: 1.25rem;
+        height: 1.25rem;
+    }
+}
+
+.stat-card__body {
+    flex: 1;
+    min-width: 0;
+}
+
+.stat-card__label {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text-secondary);
+    margin: 0;
+    line-height: var(--line-height-normal);
+}
+
+.stat-card__value {
+    font-size: var(--font-size-3xl);
+    font-weight: var(--font-weight-bold);
+    line-height: var(--line-height-tight);
+    color: var(--color-text-primary);
+    margin: var(--space-2) 0 0 0;
+    font-variant-numeric: tabular-nums;
+}
+
+.stat-card__hint {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-tertiary);
+    margin: var(--space-1) 0 0 0;
+    line-height: var(--line-height-normal);
+}
+
+// ============================================================================
+// REDUCED MOTION
+// ============================================================================
+
+@media (prefers-reduced-motion: reduce) {
+    .stat-card {
+        transition: none;
+        
+        &:hover {
+            transform: none;
+        }
+    }
+}

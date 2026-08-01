@@ -1,0 +1,44 @@
+services:
+    - type: web
+      name: interviewai-backend
+      runtime: node
+      plan: free
+      rootDir: Backend
+      buildCommand: npm install
+      startCommand: node server.js
+      healthCheckPath: /api/health
+      envVars:
+          - key: NODE_ENV
+            value: production
+          # Render injects PORT automatically -- server.js reads it via
+          # process.env.PORT, no need to set it here.
+          - key: MONGO_URI
+            sync: false
+          - key: JWT_SECRET
+            sync: false
+          - key: ACCESS_TOKEN_EXPIRES_IN
+            value: 15m
+          - key: REFRESH_TOKEN_EXPIRES_IN
+            value: 30d
+          - key: PASSWORD_RESET_EXPIRES_IN
+            value: 1h
+          - key: EMAIL_VERIFICATION_EXPIRES_IN
+            value: 1d
+          - key: GOOGLE_GENAI_API_KEY
+            sync: false
+          - key: FRONTEND_URL
+            sync: false
+          - key: RATE_LIMIT_WINDOW
+            value: 15m
+          - key: RATE_LIMIT_MAX
+            value: "300"
+          - key: SMTP_HOST
+            sync: false
+          - key: SMTP_PORT
+            value: "587"
+          - key: SMTP_USER
+            sync: false
+          - key: SMTP_PASS
+            sync: false
+          - key: EMAIL_FROM
+            sync: false

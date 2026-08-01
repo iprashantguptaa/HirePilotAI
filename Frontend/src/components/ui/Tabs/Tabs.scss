@@ -1,0 +1,129 @@
+// ============================================================================
+// HirePilot AI Design System - Tabs Styles
+// ============================================================================
+
+.hp-tabs {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+
+  // ============================================================================
+  // TABS LIST
+  // ============================================================================
+  
+  &__list {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    padding: var(--space-1);
+    background-color: var(--color-surface);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--color-border);
+    overflow-x: auto;
+    overflow-y: hidden;
+    
+    // Hide scrollbar but keep functionality
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+
+  // ============================================================================
+  // TABS TRIGGER
+  // ============================================================================
+  
+  &__trigger {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-2) var(--space-4);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    line-height: 1;
+    color: var(--color-text-secondary);
+    background: transparent;
+    border: none;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all var(--duration-fast) var(--ease-out);
+    
+    &:hover:not(:disabled) {
+      color: var(--color-text-primary);
+      background-color: var(--color-surface-hover);
+    }
+    
+    &:focus-visible {
+      outline: 2px solid var(--color-border-focus);
+      outline-offset: 2px;
+    }
+    
+    &--active {
+      color: var(--color-text-primary);
+      background-color: var(--color-bg);
+      box-shadow: var(--shadow-sm);
+    }
+    
+    &--disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+  }
+
+  // ============================================================================
+  // TABS CONTENT
+  // ============================================================================
+  
+  &__content {
+    animation: hp-tabs-fade-in var(--duration-base) var(--ease-out);
+  }
+}
+
+// ============================================================================
+// ANIMATIONS
+// ============================================================================
+
+@keyframes hp-tabs-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// ============================================================================
+// RESPONSIVE
+// ============================================================================
+
+@media (max-width: 768px) {
+  .hp-tabs__list {
+    width: 100%;
+    justify-content: flex-start;
+  }
+  
+  .hp-tabs__trigger {
+    flex: 0 0 auto;
+  }
+}
+
+// ============================================================================
+// REDUCED MOTION
+// ============================================================================
+
+@media (prefers-reduced-motion: reduce) {
+  .hp-tabs__trigger {
+    transition: none;
+  }
+  
+  .hp-tabs__content {
+    animation: none;
+  }
+}

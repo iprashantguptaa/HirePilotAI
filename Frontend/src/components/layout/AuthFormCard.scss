@@ -1,0 +1,126 @@
+// ============================================================================
+// HirePilot AI - Auth Form Card Styles
+// ============================================================================
+
+@use "../../styles/tokens" as *;
+
+.auth-form-card {
+  width: 100%;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  padding: var(--space-8) var(--space-6);
+  box-shadow: var(--shadow-xl);
+  transition: box-shadow var(--duration-base) var(--ease-out);
+
+  &:focus-within {
+    box-shadow: var(--shadow-2xl), 0 0 0 1px var(--color-primary-600);
+  }
+
+  // ============================================================================
+  // HEADER
+  // ============================================================================
+
+  &__header {
+    margin-bottom: var(--space-6);
+    text-align: center;
+  }
+
+  &__title {
+    font-size: var(--font-size-2xl);
+    font-weight: var(--font-weight-bold);
+    line-height: var(--line-height-tight);
+    color: var(--color-text-primary);
+    margin-bottom: var(--space-2);
+  }
+
+  &__subtitle {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+    line-height: var(--line-height-relaxed);
+  }
+
+  // ============================================================================
+  // BODY
+  // ============================================================================
+
+  &__body {
+    margin-bottom: var(--space-6);
+  }
+
+  // ============================================================================
+  // FOOTER
+  // ============================================================================
+
+  &__footer {
+    padding-top: var(--space-6);
+    border-top: 1px solid var(--color-border);
+    text-align: center;
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+
+    a {
+      color: var(--color-primary-600);
+      text-decoration: none;
+      font-weight: var(--font-weight-medium);
+      transition: color var(--duration-fast) var(--ease-out);
+
+      &:hover {
+        color: var(--color-primary-500);
+        text-decoration: underline;
+      }
+
+      &:focus-visible {
+        outline: 2px solid var(--color-primary-600);
+        outline-offset: 2px;
+        border-radius: var(--radius-sm);
+      }
+    }
+  }
+}
+
+// ============================================================================
+// FORM STYLES INSIDE CARD
+// ============================================================================
+
+.auth-form-card__body form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+// Link styles within the form
+.auth-form-card__body {
+  a {
+    color: var(--color-primary-600);
+    text-decoration: none;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    transition: color var(--duration-fast) var(--ease-out);
+
+    &:hover {
+      color: var(--color-primary-500);
+      text-decoration: underline;
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--color-primary-600);
+      outline-offset: 2px;
+      border-radius: var(--radius-sm);
+    }
+  }
+}
+
+// ============================================================================
+// RESPONSIVE
+// ============================================================================
+
+@media (max-width: 640px) {
+  .auth-form-card {
+    padding: var(--space-6) var(--space-4);
+  }
+
+  .auth-form-card__title {
+    font-size: var(--font-size-xl);
+  }
+}

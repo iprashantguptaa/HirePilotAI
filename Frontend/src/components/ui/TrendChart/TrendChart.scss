@@ -1,0 +1,122 @@
+// ============================================================================
+// HirePilot AI - Trend Chart Styles
+// ============================================================================
+
+@use "../../../styles/tokens" as *;
+
+.trend-chart {
+  width: 100%;
+  padding: var(--space-2);
+
+  &__title {
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-primary);
+    margin-bottom: var(--space-4);
+  }
+
+  // ============================================================================
+  // SVG CHART
+  // ============================================================================
+
+  &__svg {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  &__line {
+    transition: stroke-dasharray var(--duration-slow) var(--ease-out);
+  }
+
+  &__point {
+    transition: all var(--duration-fast) var(--ease-out);
+    cursor: pointer;
+
+    &:hover {
+      r: 7;
+      fill: var(--color-primary-500);
+    }
+  }
+
+  &__grid line {
+    transition: stroke var(--duration-fast) var(--ease-out);
+  }
+
+  // ============================================================================
+  // EMPTY STATE
+  // ============================================================================
+
+  &--empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 280px;
+    background: var(--color-surface);
+    border: 1px dashed var(--color-border);
+    border-radius: var(--radius-lg);
+
+    p {
+      color: var(--color-text-tertiary);
+      font-size: var(--font-size-sm);
+    }
+  }
+
+  // ============================================================================
+  // SINGLE VALUE STATE
+  // ============================================================================
+
+  &--single {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 280px;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+  }
+
+  &__single-value {
+    text-align: center;
+  }
+
+  &__single-label {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text-secondary);
+    margin-bottom: var(--space-2);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  &__single-number {
+    font-size: var(--font-size-6xl);
+    font-weight: var(--font-weight-bold);
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: var(--space-3);
+  }
+
+  &__single-hint {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-tertiary);
+  }
+}
+
+// ============================================================================
+// RESPONSIVE
+// ============================================================================
+
+@media (max-width: 768px) {
+  .trend-chart {
+    &__svg {
+      height: 240px;
+    }
+
+    &__single-number {
+      font-size: var(--font-size-5xl);
+    }
+  }
+}

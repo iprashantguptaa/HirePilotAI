@@ -1,0 +1,262 @@
+// ============================================================================
+// HirePilot AI - Interview History Page
+// ============================================================================
+// Using design tokens for consistent, premium UI
+// ============================================================================
+
+@use '../../../styles/design-tokens.scss' as *;
+
+.history-page {
+    padding: var(--spacing-10) var(--spacing-6);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-8);
+    max-width: 1200px;
+    margin: 0 auto;
+    
+    @media (max-width: 768px) {
+        padding: var(--spacing-6) var(--spacing-4);
+        gap: var(--spacing-6);
+    }
+}
+
+.history-page__header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: var(--spacing-6);
+    padding-bottom: var(--spacing-6);
+    border-bottom: 2px solid var(--color-border-subtle);
+
+    h1 {
+        font-size: var(--text-3xl);
+        font-weight: var(--font-weight-bold);
+        color: var(--color-text-primary);
+        margin: 0;
+        
+        .highlight {
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        @media (max-width: 768px) {
+            font-size: var(--text-2xl);
+        }
+    }
+
+    p {
+        color: var(--color-text-secondary);
+        font-size: var(--text-base);
+        margin-top: var(--spacing-2);
+        line-height: var(--line-height-relaxed);
+        
+        @media (max-width: 768px) {
+            font-size: var(--text-sm);
+        }
+    }
+}
+
+.history-page__controls {
+    display: flex;
+    gap: var(--spacing-4);
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.history-page__search,
+.history-page__sort {
+    padding: var(--spacing-3) var(--spacing-5);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--color-border-subtle);
+    background: var(--color-surface-raised);
+    color: var(--color-text-primary);
+    font-size: var(--text-sm);
+    font-family: var(--font-family-sans);
+    font-weight: var(--font-weight-medium);
+    transition: all var(--duration-fast) var(--ease-out);
+    
+    &::placeholder {
+        color: var(--color-text-faint);
+    }
+
+    &:focus {
+        outline: none;
+        border-color: var(--color-primary-500);
+        box-shadow: var(--shadow-primary);
+        background: var(--color-surface-card);
+    }
+    
+    &:hover {
+        border-color: var(--color-border-interactive);
+    }
+}
+
+.history-page__search {
+    flex: 1;
+    min-width: 250px;
+    
+    // Search icon styling
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%237d8590' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'%3E%3C/circle%3E%3Cpath d='m21 21-4.35-4.35'%3E%3C/path%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: var(--spacing-4) center;
+    padding-left: calc(var(--spacing-5) + 24px);
+}
+
+.history-page__sort {
+    min-width: 180px;
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23e6edf3' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right var(--spacing-4) center;
+    padding-right: calc(var(--spacing-5) + 24px);
+}
+
+.history-page__list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-4);
+}
+
+.history-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-6);
+    padding: var(--spacing-6);
+    border-radius: var(--radius-lg);
+    background: var(--color-surface-card);
+    border: 1px solid var(--color-border-subtle);
+    transition: all var(--duration-normal) var(--ease-out);
+    position: relative;
+    overflow: hidden;
+    
+    &::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 4px;
+        background: var(--gradient-primary);
+        opacity: 0;
+        transition: opacity var(--duration-normal) var(--ease-out);
+    }
+
+    &:hover {
+        transform: translateY(-4px);
+        border-color: var(--color-border-interactive);
+        box-shadow: var(--shadow-lg);
+        background: var(--color-surface-raised);
+        
+        &::before {
+            opacity: 1;
+        }
+        
+        .history-item__main h3 {
+            color: var(--color-primary-500);
+        }
+    }
+    
+    @media (max-width: 640px) {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--spacing-4);
+    }
+}
+
+.history-item__main {
+    flex: 1;
+    
+    h3 {
+        font-size: var(--text-lg);
+        font-weight: var(--font-weight-semibold);
+        color: var(--color-text-primary);
+        margin: 0;
+        line-height: var(--line-height-snug);
+        transition: color var(--duration-fast) var(--ease-out);
+    }
+
+    p {
+        color: var(--color-text-faint);
+        font-size: var(--text-sm);
+        margin-top: var(--spacing-2);
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-2);
+        
+        &::before {
+            content: '';
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%237d8590' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='18' rx='2' ry='2'%3E%3C/rect%3E%3Cline x1='16' y1='2' x2='16' y2='6'%3E%3C/line%3E%3Cline x1='8' y1='2' x2='8' y2='6'%3E%3C/line%3E%3Cline x1='3' y1='10' x2='21' y2='10'%3E%3C/line%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+    }
+}
+
+.match-badge {
+    font-size: var(--text-sm);
+    font-weight: var(--font-weight-bold);
+    padding: var(--spacing-2) var(--spacing-4);
+    border-radius: var(--radius-full);
+    border: 1px solid;
+    white-space: nowrap;
+    transition: all var(--duration-fast) var(--ease-out);
+    
+    &:hover {
+        transform: scale(1.05);
+    }
+    
+    &.score--high {
+        color: var(--color-accent-400);
+        background: var(--gradient-accent);
+        border-color: var(--color-accent-500);
+        box-shadow: var(--shadow-accent);
+    }
+    
+    &.score--mid {
+        color: var(--color-warning-400);
+        background: var(--color-surface-base);
+        border-color: var(--color-warning-500);
+        box-shadow: var(--shadow-warning);
+    }
+    
+    &.score--low {
+        color: var(--color-error-400);
+        background: var(--color-surface-base);
+        border-color: var(--color-error-500);
+        box-shadow: var(--shadow-error);
+    }
+}
+
+// Animation for list items appearing
+.history-page__list li {
+    animation: fadeInUp var(--duration-normal) var(--ease-out);
+    animation-fill-mode: both;
+    
+    @for $i from 1 through 10 {
+        &:nth-child(#{$i}) {
+            animation-delay: calc(#{$i} * 0.05s);
+        }
+    }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(16px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
