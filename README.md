@@ -294,6 +294,6 @@ This project is licensed under the MIT License.
 **Made with ❤️ in India 🇮🇳**
 
 **HirePilot AI India Pvt Ltd**  
-Bengaluru, Karnataka, India  
-📧 hello@hirepilot.ai  
-📞 +91 80 4567 8900
+Gorakhpur, Uttar Pradesh, India  
+📧 hello.hirepilotai@gmail.com  
+📞 +91 9569293150
