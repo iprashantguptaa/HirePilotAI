@@ -32,9 +32,27 @@ app.use(compression())
 app.use(express.json({ limit: "50kb" }))
 app.use(cookieParser())
 
-// CORS configuration - allow all origins temporarily for debugging
+// CORS configuration - CRITICAL for cross-origin cookie authentication
+// In production, frontend (Vercel) and backend (Render) are on different domains
+// Cookies with sameSite="none" require explicit origin matching, not origin:true
+const allowedOrigins = [
+    config.frontendUrl,
+    "http://localhost:5173",
+    "http://localhost:3000"
+].filter(Boolean)
+
 app.use(cors({
-    origin: true,
+    origin: function (origin, callback) {
+        // Allow requests with no origin (mobile apps, Postman, curl, etc.)
+        if (!origin) return callback(null, true)
+        
+        if (allowedOrigins.includes(origin)) {
+            callback(null, true)
+        } else {
+            logger.warn(`CORS blocked origin: ${origin}`)
+            callback(new Error('Not allowed by CORS'))
+        }
+    },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'],

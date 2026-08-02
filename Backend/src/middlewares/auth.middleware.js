@@ -15,6 +15,17 @@ const authUser = asyncHandler(async function authUser(req, res, next) {
     const token = req.cookies.accessToken
 
     if (!token) {
+        // Log for debugging in production - helps diagnose cookie issues
+        const allCookies = Object.keys(req.cookies || {})
+        const hasRefresh = !!req.cookies.refreshToken
+        
+        if (!config.isProduction) {
+            console.log('[AUTH] No access token. Available cookies:', allCookies)
+            console.log('[AUTH] Has refresh token:', hasRefresh)
+            console.log('[AUTH] Request origin:', req.get('origin'))
+            console.log('[AUTH] Request referer:', req.get('referer'))
+        }
+        
         throw ApiError.unauthorized("Access token not provided.")
     }
 

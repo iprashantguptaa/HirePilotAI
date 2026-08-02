@@ -9,13 +9,17 @@ const asyncHandler = require("../utils/asyncHandler")
 const { generateOpaqueToken, hashToken } = require("../utils/token")
 const { sendEmail } = require("../utils/email")
 
-// Cookie options were previously unset, which meant the JWT was readable
-// by client-side JS (no httpOnly), sent over plain HTTP, and sent
-// cross-site (no sameSite) -- all real security gaps for an auth token.
+// Cookie options for cross-origin authentication
+// CRITICAL: sameSite="none" requires secure=true (HTTPS)
+// For cross-origin cookies to work: frontend and backend must both be HTTPS in production
+// DO NOT set domain - let browser handle it (cookies will be scoped to backend domain)
 const baseCookieOptions = {
     httpOnly: true,
     secure: config.isProduction,
-    sameSite: config.isProduction ? "none" : "lax"
+    sameSite: config.isProduction ? "none" : "lax",
+    // path must be "/" to ensure cookie is sent with all API requests
+    path: "/",
+    // DO NOT set domain in cross-origin scenarios - browser handles this automatically
 }
 
 const accessCookieOptions = { ...baseCookieOptions, maxAge: config.jwtExpiresInMs }
@@ -43,6 +47,17 @@ async function issueSession(res, user) {
         tokenHash,
         expiresAt: new Date(Date.now() + config.refreshTokenExpiresInMs)
     })
+
+    // Log cookie options in development for debugging
+    if (!config.isProduction) {
+        console.log('[AUTH] Setting cookies with options:', {
+            httpOnly: accessCookieOptions.httpOnly,
+            secure: accessCookieOptions.secure,
+            sameSite: accessCookieOptions.sameSite,
+            path: accessCookieOptions.path,
+            maxAge: `${accessCookieOptions.maxAge}ms`
+        })
+    }
 
     res.cookie("accessToken", accessToken, accessCookieOptions)
     res.cookie("refreshToken", refreshToken, refreshCookieOptions)
