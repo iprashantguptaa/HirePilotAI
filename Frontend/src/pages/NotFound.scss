@@ -1,0 +1,262 @@
+// ============================================================================
+// HirePilot AI - 404 Not Found Page
+// ============================================================================
+
+@use '../styles/design-tokens.scss' as *;
+
+.not-found-page {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--spacing-8) var(--spacing-6);
+    background: radial-gradient(circle at 50% 0%, rgba(124, 58, 237, 0.05), transparent 50%),
+                var(--color-bg);
+    position: relative;
+    overflow: hidden;
+    
+    // Animated background particles
+    &::before,
+    &::after {
+        content: '';
+        position: absolute;
+        border-radius: 50%;
+        background: var(--gradient-primary);
+        opacity: 0.03;
+        animation: float 8s ease-in-out infinite;
+    }
+    
+    &::before {
+        width: 400px;
+        height: 400px;
+        top: -200px;
+        left: -200px;
+    }
+    
+    &::after {
+        width: 300px;
+        height: 300px;
+        bottom: -150px;
+        right: -150px;
+        animation-delay: 4s;
+        animation-duration: 10s;
+    }
+}
+
+.not-found-content {
+    max-width: 600px;
+    text-align: center;
+    position: relative;
+    z-index: 1;
+    animation: fadeInUp var(--duration-normal) var(--ease-out);
+}
+
+.not-found-number {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-4);
+    margin-bottom: var(--spacing-6);
+    
+    &__digit {
+        font-size: 8rem;
+        font-weight: var(--font-weight-extrabold);
+        line-height: 1;
+        background: var(--gradient-primary);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        text-shadow: 0 0 60px rgba(124, 58, 237, 0.3);
+        font-feature-settings: 'tnum';
+        font-variant-numeric: tabular-nums;
+        
+        &--pulse {
+            animation: pulse404 2s ease-in-out infinite;
+        }
+    }
+}
+
+@keyframes pulse404 {
+    0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.5;
+        transform: scale(0.95);
+    }
+}
+
+.not-found-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto var(--spacing-6);
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--color-surface-raised) 0%, var(--color-surface-base) 100%);
+    border: 1px solid var(--color-border-subtle);
+    box-shadow: var(--shadow-lg);
+    
+    svg {
+        color: var(--color-primary-500);
+        animation: iconBounce 2s ease-in-out infinite;
+    }
+}
+
+@keyframes iconBounce {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-8px);
+    }
+}
+
+.not-found-content h1 {
+    font-size: var(--text-3xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text-primary);
+    margin: 0 0 var(--spacing-4);
+    line-height: var(--line-height-tight);
+}
+
+.not-found-content p {
+    font-size: var(--text-lg);
+    color: var(--color-text-secondary);
+    margin: 0 0 var(--spacing-8);
+    line-height: var(--line-height-relaxed);
+}
+
+.not-found-actions {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-4);
+    margin-bottom: var(--spacing-8);
+    flex-wrap: wrap;
+}
+
+.not-found-help {
+    padding-top: var(--spacing-6);
+    border-top: 1px solid var(--color-border-subtle);
+    
+    p {
+        font-size: var(--text-sm);
+        color: var(--color-text-faint);
+        margin: 0;
+    }
+}
+
+.not-found-link {
+    color: var(--color-primary-500);
+    font-weight: var(--font-weight-medium);
+    text-decoration: none;
+    position: relative;
+    transition: color var(--duration-fast) var(--ease-out);
+    
+    &::after {
+        content: '';
+        position: absolute;
+        bottom: -2px;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: var(--color-primary-500);
+        transform: scaleX(0);
+        transform-origin: right;
+        transition: transform var(--duration-fast) var(--ease-out);
+    }
+    
+    &:hover {
+        color: var(--color-primary-400);
+        
+        &::after {
+            transform: scaleX(1);
+            transform-origin: left;
+        }
+    }
+}
+
+@keyframes float {
+    0%, 100% {
+        transform: translate(0, 0) scale(1);
+    }
+    50% {
+        transform: translate(100px, 100px) scale(1.1);
+    }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(24px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+// ============================================================================
+// RESPONSIVE
+// ============================================================================
+
+@media (max-width: 768px) {
+    .not-found-number {
+        gap: var(--spacing-3);
+        
+        &__digit {
+            font-size: 5rem;
+        }
+    }
+    
+    .not-found-icon {
+        width: 64px;
+        height: 64px;
+        
+        svg {
+            width: 48px;
+            height: 48px;
+        }
+    }
+    
+    .not-found-content h1 {
+        font-size: var(--text-2xl);
+    }
+    
+    .not-found-content p {
+        font-size: var(--text-base);
+    }
+    
+    .not-found-actions {
+        flex-direction: column;
+        width: 100%;
+        
+        a {
+            width: 100%;
+        }
+        
+        button {
+            width: 100%;
+        }
+    }
+}
+
+// ============================================================================
+// REDUCED MOTION
+// ============================================================================
+
+@media (prefers-reduced-motion: reduce) {
+    .not-found-page::before,
+    .not-found-page::after,
+    .not-found-number__digit--pulse,
+    .not-found-icon svg {
+        animation: none;
+    }
+    
+    .not-found-content {
+        animation: none;
+    }
+}

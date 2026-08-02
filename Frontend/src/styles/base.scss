@@ -316,4 +316,16 @@ table {
 .app-content {
   flex: 1;
   width: 100%;
+  animation: pageSlideIn 0.3s var(--ease-out);
+}
+
+@keyframes pageSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

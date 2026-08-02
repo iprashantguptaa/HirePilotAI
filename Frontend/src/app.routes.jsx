@@ -21,6 +21,8 @@ import AdminAiUsage from "./features/admin/pages/AdminAiUsage";
 import AdminFeatureFlags from "./features/admin/pages/AdminFeatureFlags";
 import AdminFeedback from "./features/admin/pages/AdminFeedback";
 import AdminAuditLog from "./features/admin/pages/AdminAuditLog";
+import NotFound from "./pages/NotFound";
+import Landing from "./pages/Landing";
 
 
 export const router = createBrowserRouter([
@@ -30,6 +32,10 @@ export const router = createBrowserRouter([
         children: [
             {
                 index: true,
+                element: <Landing />
+            },
+            {
+                path: "dashboard",
                 element: <Protected><Dashboard /></Protected>
             },
             {
@@ -84,6 +90,10 @@ export const router = createBrowserRouter([
                     { path: "feedback", element: <AdminFeedback /> },
                     { path: "audit-log", element: <AdminAuditLog /> }
                 ]
+            },
+            {
+                path: "*",
+                element: <NotFound />
             }
         ]
     }

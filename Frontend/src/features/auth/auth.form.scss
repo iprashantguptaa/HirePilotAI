@@ -1,65 +1,180 @@
-main{
+// ============================================================================
+// HirePilot AI - Enterprise Auth Form Styles
+// ============================================================================
+
+@use "../../styles/tokens" as *;
+
+main {
     min-height: 100vh;
     width: 100%;
-
     display: flex;
     justify-content: center;
     align-items: center;
+    padding: var(--space-6);
 
-
-    .form-container{
+    .form-container {
         min-width: 350px;
-
+        max-width: 420px;
+        width: 100%;
         display: flex;
         flex-direction: column;
-        gap: 1rem;
+        gap: var(--space-6);
+        animation: slideInUp var(--duration-base) var(--ease-out);
         
         h1 {
             text-align: center;
+            font-size: var(--font-size-3xl);
+            font-weight: var(--font-weight-bold);
+            letter-spacing: var(--letter-spacing-tight);
             margin-bottom: var(--space-2);
+            color: var(--color-text-primary);
         }
         
         .form-subtitle {
             text-align: center;
             color: var(--color-text-secondary);
+            font-size: var(--font-size-base);
+            line-height: var(--line-height-relaxed);
+            margin-bottom: var(--space-2);
+        }
+    }
+
+    form {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-5);
+    }
+
+    .input-group {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-2);
+
+        label {
             font-size: var(--font-size-sm);
-            margin-bottom: var(--space-4);
+            font-weight: var(--font-weight-medium);
+            color: var(--color-text-primary);
+            margin-bottom: var(--space-1);
+        }
+
+        input {
+            width: 100%;
+            padding: var(--space-3) var(--space-4);
+            font-family: var(--font-sans);
+            font-size: var(--font-size-base);
+            font-weight: var(--font-weight-normal);
+            line-height: 1.5;
+            color: var(--color-text-primary);
+            background-color: var(--color-input-bg);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-md);
+            transition: all var(--duration-fast) var(--ease-out);
+            
+            &::placeholder {
+                color: var(--color-text-tertiary);
+            }
+
+            &:hover:not(:disabled):not(:focus) {
+                border-color: var(--color-border-hover);
+            }
+
+            &:focus {
+                outline: none;
+                border-color: var(--color-border-focus);
+                box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+                background-color: var(--color-bg);
+            }
+
+            &:disabled {
+                opacity: 0.5;
+                cursor: not-allowed;
+                background-color: var(--color-surface);
+            }
+            
+            &[aria-invalid="true"] {
+                border-color: var(--color-error);
+                
+                &:focus {
+                    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+                }
+            }
         }
     }
 
-    form{
-        display: flex;
-        flex-direction: column;
-        gap: 0.75rem;
-    }
-
-    .input-group{
-        display: flex;
-        flex-direction: column;
-
-        gap: 0.5rem;
-
-
-        input{
-            border: none;
-            outline: none;
-            padding-inline: 1rem;
-            padding-block: 0.75rem;
-            border-radius: 0.75rem;
-        }
-    }
-
-    a{
+    a {
         color: var(--color-primary-600);
         text-decoration: none;
+        font-weight: var(--font-weight-medium);
+        transition: color var(--duration-fast) var(--ease-out);
+        position: relative;
+        
+        &::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 1px;
+            background-color: var(--color-primary-600);
+            transition: width var(--duration-fast) var(--ease-out);
+        }
         
         &:hover {
             color: var(--color-primary-500);
+            
+            &::after {
+                width: 100%;
+            }
+        }
+        
+        &:focus-visible {
+            outline: 2px solid var(--color-border-focus);
+            outline-offset: 2px;
+            border-radius: var(--radius-sm);
         }
     }
 }
+
 .field-error {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
     color: var(--color-error);
-    font-size: 0.85rem;
-    margin-top: -0.5rem;
+    font-size: var(--font-size-sm);
+    margin-top: calc(var(--space-2) * -1);
+    animation: slideInUp var(--duration-fast) var(--ease-out);
+    
+    &::before {
+        content: '⚠';
+        font-size: var(--font-size-base);
+    }
+}
+
+// ============================================================================
+// RESPONSIVE
+// ============================================================================
+
+@media (max-width: 640px) {
+    main {
+        padding: var(--space-4);
+        
+        .form-container {
+            min-width: 0;
+            
+            h1 {
+                font-size: var(--font-size-2xl);
+            }
+        }
+    }
+}
+
+// ============================================================================
+// REDUCED MOTION
+// ============================================================================
+
+@media (prefers-reduced-motion: reduce) {
+    main .form-container,
+    .field-error {
+        animation: none;
+    }
 }

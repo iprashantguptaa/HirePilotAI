@@ -1,0 +1,224 @@
+// ============================================================================
+// HirePilot AI - Premium Logo Styles
+// ============================================================================
+
+@use "../../../styles/tokens" as *;
+
+// ============================================================================
+// LOGO COMPONENT (Icon + Wordmark)
+// ============================================================================
+
+.hp-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  user-select: none;
+  
+  // ============================================================================
+  // ICON
+  // ============================================================================
+  
+  &__icon {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    svg {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+  }
+  
+  // ============================================================================
+  // WORDMARK
+  // ============================================================================
+  
+  &__wordmark {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-weight: var(--font-weight-bold);
+    letter-spacing: var(--letter-spacing-tight);
+  }
+  
+  &__name {
+    display: flex;
+    align-items: baseline;
+  }
+  
+  &__hire {
+    color: var(--color-text-primary);
+  }
+  
+  &__pilot {
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  
+  &__ai {
+    font-size: 0.75em;
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: var(--letter-spacing-wide);
+    padding: var(--space-1) var(--space-2);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+  }
+  
+  // ============================================================================
+  // SIZES
+  // ============================================================================
+  
+  &--sm {
+    .hp-logo__icon {
+      width: 24px;
+      height: 24px;
+    }
+    
+    .hp-logo__wordmark {
+      font-size: var(--font-size-sm);
+    }
+  }
+  
+  &--md {
+    .hp-logo__icon {
+      width: 32px;
+      height: 32px;
+    }
+    
+    .hp-logo__wordmark {
+      font-size: var(--font-size-lg);
+    }
+  }
+  
+  &--lg {
+    .hp-logo__icon {
+      width: 48px;
+      height: 48px;
+    }
+    
+    .hp-logo__wordmark {
+      font-size: var(--font-size-2xl);
+    }
+  }
+  
+  &--xl {
+    .hp-logo__icon {
+      width: 64px;
+      height: 64px;
+    }
+    
+    .hp-logo__wordmark {
+      font-size: var(--font-size-3xl);
+    }
+  }
+  
+  // ============================================================================
+  // VARIANTS
+  // ============================================================================
+  
+  &--light {
+    .hp-logo__hire,
+    .hp-logo__ai {
+      color: white;
+    }
+    
+    .hp-logo__ai {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+  }
+  
+  &--dark {
+    .hp-logo__hire {
+      color: var(--color-text-primary);
+    }
+  }
+  
+  &--monochrome {
+    .hp-logo__pilot {
+      background: none;
+      -webkit-text-fill-color: inherit;
+      color: var(--color-text-primary);
+    }
+  }
+}
+
+// ============================================================================
+// ICON ONLY
+// ============================================================================
+
+.hp-logo-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  user-select: none;
+  
+  svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+  
+  // Sizes
+  &--sm {
+    width: 24px;
+    height: 24px;
+  }
+  
+  &--md {
+    width: 32px;
+    height: 32px;
+  }
+  
+  &--lg {
+    width: 48px;
+    height: 48px;
+  }
+  
+  &--xl {
+    width: 64px;
+    height: 64px;
+  }
+}
+
+// ============================================================================
+// ANIMATIONS
+// ============================================================================
+
+.hp-logo__icon svg,
+.hp-logo-icon svg {
+  transition: transform var(--duration-fast) var(--ease-out);
+}
+
+a:hover .hp-logo__icon svg,
+a:hover .hp-logo-icon svg,
+button:hover .hp-logo__icon svg,
+button:hover .hp-logo-icon svg {
+  transform: scale(1.05);
+}
+
+// ============================================================================
+// REDUCED MOTION
+// ============================================================================
+
+@media (prefers-reduced-motion: reduce) {
+  .hp-logo__icon svg,
+  .hp-logo-icon svg {
+    transition: none;
+  }
+  
+  a:hover .hp-logo__icon svg,
+  a:hover .hp-logo-icon svg,
+  button:hover .hp-logo__icon svg,
+  button:hover .hp-logo-icon svg {
+    transform: none;
+  }
+}

@@ -85,14 +85,44 @@
 .dashboard-panel {
   padding: var(--space-6);
   border-radius: var(--radius-lg);
-  background-color: var(--color-surface);
+  background: linear-gradient(
+    to bottom,
+    var(--color-surface) 0%,
+    var(--color-elevated) 100%
+  );
   border: 1px solid var(--color-border);
-  box-shadow: var(--shadow-sm);
-  transition: box-shadow var(--duration-fast) var(--ease-out);
+  box-shadow: var(--shadow-md);
+  transition: all var(--duration-fast) var(--ease-out);
   animation: slideInUp var(--duration-base) var(--ease-out) 0.3s backwards;
+  position: relative;
+  
+  // Premium top border accent
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      var(--color-primary-600),
+      transparent
+    );
+    opacity: 0;
+    transition: opacity var(--duration-fast) var(--ease-out);
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  }
 
   &:hover {
-    box-shadow: var(--shadow-md);
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-2px);
+    border-color: var(--color-border-hover);
+    
+    &::before {
+      opacity: 0.6;
+    }
   }
 
   h2 {
@@ -100,16 +130,21 @@
     font-weight: var(--font-weight-semibold);
     color: var(--color-text-primary);
     margin-bottom: var(--space-5);
+    letter-spacing: var(--letter-spacing-tight);
   }
 
   // Chart panel
   &--chart {
     min-height: 400px;
+    display: flex;
+    flex-direction: column;
   }
 
   // Skills panel
   &--skills {
     min-height: 400px;
+    display: flex;
+    flex-direction: column;
   }
 }
 
@@ -163,11 +198,40 @@
   border: 1px solid transparent;
   text-decoration: none;
   transition: all var(--duration-fast) var(--ease-out);
+  position: relative;
+  
+  // Hover indicator line
+  &::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 3px;
+    height: 0;
+    background: var(--gradient-primary);
+    border-radius: 0 var(--radius-full) var(--radius-full) 0;
+    transition: height var(--duration-fast) var(--ease-out);
+  }
 
   &:hover {
-    background-color: var(--color-surface-raised);
+    background-color: var(--color-surface-hover);
     border-color: var(--color-border);
+    transform: translateX(6px);
+    box-shadow: var(--shadow-sm);
+    
+    &::before {
+      height: 60%;
+    }
+  }
+  
+  &:active {
     transform: translateX(4px);
+  }
+  
+  &:focus-visible {
+    outline: 2px solid var(--color-border-focus);
+    outline-offset: 2px;
   }
 }
 
@@ -192,26 +256,43 @@
 // ============================================================================
 
 .match-badge {
-  font-weight: 700;
-  padding: var(--space-2) var(--space-3);
+  font-weight: var(--font-weight-bold);
+  padding: var(--space-2) var(--space-4);
   border-radius: var(--radius-full);
   font-size: var(--font-size-sm);
   font-variant-numeric: tabular-nums;
   flex-shrink: 0;
+  border: 1px solid;
+  transition: all var(--duration-fast) var(--ease-out);
 
   &.score--high { 
     color: var(--color-success); 
-    background: color-mix(in srgb, var(--color-success) 14%, transparent); 
+    background: color-mix(in srgb, var(--color-success) 15%, transparent); 
+    border-color: color-mix(in srgb, var(--color-success) 30%, transparent);
+    
+    &:hover {
+      background: color-mix(in srgb, var(--color-success) 20%, transparent);
+    }
   }
 
   &.score--mid { 
     color: var(--color-warning); 
-    background: color-mix(in srgb, var(--color-warning) 14%, transparent); 
+    background: color-mix(in srgb, var(--color-warning) 15%, transparent); 
+    border-color: color-mix(in srgb, var(--color-warning) 30%, transparent);
+    
+    &:hover {
+      background: color-mix(in srgb, var(--color-warning) 20%, transparent);
+    }
   }
 
   &.score--low { 
     color: var(--color-error); 
-    background: color-mix(in srgb, var(--color-error) 14%, transparent); 
+    background: color-mix(in srgb, var(--color-error) 15%, transparent); 
+    border-color: color-mix(in srgb, var(--color-error) 30%, transparent);
+    
+    &:hover {
+      background: color-mix(in srgb, var(--color-error) 20%, transparent);
+    }
   }
 }
 
@@ -251,9 +332,36 @@
   .recent-list__item {
     flex-wrap: wrap;
     gap: var(--space-3);
+    
+    &:hover {
+      transform: translateX(3px);
+    }
   }
 
   .recent-list__title {
     flex-basis: 100%;
+  }
+}
+
+// ============================================================================
+// REDUCED MOTION
+// ============================================================================
+
+@media (prefers-reduced-motion: reduce) {
+  .dashboard-page,
+  .dashboard-page__stats,
+  .dashboard-page__grid,
+  .dashboard-panel {
+    animation: none;
+  }
+
+  .dashboard-panel:hover,
+  .recent-list__item:hover,
+  .recent-list__item:active {
+    transform: none;
+  }
+  
+  .recent-list__item::before {
+    transition: none;
   }
 }

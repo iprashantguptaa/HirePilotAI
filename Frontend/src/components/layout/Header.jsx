@@ -2,7 +2,7 @@ import { useState } from "react"
 import { Link, useNavigate } from "react-router"
 import { useAuth } from "../../features/auth/hooks/useAuth"
 import { useTheme } from "../../app/theme/useTheme"
-import { useBrand } from "../../hooks/useBrand"
+import { Logo } from "../common/Logo"
 import "./Header.scss"
 
 const SunIcon = () => (
@@ -33,7 +33,6 @@ const CloseIcon = () => (
 const Header = () => {
     const { user, handleLogout } = useAuth()
     const { theme, toggleTheme } = useTheme()
-    const brand = useBrand()
     const navigate = useNavigate()
     const [ isMobileMenuOpen, setMobileMenuOpen ] = useState(false)
 
@@ -49,13 +48,13 @@ const Header = () => {
         <header className="app-header">
             <div className="container app-header__inner">
                 <Link to="/" className="app-header__logo" onClick={closeMenu}>
-                    {brand.productName}
+                    <Logo size="md" />
                 </Link>
 
                 <nav className={`app-header__nav ${isMobileMenuOpen ? "app-header__nav--open" : ""}`}>
                     {user ? (
                         <>
-                            <Link to="/" onClick={closeMenu}>Dashboard</Link>
+                            <Link to="/dashboard" onClick={closeMenu}>Dashboard</Link>
                             <Link to="/history" onClick={closeMenu}>History</Link>
                             <Link to="/profile" onClick={closeMenu}>Profile</Link>
                             {user.role === "admin" && <Link to="/admin" onClick={closeMenu}>Admin</Link>}
@@ -69,6 +68,9 @@ const Header = () => {
                         </>
                     ) : (
                         <>
+                            <a href="#features" onClick={closeMenu}>Features</a>
+                            <a href="#how-it-works" onClick={closeMenu}>How It Works</a>
+                            <a href="#faq" onClick={closeMenu}>FAQ</a>
                             <Link to="/login" onClick={closeMenu}>Login</Link>
                             <Link to="/register" className="button primary-button button-sm" onClick={closeMenu}>
                                 Get started

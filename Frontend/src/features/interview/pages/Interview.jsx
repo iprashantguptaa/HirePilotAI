@@ -132,35 +132,83 @@ const Interview = () => {
 
                             {report.scoreBreakdown ? (
                                 <div className='overview-block'>
-                                    <h3 className='overview-block__title'>Score breakdown</h3>
-                                    <ProgressBar label="Technical skills" value={report.scoreBreakdown.technicalSkills} />
-                                    <ProgressBar label="Communication" value={report.scoreBreakdown.communication} />
-                                    <ProgressBar label="Experience" value={report.scoreBreakdown.experience} />
-                                    <ProgressBar label="Culture fit" value={report.scoreBreakdown.cultureFit} />
+                                    <h3 className='overview-block__title'>
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{marginRight: '0.5rem'}}><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+                                        Score breakdown
+                                    </h3>
+                                    <div className='score-grid'>
+                                        <div className='score-metric'>
+                                            <div className='score-metric__header'>
+                                                <span className='score-metric__label'>Technical Skills</span>
+                                                <span className='score-metric__value'>{report.scoreBreakdown.technicalSkills}%</span>
+                                            </div>
+                                            <ProgressBar label="Technical skills" value={report.scoreBreakdown.technicalSkills} />
+                                        </div>
+                                        <div className='score-metric'>
+                                            <div className='score-metric__header'>
+                                                <span className='score-metric__label'>Communication</span>
+                                                <span className='score-metric__value'>{report.scoreBreakdown.communication}%</span>
+                                            </div>
+                                            <ProgressBar label="Communication" value={report.scoreBreakdown.communication} />
+                                        </div>
+                                        <div className='score-metric'>
+                                            <div className='score-metric__header'>
+                                                <span className='score-metric__label'>Experience</span>
+                                                <span className='score-metric__value'>{report.scoreBreakdown.experience}%</span>
+                                            </div>
+                                            <ProgressBar label="Experience" value={report.scoreBreakdown.experience} />
+                                        </div>
+                                        <div className='score-metric'>
+                                            <div className='score-metric__header'>
+                                                <span className='score-metric__label'>Culture Fit</span>
+                                                <span className='score-metric__value'>{report.scoreBreakdown.cultureFit}%</span>
+                                            </div>
+                                            <ProgressBar label="Culture fit" value={report.scoreBreakdown.cultureFit} />
+                                        </div>
+                                    </div>
                                 </div>
                             ) : (
-                                <p className='overview-block__muted'>Score breakdown isn't available for this report -- it was generated before this feature was added.</p>
+                                <div className='overview-empty-state'>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                                    <p>Score breakdown isn't available for this report — it was generated before this feature was added.</p>
+                                </div>
                             )}
 
                             {report.strengths && report.strengths.length > 0 && (
                                 <div className='overview-block'>
-                                    <h3 className='overview-block__title'>Strengths</h3>
-                                    <ul className='overview-strengths'>
+                                    <h3 className='overview-block__title'>
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{marginRight: '0.5rem'}}><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path></svg>
+                                        Key Strengths
+                                    </h3>
+                                    <div className='strength-grid'>
                                         {report.strengths.map((s, i) => (
-                                            <li key={i}>
-                                                <span className='skill-tag skill-tag--low'>{s.skill}</span>
-                                                <p>{s.note}</p>
-                                            </li>
+                                            <div key={i} className='strength-card'>
+                                                <div className='strength-card__icon'>
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                                </div>
+                                                <div className='strength-card__content'>
+                                                    <span className='strength-card__skill'>{s.skill}</span>
+                                                    <p className='strength-card__note'>{s.note}</p>
+                                                </div>
+                                            </div>
                                         ))}
-                                    </ul>
+                                    </div>
                                 </div>
                             )}
 
                             <div className='overview-block'>
-                                <h3 className='overview-block__title'>Recommended next step</h3>
-                                <p className='overview-block__muted'>
-                                    Check the Road Map tab for a day-by-day plan to close the skill gaps shown in the sidebar.
-                                </p>
+                                <h3 className='overview-block__title'>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{marginRight: '0.5rem'}}><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+                                    Recommended Next Step
+                                </h3>
+                                <div className='recommendation-card'>
+                                    <div className='recommendation-card__icon'>
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"></polygon></svg>
+                                    </div>
+                                    <p className='recommendation-card__text'>
+                                        Check the <strong>Road Map</strong> tab for a day-by-day plan to close the skill gaps shown in the sidebar.
+                                    </p>
+                                </div>
                             </div>
                         </section>
                     )}
