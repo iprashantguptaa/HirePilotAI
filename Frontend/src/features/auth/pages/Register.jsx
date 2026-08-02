@@ -51,7 +51,7 @@ const Register = () => {
 
     const success = await handleRegister({ username, email, password })
     if (success) {
-      navigate("/")
+      navigate("/dashboard")
     }
   }
 
