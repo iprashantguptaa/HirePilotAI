@@ -96,13 +96,37 @@ async function sendVerificationEmail(user) {
  * @access Public
  */
 const registerUserController = asyncHandler(async function registerUserController(req, res) {
-    const { username, email, password } = req.body
+    const rawUsername = typeof req.body.username === "string" ? req.body.username.trim() : ""
+    const rawEmail = typeof req.body.email === "string" ? req.body.email.trim().toLowerCase() : ""
+    const password = typeof req.body.password === "string" ? req.body.password : ""
 
-    if (!username || !email || !password) {
+    if (!rawUsername || !rawEmail || !password) {
         throw ApiError.badRequest("Please provide username, email and password")
     }
 
-    const isUserAlreadyExists = await userModel.findOne({ $or: [ { username }, { email } ] })
+    if (rawUsername.length < 3 || rawUsername.length > 32) {
+        throw ApiError.badRequest("Username must be between 3 and 32 characters")
+    }
+
+    if (!/^[a-zA-Z0-9._-]+$/.test(rawUsername)) {
+        throw ApiError.badRequest("Username can only contain letters, numbers, dots, underscores and hyphens")
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(rawEmail)) {
+        throw ApiError.badRequest("Please provide a valid email address")
+    }
+
+    if (password.length < 8) {
+        throw ApiError.badRequest("Password must be at least 8 characters")
+    }
+
+    // Case-insensitive email match so "User@X.com" and "user@x.com" collide.
+    const isUserAlreadyExists = await userModel.findOne({
+        $or: [
+            { username: rawUsername },
+            { email: rawEmail }
+        ]
+    })
 
     if (isUserAlreadyExists) {
         throw ApiError.badRequest("Account already exists with this email address or username")
@@ -110,7 +134,11 @@ const registerUserController = asyncHandler(async function registerUserControlle
 
     const hash = await bcrypt.hash(password, 10)
 
-    const user = await userModel.create({ username, email, password: hash })
+    const user = await userModel.create({
+        username: rawUsername,
+        email: rawEmail,
+        password: hash
+    })
 
     await issueSession(res, user)
 
@@ -132,7 +160,12 @@ const registerUserController = asyncHandler(async function registerUserControlle
  * @access Public
  */
 const loginUserController = asyncHandler(async function loginUserController(req, res) {
-    const { email, password } = req.body
+    const email = typeof req.body.email === "string" ? req.body.email.trim().toLowerCase() : ""
+    const password = typeof req.body.password === "string" ? req.body.password : ""
+
+    if (!email || !password) {
+        throw ApiError.badRequest("Please provide email and password")
+    }
 
     const user = await userModel.findOne({ email })
 

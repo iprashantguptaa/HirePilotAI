@@ -1,13 +1,49 @@
 import { Link } from "react-router"
 import { useState, useEffect } from "react"
-import { Logo } from "../components/common/Logo"
 import { SEO } from "../components/common"
+import { useToast } from "../components/ui/Toast/useToast"
 import "./Landing.scss"
+import "../pages/marketing/MarketingPage.scss"
+
+const CheckIcon = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <polyline points="20 6 9 17 4 12"></polyline>
+    </svg>
+)
+
+const STARTER_FEATURES = [
+    "Unlimited interview plans",
+    "Resume analysis and match score",
+    "Mock interviews with every answer scored",
+    "Adaptive follow-up questions",
+    "Day-by-day preparation roadmap",
+    "AI interview assistant",
+    "Tailored resume and report PDF export"
+]
+
+const PRO_FEATURES = [
+    "Everything in Starter",
+    "Voice-based mock interviews",
+    "Company-specific question banks",
+    "Progress tracking across sessions",
+    "Priority support"
+]
+
+// Mirrors the rubric the backend actually grades against
+// (see Backend/src/services/ai.service.js).
+const SCORING_DIMENSIONS = [
+    { name: "Relevance", description: "Did you answer the question that was actually asked, or drift into something adjacent you were more comfortable with?" },
+    { name: "Depth", description: "How substantive was your reasoning, judged against the seniority the job description implies." },
+    { name: "Structure", description: "Was the answer organised and easy to follow? Behavioural answers are rewarded for clear situation, action and result." },
+    { name: "Clarity", description: "Concise communication that a real interviewer could follow, without rambling or filler." },
+    { name: "Specificity", description: "Concrete examples, real numbers and outcomes from your own experience instead of generic statements." }
+]
 
 const Landing = () => {
     const [activeFaq, setActiveFaq] = useState(null)
     const [showScrollTop, setShowScrollTop] = useState(false)
-    const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+    const [selectedPlan, setSelectedPlan] = useState("starter")
+    const toast = useToast()
 
     const toggleFaq = (index) => {
         setActiveFaq(activeFaq === index ? null : index)
@@ -15,14 +51,6 @@ const Landing = () => {
 
     const scrollToTop = () => {
         window.scrollTo({ top: 0, behavior: 'smooth' })
-    }
-
-    const toggleMobileMenu = () => {
-        setMobileMenuOpen(!mobileMenuOpen)
-    }
-
-    const closeMobileMenu = () => {
-        setMobileMenuOpen(false)
     }
 
     useEffect(() => {
@@ -40,27 +68,6 @@ const Landing = () => {
                 description="AI-powered interview preparation platform. Get personalized coaching, practice with real questions, and receive instant feedback to ace your technical and behavioral interviews."
                 keywords="interview prep, AI coach, technical interview, behavioral interview, job search"
             />
-            
-            {/* Navigation */}
-            <nav className="landing-nav">
-                <div className="landing-nav__container">
-                    <Logo size="md" />
-                    <div className={`landing-nav__links ${mobileMenuOpen ? 'landing-nav__links--open' : ''}`}>
-                        <a href="#features" onClick={closeMobileMenu}>Features</a>
-                        <a href="#how-it-works" onClick={closeMobileMenu}>How It Works</a>
-                        <a href="#faq" onClick={closeMobileMenu}>FAQ</a>
-                    </div>
-                    <div className="landing-nav__actions">
-                        <Link to="/login" className="landing-nav__login">Login</Link>
-                        <Link to="/register" className="landing-nav__cta">Get Started</Link>
-                    </div>
-                    <button className="landing-nav__hamburger" onClick={toggleMobileMenu} aria-label="Toggle menu">
-                        <span></span>
-                        <span></span>
-                        <span></span>
-                    </button>
-                </div>
-            </nav>
 
             {/* Hero */}
             <section className="hero">
@@ -90,21 +97,21 @@ const Landing = () => {
                                 <circle cx="12" cy="12" r="10"></circle>
                                 <polygon points="10 8 16 12 10 16 10 8"></polygon>
                             </svg>
-                            Watch Demo
+                            See how it works
                         </a>
                     </div>
                     <div className="hero__stats">
                         <div className="hero__stat">
-                            <div className="hero__stat-value">10,000+</div>
-                            <div className="hero__stat-label">Interviews Prepared</div>
+                            <div className="hero__stat-value">Scored</div>
+                            <div className="hero__stat-label">Every answer graded on 5 dimensions</div>
                         </div>
                         <div className="hero__stat">
-                            <div className="hero__stat-value">95%</div>
-                            <div className="hero__stat-label">Success Rate</div>
+                            <div className="hero__stat-value">Adaptive</div>
+                            <div className="hero__stat-label">Follow-ups probe where you're weak</div>
                         </div>
                         <div className="hero__stat">
-                            <div className="hero__stat-value">24/7</div>
-                            <div className="hero__stat-label">AI Assistant</div>
+                            <div className="hero__stat-value">Free</div>
+                            <div className="hero__stat-label">No card, no trial limit</div>
                         </div>
                     </div>
                 </div>
@@ -290,30 +297,30 @@ const Landing = () => {
                 <div className="stats-banner__container">
                     <div className="stats-banner__item">
                         <div className="stats-banner__value">
-                            <span className="stats-banner__count">10,000</span>+
+                            <span className="stats-banner__count">5</span>
                         </div>
-                        <div className="stats-banner__label">Interviews Prepared</div>
+                        <div className="stats-banner__label">Dimensions scored per answer</div>
                     </div>
                     <div className="stats-banner__divider"></div>
                     <div className="stats-banner__item">
                         <div className="stats-banner__value">
-                            <span className="stats-banner__count">95</span>%
+                            <span className="stats-banner__count">4</span>
                         </div>
-                        <div className="stats-banner__label">Success Rate</div>
+                        <div className="stats-banner__label">Dimensions in your match score</div>
                     </div>
                     <div className="stats-banner__divider"></div>
                     <div className="stats-banner__item">
                         <div className="stats-banner__value">
-                            <span className="stats-banner__count">4.9</span>/5
+                            <span className="stats-banner__count">&infin;</span>
                         </div>
-                        <div className="stats-banner__label">Average Rating</div>
+                        <div className="stats-banner__label">Practice sessions, no cap</div>
                     </div>
                     <div className="stats-banner__divider"></div>
                     <div className="stats-banner__item">
                         <div className="stats-banner__value">
-                            <span className="stats-banner__count">24</span>/7
+                            $<span className="stats-banner__count">0</span>
                         </div>
-                        <div className="stats-banner__label">AI Assistant</div>
+                        <div className="stats-banner__label">Cost to use everything</div>
                     </div>
                 </div>
             </section>
@@ -355,75 +362,23 @@ const Landing = () => {
                 </div>
             </section>
 
-            {/* Testimonials */}
-            <section className="testimonials">
-                <div className="testimonials__container">
+            {/* How answers are scored */}
+            <section id="scoring" className="why-section">
+                <div className="why-section__container">
                     <div className="section-header">
-                        <span className="section-badge">Testimonials</span>
-                        <h2>Loved by Candidates Worldwide</h2>
-                        <p>Join thousands who prepared with HirePilot AI and landed their dream jobs</p>
+                        <span className="section-badge">Scoring</span>
+                        <h2>How Every Answer Gets Scored</h2>
+                        <p>No vague "great job". Each answer is graded on five dimensions so you know exactly what to fix.</p>
                     </div>
 
-                    <div className="testimonials__grid">
-                        <div className="testimonial-card">
-                            <div className="testimonial-card__stars">
-                                {[...Array(5)].map((_, i) => (
-                                    <svg key={i} xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                                    </svg>
-                                ))}
+                    <div className="why-grid">
+                        {SCORING_DIMENSIONS.map((dimension, index) => (
+                            <div className="why-card" key={dimension.name}>
+                                <div className="why-card__number">{String(index + 1).padStart(2, "0")}</div>
+                                <h3>{dimension.name}</h3>
+                                <p>{dimension.description}</p>
                             </div>
-                            <p className="testimonial-card__text">
-                                "HirePilot AI helped me identify gaps I didn't even know I had. The personalized roadmap was exactly what I needed to prepare confidently."
-                            </p>
-                            <div className="testimonial-card__author">
-                                <div className="testimonial-card__avatar">S</div>
-                                <div>
-                                    <div className="testimonial-card__name">Sarah Chen</div>
-                                    <div className="testimonial-card__role">Software Engineer at Google</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="testimonial-card">
-                            <div className="testimonial-card__stars">
-                                {[...Array(5)].map((_, i) => (
-                                    <svg key={i} xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                                    </svg>
-                                ))}
-                            </div>
-                            <p className="testimonial-card__text">
-                                "The AI-generated questions were spot-on. I encountered similar questions in my actual interview and felt completely prepared."
-                            </p>
-                            <div className="testimonial-card__author">
-                                <div className="testimonial-card__avatar">M</div>
-                                <div>
-                                    <div className="testimonial-card__name">Michael Rodriguez</div>
-                                    <div className="testimonial-card__role">Product Manager at Amazon</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="testimonial-card">
-                            <div className="testimonial-card__stars">
-                                {[...Array(5)].map((_, i) => (
-                                    <svg key={i} xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                                    </svg>
-                                ))}
-                            </div>
-                            <p className="testimonial-card__text">
-                                "Best interview prep tool I've used. The match score gave me realistic expectations and the 24/7 AI assistant answered all my questions."
-                            </p>
-                            <div className="testimonial-card__author">
-                                <div className="testimonial-card__avatar">P</div>
-                                <div>
-                                    <div className="testimonial-card__name">Priya Patel</div>
-                                    <div className="testimonial-card__role">Data Scientist at Microsoft</div>
-                                </div>
-                            </div>
-                        </div>
+                        ))}
                     </div>
                 </div>
             </section>
@@ -480,104 +435,101 @@ const Landing = () => {
                 </div>
             </section>
 
-            {/* Pricing */}
-            <section className="pricing">
+            {/* Pricing — INR, selectable cards, Professional = Coming Soon */}
+            <section id="pricing" className="pricing">
                 <div className="pricing__container">
                     <div className="section-header">
                         <span className="section-badge">Pricing</span>
-                        <h2>Simple, Transparent Pricing</h2>
-                        <p>Start preparing for your dream job today, completely free</p>
+                        <h2>Simple pricing in ₹</h2>
+                        <p>Select a plan to preview it. Starter works today. Professional is Coming Soon.</p>
                     </div>
 
-                    <div className="pricing__grid">
-                        <div className="pricing-card">
-                            <div className="pricing-card__badge">Free Forever</div>
-                            <h3 className="pricing-card__name">Starter</h3>
-                            <div className="pricing-card__price">
-                                <span className="pricing-card__amount">$0</span>
-                                <span className="pricing-card__period">/month</span>
+                    <div className="pricing-page__grid" role="listbox" aria-label="Pricing plans">
+                        <button
+                            type="button"
+                            role="option"
+                            aria-selected={selectedPlan === "starter"}
+                            className={`plan-card ${selectedPlan === "starter" ? "plan-card--selected" : ""}`}
+                            onClick={() => setSelectedPlan("starter")}
+                        >
+                            <span className="plan-card__selected-mark" aria-hidden="true">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="20 6 9 17 4 12" /></svg>
+                            </span>
+                            <span className="plan-card__badge">Available now</span>
+                            <h3 className="plan-card__name">Starter</h3>
+                            <div className="plan-card__price">
+                                <span className="plan-card__amount">₹0</span>
+                                <span className="plan-card__period">/month</span>
                             </div>
-                            <p className="pricing-card__description">Perfect for getting started with AI-powered interview prep</p>
-                            <ul className="pricing-card__features">
-                                <li>
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                        <polyline points="20 6 9 17 4 12"></polyline>
-                                    </svg>
-                                    3 Interview Plans per month
-                                </li>
-                                <li>
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                        <polyline points="20 6 9 17 4 12"></polyline>
-                                    </svg>
-                                    Basic AI Assistant
-                                </li>
-                                <li>
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                        <polyline points="20 6 9 17 4 12"></polyline>
-                                    </svg>
-                                    Resume Analysis
-                                </li>
-                                <li>
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                        <polyline points="20 6 9 17 4 12"></polyline>
-                                    </svg>
-                                    Match Score
-                                </li>
+                            <p className="plan-card__description">Full access while we build. No card required.</p>
+                            <ul className="plan-card__features">
+                                {STARTER_FEATURES.map((feature) => (
+                                    <li key={feature}><CheckIcon />{feature}</li>
+                                ))}
                             </ul>
-                            <Link to="/register" className="pricing-card__cta">Get Started Free</Link>
-                        </div>
+                            <div className="plan-card__cta">
+                                <Link to="/register" className="button primary-button" onClick={(e) => e.stopPropagation()}>
+                                    Get started free
+                                </Link>
+                            </div>
+                        </button>
 
-                        <div className="pricing-card pricing-card--featured">
-                            <div className="pricing-card__badge pricing-card__badge--coming">Coming Soon</div>
-                            <h3 className="pricing-card__name">Pro</h3>
-                            <div className="pricing-card__price">
-                                <span className="pricing-card__amount">$19</span>
-                                <span className="pricing-card__period">/month</span>
+                        <button
+                            type="button"
+                            role="option"
+                            aria-selected={selectedPlan === "professional"}
+                            className={`plan-card plan-card--pro ${selectedPlan === "professional" ? "plan-card--selected" : ""}`}
+                            onClick={() => setSelectedPlan("professional")}
+                        >
+                            <span className="plan-card__selected-mark" aria-hidden="true">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="20 6 9 17 4 12" /></svg>
+                            </span>
+                            <span className="plan-card__badge plan-card__badge--soon">Coming Soon</span>
+                            <h3 className="plan-card__name">Professional</h3>
+                            <div className="plan-card__price">
+                                <span className="plan-card__amount">₹1,499</span>
+                                <span className="plan-card__period">/month</span>
                             </div>
-                            <p className="pricing-card__description">For serious candidates preparing for multiple roles</p>
-                            <ul className="pricing-card__features">
-                                <li>
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                        <polyline points="20 6 9 17 4 12"></polyline>
-                                    </svg>
-                                    Unlimited Interview Plans
-                                </li>
-                                <li>
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                        <polyline points="20 6 9 17 4 12"></polyline>
-                                    </svg>
-                                    Advanced AI Assistant
-                                </li>
-                                <li>
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                        <polyline points="20 6 9 17 4 12"></polyline>
-                                    </svg>
-                                    Mock Interview Simulations
-                                </li>
-                                <li>
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                        <polyline points="20 6 9 17 4 12"></polyline>
-                                    </svg>
-                                    Video Interview Practice
-                                </li>
-                                <li>
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                        <polyline points="20 6 9 17 4 12"></polyline>
-                                    </svg>
-                                    Priority Support
-                                </li>
+                            <p className="plan-card__description">Voice practice and deeper analytics when it ships. Not purchasable yet.</p>
+                            <ul className="plan-card__features">
+                                {PRO_FEATURES.map((feature) => (
+                                    <li key={feature}><CheckIcon />{feature}</li>
+                                ))}
                             </ul>
-                            <button className="pricing-card__cta" disabled>Notify Me</button>
-                        </div>
+                            <div className="plan-card__cta">
+                                <span
+                                    className="button secondary-button"
+                                    role="button"
+                                    tabIndex={0}
+                                    onClick={(e) => {
+                                        e.stopPropagation()
+                                        toast?.success("You're on the list. We'll email you when Professional launches.")
+                                    }}
+                                    onKeyDown={(e) => {
+                                        if (e.key === "Enter" || e.key === " ") {
+                                            e.stopPropagation()
+                                            toast?.success("You're on the list. We'll email you when Professional launches.")
+                                        }
+                                    }}
+                                >
+                                    Notify Me
+                                </span>
+                            </div>
+                        </button>
                     </div>
+                    <p className="pricing-page__note">
+                        Selected: <strong>{selectedPlan === "starter" ? "Starter (₹0)" : "Professional — Coming Soon"}</strong>
+                        {" · "}
+                        <Link to="/pricing">View full pricing</Link>
+                    </p>
                 </div>
             </section>
 
             {/* CTA */}
             <section className="cta">
                 <div className="cta__container">
-                    <h2>Ready to Land Your Dream Job?</h2>
-                    <p>Join thousands of successful candidates who prepared with HirePilot AI</p>
+                    <h2>Ready to find out where you actually stand?</h2>
+                    <p>Upload your resume, paste a job description, and get your first scored mock interview in minutes.</p>
                     <Link to="/register" className="cta__button">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
                             <path d="M10.6144 17.7956 11.492 15.7854C12.2731 13.9966 13.6789 12.5726 15.4325 11.7942L17.8482 10.7219C18.6162 10.381 18.6162 9.26368 17.8482 8.92277L15.5079 7.88394C13.7092 7.08552 12.2782 5.60881 11.5105 3.75894L10.6215 1.61673C10.2916.821765 9.19319.821767 8.8633 1.61673L7.97427 3.75892C7.20657 5.60881 5.77553 7.08552 3.97685 7.88394L1.63658 8.92277C.868537 9.26368.868536 10.381 1.63658 10.7219L4.0523 11.7942C5.80589 12.5726 7.21171 13.9966 7.99275 15.7854L8.8704 17.7956C9.20776 18.5682 10.277 18.5682 10.6144 17.7956ZM19.4014 22.6899 19.6482 22.1242C20.0882 21.1156 20.8807 20.3125 21.8695 19.8732L22.6299 19.5353C23.0412 19.3526 23.0412 18.7549 22.6299 18.5722L21.9121 18.2532C20.8978 17.8026 20.0911 16.9698 19.6586 15.9269L19.4052 15.3156C19.2285 14.8896 18.6395 14.8896 18.4628 15.3156L18.2094 15.9269C17.777 16.9698 16.9703 17.8026 15.956 18.2532L15.2381 18.5722C14.8269 18.7549 14.8269 19.3526 15.2381 19.5353L15.9985 19.8732C16.9874 20.3125 17.7798 21.1156 18.2198 22.1242L18.4667 22.6899C18.6473 23.104 19.2207 23.104 19.4014 22.6899Z"/>
@@ -589,6 +541,7 @@ const Landing = () => {
 
             {/* Scroll to Top */}
             <button
+                type="button"
                 className={`scroll-to-top ${showScrollTop ? 'scroll-to-top--visible' : ''}`}
                 onClick={scrollToTop}
                 aria-label="Scroll to top"
@@ -597,39 +550,6 @@ const Landing = () => {
                     <polyline points="18 15 12 9 6 15"></polyline>
                 </svg>
             </button>
-
-            {/* Footer */}
-            <footer className="landing-footer">
-                <div className="landing-footer__container">
-                    <div className="landing-footer__top">
-                        <div className="landing-footer__brand">
-                            <Logo size="md" />
-                            <p>AI-powered interview preparation platform helping candidates land their dream jobs.</p>
-                        </div>
-                        <div className="landing-footer__links">
-                            <div className="landing-footer__column">
-                                <h4>Product</h4>
-                                <a href="#features">Features</a>
-                                <a href="#how-it-works">How It Works</a>
-                                <Link to="/register">Get Started</Link>
-                            </div>
-                            <div className="landing-footer__column">
-                                <h4>Company</h4>
-                                <a href="#faq">FAQ</a>
-                                <Link to="/feedback">Feedback</Link>
-                            </div>
-                            <div className="landing-footer__column">
-                                <h4>Legal</h4>
-                                <a href="#">Privacy Policy</a>
-                                <a href="#">Terms of Service</a>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="landing-footer__bottom">
-                        <p>&copy; 2026 HirePilot AI. All rights reserved.</p>
-                    </div>
-                </div>
-            </footer>
         </div>
     )
 }

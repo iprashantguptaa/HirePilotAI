@@ -341,9 +341,9 @@ export const BRAND = {
       ],
       support: [
         { label: 'Help Center', href: '/support' },
-        { label: 'Community', href: '/community' },
         { label: 'System Status', href: '/status' },
-        { label: 'Contact Support', href: '/support/contact' }
+        { label: 'Contact Support', href: '/contact' },
+        { label: 'FAQ', href: '/faq' }
       ]
     }
   },

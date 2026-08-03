@@ -178,6 +178,22 @@
     display: none;
 }
 
+// Auth CTAs must stay readable on both light and dark themes. The previous
+// landing-only nav painted dark-on-dark Login text that disappeared.
+.app-header__auth-btn {
+    white-space: nowrap;
+}
+
+.app-header--landing .app-header__auth-btn.secondary-button {
+    color: var(--color-text-primary);
+    border-color: var(--color-border);
+    background: var(--color-surface);
+}
+
+.app-header--landing .app-header__auth-btn.primary-button {
+    color: #fff;
+}
+
 @media (max-width: 768px) {
     .app-header__menu-toggle {
         display: inline-flex;

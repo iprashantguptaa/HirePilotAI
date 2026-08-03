@@ -8,7 +8,7 @@ const aiUsageLogSchema = new mongoose.Schema({
     },
     type: {
         type: String,
-        enum: [ "interview_report", "resume_pdf", "chat_reply" ],
+        enum: [ "interview_report", "resume_pdf", "chat_reply", "session_question", "session_score", "session_analytics" ],
         required: true
     },
     model: {

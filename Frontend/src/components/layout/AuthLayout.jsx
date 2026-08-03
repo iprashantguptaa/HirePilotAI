@@ -35,13 +35,13 @@ const AuthLayout = ({ children }) => {
           </h2>
           
           <p className="auth-layout__brand-subtitle">
-            Join 1 lakh+ professionals preparing for their next career move with AI-powered coaching
+            Upload your resume, paste a job description, and practise with answers scored on five dimensions.
           </p>
 
           {/* Animated gradient mesh background */}
           <div className="auth-layout__mesh" aria-hidden="true" />
           
-          {/* Floating stats/features */}
+          {/* Product truths — not fabricated vanity metrics */}
           <div className="auth-layout__features">
             <div className="auth-feature">
               <div className="auth-feature__icon">
@@ -51,8 +51,8 @@ const AuthLayout = ({ children }) => {
                 </svg>
               </div>
               <div>
-                <div className="auth-feature__value">1L+</div>
-                <div className="auth-feature__label">Users prepared</div>
+                <div className="auth-feature__value">5</div>
+                <div className="auth-feature__label">Score dimensions</div>
               </div>
             </div>
 
@@ -63,8 +63,8 @@ const AuthLayout = ({ children }) => {
                 </svg>
               </div>
               <div>
-                <div className="auth-feature__value">95%</div>
-                <div className="auth-feature__label">Success rate</div>
+                <div className="auth-feature__value">₹0</div>
+                <div className="auth-feature__label">To get started</div>
               </div>
             </div>
 
@@ -75,8 +75,8 @@ const AuthLayout = ({ children }) => {
                 </svg>
               </div>
               <div>
-                <div className="auth-feature__value">5L+</div>
-                <div className="auth-feature__label">Interviews generated</div>
+                <div className="auth-feature__value">Live</div>
+                <div className="auth-feature__label">Scored practice</div>
               </div>
             </div>
           </div>

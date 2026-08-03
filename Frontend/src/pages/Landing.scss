@@ -8,6 +8,13 @@
     min-height: 100vh;
     background: var(--color-bg);
     color: var(--color-text-primary);
+    // Shared sticky Header lives above this page now — keep the hero clear of it.
+    padding-top: 0;
+}
+
+.landing-shell {
+    flex: 1;
+    width: 100%;
 }
 
 // ============================================================================
@@ -1119,6 +1126,16 @@
             svg {
                 flex-shrink: 0;
                 color: var(--color-accent-500);
+            }
+        }
+
+        // Roadmap items are deliberately de-emphasised so they don't read as
+        // features that already exist.
+        &--muted li {
+            color: var(--color-text-tertiary);
+
+            svg {
+                color: var(--color-text-tertiary);
             }
         }
     }

@@ -1,5 +1,5 @@
-import { useState } from "react"
-import { Link, useNavigate } from "react-router"
+import { useEffect, useState } from "react"
+import { Link, NavLink, useLocation, useNavigate } from "react-router"
 import { useAuth } from "../../features/auth/hooks/useAuth"
 import { useTheme } from "../../app/theme/useTheme"
 import { Logo } from "../common/Logo"
@@ -30,13 +30,60 @@ const CloseIcon = () => (
     </svg>
 )
 
+const LANDING_LINKS = [
+    { label: "Features", href: "/#features" },
+    { label: "How It Works", href: "/#how-it-works" },
+    { label: "Pricing", href: "/pricing" },
+    { label: "FAQ", href: "/#faq" }
+]
+
+const APP_LINKS = [
+    { label: "Dashboard", to: "/dashboard" },
+    { label: "Practice", to: "/practice" },
+    { label: "History", to: "/history" },
+    { label: "Profile", to: "/profile" }
+]
+
+/**
+ * Smooth-scroll to a hash target on the current page, accounting for the
+ * sticky header. Used by landing-section links so "How It Works" actually
+ * lands on the section instead of being covered by the navbar.
+ */
+function scrollToHash(hash) {
+    if (!hash || hash === "#") return false
+    const id = hash.replace(/^#/, "")
+    const el = document.getElementById(id)
+    if (!el) return false
+    el.scrollIntoView({ behavior: "smooth", block: "start" })
+    return true
+}
+
 const Header = () => {
     const { user, handleLogout } = useAuth()
     const { theme, toggleTheme } = useTheme()
     const navigate = useNavigate()
+    const location = useLocation()
     const [ isMobileMenuOpen, setMobileMenuOpen ] = useState(false)
+    const [ scrolled, setScrolled ] = useState(false)
+
+    const isLanding = location.pathname === "/"
 
     const closeMenu = () => setMobileMenuOpen(false)
+
+    useEffect(() => {
+        const onScroll = () => setScrolled(window.scrollY > 8)
+        onScroll()
+        window.addEventListener("scroll", onScroll, { passive: true })
+        return () => window.removeEventListener("scroll", onScroll)
+    }, [])
+
+    // Handle /#section deep links after navigation lands on "/".
+    useEffect(() => {
+        if (location.pathname !== "/" || !location.hash) return
+        // Wait a frame so the landing DOM is painted.
+        const id = window.requestAnimationFrame(() => scrollToHash(location.hash))
+        return () => window.cancelAnimationFrame(id)
+    }, [ location.pathname, location.hash ])
 
     const onLogout = async () => {
         closeMenu()
@@ -44,20 +91,45 @@ const Header = () => {
         navigate("/login")
     }
 
+    const handleLandingAnchor = (event, href) => {
+        const hash = href.includes("#") ? `#${href.split("#")[ 1 ]}` : null
+        if (!hash) return
+
+        if (location.pathname === "/") {
+            event.preventDefault()
+            closeMenu()
+            scrollToHash(hash)
+            window.history.replaceState(null, "", hash)
+        } else {
+            closeMenu()
+        }
+    }
+
     return (
-        <header className="app-header">
+        <header className={`app-header ${scrolled ? "app-header--scrolled" : ""} ${isLanding ? "app-header--landing" : ""}`}>
             <div className="container app-header__inner">
                 <Link to={user ? "/dashboard" : "/"} className="app-header__logo" onClick={closeMenu}>
                     <Logo size="md" />
                 </Link>
 
-                <nav className={`app-header__nav ${isMobileMenuOpen ? "app-header__nav--open" : ""}`}>
+                <nav className={`app-header__nav ${isMobileMenuOpen ? "app-header__nav--open" : ""}`} aria-label="Primary">
                     {user ? (
                         <>
-                            <Link to="/dashboard" onClick={closeMenu}>Dashboard</Link>
-                            <Link to="/history" onClick={closeMenu}>History</Link>
-                            <Link to="/profile" onClick={closeMenu}>Profile</Link>
-                            {user.role === "admin" && <Link to="/admin" onClick={closeMenu}>Admin</Link>}
+                            {APP_LINKS.map((link) => (
+                                <NavLink
+                                    key={link.to}
+                                    to={link.to}
+                                    onClick={closeMenu}
+                                    className={({ isActive }) => (isActive ? "active" : undefined)}
+                                >
+                                    {link.label}
+                                </NavLink>
+                            ))}
+                            {user.role === "admin" && (
+                                <NavLink to="/admin" onClick={closeMenu} className={({ isActive }) => (isActive ? "active" : undefined)}>
+                                    Admin
+                                </NavLink>
+                            )}
                             <span className="app-header__username">{user.username}</span>
                             <Link to="/interview/new" className="button primary-button button-sm" onClick={closeMenu}>
                                 New interview
@@ -68,9 +140,20 @@ const Header = () => {
                         </>
                     ) : (
                         <>
-                            <Link to="/login" onClick={closeMenu}>Login</Link>
-                            <Link to="/register" className="button primary-button button-sm" onClick={closeMenu}>
-                                Get started
+                            {LANDING_LINKS.map((link) => (
+                                <a
+                                    key={link.href}
+                                    href={link.href}
+                                    onClick={(event) => handleLandingAnchor(event, link.href)}
+                                >
+                                    {link.label}
+                                </a>
+                            ))}
+                            <Link to="/login" className="button secondary-button button-sm app-header__auth-btn" onClick={closeMenu}>
+                                Login
+                            </Link>
+                            <Link to="/register" className="button primary-button button-sm app-header__auth-btn" onClick={closeMenu}>
+                                Get Started
                             </Link>
                         </>
                     )}
@@ -91,6 +174,7 @@ const Header = () => {
                         className="app-header__icon-button app-header__menu-toggle"
                         onClick={() => setMobileMenuOpen((open) => !open)}
                         aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
+                        aria-expanded={isMobileMenuOpen}
                     >
                         {isMobileMenuOpen ? <CloseIcon /> : <MenuIcon />}
                     </button>

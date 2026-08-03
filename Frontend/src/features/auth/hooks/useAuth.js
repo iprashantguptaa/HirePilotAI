@@ -4,7 +4,23 @@ import { login, register, logout, getMe, forgotPassword, resetPassword, verifyEm
 import { useToast } from "../../../components/ui/Toast/useToast";
 
 function getErrorMessage(error, fallback) {
-    return error?.response?.data?.message || fallback
+    // Prefer the backend's own message whenever we actually got a response.
+    if (error?.response?.data?.message) {
+        return error.response.data.message
+    }
+
+    // No response at all means the request never reached (or never returned
+    // from) the API. Showing the generic "Couldn't create your account" here
+    // hid the real production failure mode: a sleeping / unreachable backend.
+    if (error?.code === "ECONNABORTED" || /timeout/i.test(error?.message || "")) {
+        return "The server took too long to respond. It may be waking up — please wait a moment and try again."
+    }
+
+    if (error?.message === "Network Error" || !error?.response) {
+        return "Can't reach the server. Check your connection, or try again in a minute if the service is restarting."
+    }
+
+    return fallback
 }
 
 export const useAuth = () => {

@@ -7,7 +7,11 @@ const baseURL = import.meta.env.VITE_API_URL || "http://localhost:3000"
 
 const apiClient = axios.create({
     baseURL,
-    withCredentials: true
+    withCredentials: true,
+    // Render free-tier cold starts can take 30–60s. Without a timeout, the
+    // browser hangs until the OS gives up and the UI just says a generic
+    // "Couldn't create your account" with no usable signal.
+    timeout: 60000
 })
 
 // Access tokens are short-lived (15 min) by design (see Backend .env.example),

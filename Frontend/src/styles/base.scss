@@ -22,6 +22,9 @@
 
 html {
   scroll-behavior: smooth;
+  // Sticky header offset so /#how-it-works and friends land below the nav
+  // instead of being covered by it.
+  scroll-padding-top: calc(var(--header-height) + 1rem);
   font-size: 16px;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -55,6 +58,10 @@ body {
   color: var(--color-text-primary);
   min-height: 100vh;
   overflow-x: hidden;
+  // Hide the caret everywhere by default. Clicking random non-editable
+  // surfaces was producing a blinking text cursor because focus/selection
+  // landed on decorative containers. Form fields restore it below.
+  caret-color: transparent;
   transition: background-color var(--duration-base) var(--ease-out),
               color var(--duration-base) var(--ease-out);
 }
@@ -200,11 +207,23 @@ select {
   border: none;
   outline: none;
   background: none;
+  caret-color: auto;
   
   &:disabled {
     cursor: not-allowed;
     opacity: 0.5;
   }
+}
+
+// Defensive: nothing outside form fields should accept text input focus.
+[contenteditable="true"] {
+  caret-color: auto;
+}
+
+[contenteditable="false"],
+[aria-hidden="true"] {
+  caret-color: transparent;
+  user-select: none;
 }
 
 // ============================================================================

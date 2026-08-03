@@ -4,15 +4,18 @@ import Footer from "./Footer"
 
 const AppLayout = () => {
     const location = useLocation()
+    // Landing owns its own full-bleed composition; app pages use the
+    // standard content shell. Header and Footer are shared everywhere so
+    // the product feels like one application.
     const isLandingPage = location.pathname === "/"
-    
+
     return (
         <>
-            {!isLandingPage && <Header />}
-            <main className={isLandingPage ? "" : "app-content"}>
+            <Header />
+            <main className={isLandingPage ? "landing-shell" : "app-content"}>
                 <Outlet />
             </main>
-            {!isLandingPage && <Footer />}
+            <Footer />
         </>
     )
 }

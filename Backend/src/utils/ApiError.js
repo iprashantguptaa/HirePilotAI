@@ -37,6 +37,15 @@ class ApiError extends Error {
     static internal(message = "Something went wrong") {
         return new ApiError(500, message)
     }
+
+    /**
+     * For upstream dependencies that are temporarily unavailable (e.g. the AI
+     * provider is overloaded). Distinct from `internal` so clients can tell
+     * "try again shortly" apart from "this request is broken".
+     */
+    static serviceUnavailable(message = "This service is temporarily unavailable. Please try again shortly.") {
+        return new ApiError(503, message)
+    }
 }
 
 module.exports = ApiError
