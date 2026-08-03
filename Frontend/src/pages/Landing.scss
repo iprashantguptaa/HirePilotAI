@@ -17,7 +17,7 @@
 .landing-nav {
     position: sticky;
     top: 0;
-    z-index: var(--z-sticky);
+    z-index: var(--z-index-sticky);
     background: rgba(9, 9, 11, 0.8);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
@@ -1207,7 +1207,7 @@
     position: fixed;
     bottom: var(--spacing-6);
     right: var(--spacing-6);
-    z-index: var(--z-sticky);
+    z-index: var(--z-index-sticky);
     width: 48px;
     height: 48px;
     display: flex;

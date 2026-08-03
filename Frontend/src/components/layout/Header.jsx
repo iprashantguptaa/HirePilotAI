@@ -47,7 +47,7 @@ const Header = () => {
     return (
         <header className="app-header">
             <div className="container app-header__inner">
-                <Link to="/" className="app-header__logo" onClick={closeMenu}>
+                <Link to={user ? "/dashboard" : "/"} className="app-header__logo" onClick={closeMenu}>
                     <Logo size="md" />
                 </Link>
 
@@ -68,9 +68,6 @@ const Header = () => {
                         </>
                     ) : (
                         <>
-                            <a href="#features" onClick={closeMenu}>Features</a>
-                            <a href="#how-it-works" onClick={closeMenu}>How It Works</a>
-                            <a href="#faq" onClick={closeMenu}>FAQ</a>
                             <Link to="/login" onClick={closeMenu}>Login</Link>
                             <Link to="/register" className="button primary-button button-sm" onClick={closeMenu}>
                                 Get started
