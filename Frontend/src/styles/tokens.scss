@@ -38,6 +38,89 @@
     // Old layout tokens
     --header-height: 4rem;
     --content-max-width: var(--container-max-width);
+
+    // ========================================================================
+    // SPACING ALIASES  --spacing-N  ->  --space-N
+    // ========================================================================
+    // A large amount of feature SCSS was written against `--spacing-*` while
+    // the scale is actually published as `--space-*`. An undefined custom
+    // property invalidates the entire declaration, so every
+    // `padding: var(--spacing-6)` was resolving to no padding at all --
+    // which collapsed spacing across the landing, interview, history, home,
+    // admin, 404, chat and empty-state styles simultaneously.
+    // Aliased rather than duplicated so there is still one source of truth.
+    --spacing-0: var(--space-0);
+    --spacing-1: var(--space-1);
+    --spacing-2: var(--space-2);
+    --spacing-3: var(--space-3);
+    --spacing-4: var(--space-4);
+    --spacing-5: var(--space-5);
+    --spacing-6: var(--space-6);
+    --spacing-7: var(--space-7);
+    --spacing-8: var(--space-8);
+    --spacing-10: var(--space-10);
+    --spacing-12: var(--space-12);
+    --spacing-16: var(--space-16);
+    --spacing-20: var(--space-20);
+    --spacing-24: var(--space-24);
+    --spacing-32: var(--space-32);
+
+    // ========================================================================
+    // FONT SIZE ALIASES  --text-X  ->  --font-size-X
+    // ========================================================================
+    // Aliasing (not copying) matters here: the responsive overrides at the
+    // bottom of design-tokens.scss shrink --font-size-4xl/5xl/6xl on mobile,
+    // and these aliases inherit that automatically.
+    --text-xs: var(--font-size-xs);
+    --text-sm: var(--font-size-sm);
+    --text-base: var(--font-size-base);
+    --text-lg: var(--font-size-lg);
+    --text-xl: var(--font-size-xl);
+    --text-2xl: var(--font-size-2xl);
+    --text-3xl: var(--font-size-3xl);
+    --text-4xl: var(--font-size-4xl);
+    --text-5xl: var(--font-size-5xl);
+    --text-6xl: var(--font-size-6xl);
+
+    // ========================================================================
+    // SURFACE + BORDER ALIASES
+    // ========================================================================
+    --color-surface-base: var(--color-bg);
+    --color-surface-card: var(--color-surface);
+    --color-border-subtle: var(--color-border);
+    --color-border-interactive: var(--color-border-hover);
+
+    // ========================================================================
+    // STATUS COLOR SCALES
+    // ========================================================================
+    // Feature styles reference numeric steps of the status colors for things
+    // like severity badges. Only the single mid-tone existed, so the shades
+    // around it are published here.
+    --color-error-300: #fca5a5;
+    --color-error-400: #f87171;
+    --color-error-500: var(--color-error);
+    --color-error-600: #dc2626;
+
+    --color-warning-300: #fcd34d;
+    --color-warning-400: #fbbf24;
+    --color-warning-500: var(--color-warning);
+    --color-warning-600: #d97706;
+
+    --color-info-400: var(--color-secondary-400);
+    --color-info-500: var(--color-secondary-500);
+
+    // ========================================================================
+    // TYPOGRAPHY / MOTION / SHADOW ALIASES
+    // ========================================================================
+    --font-family-sans: var(--font-sans);
+    --font-weight-extrabold: 800;
+    // Inherits the prefers-reduced-motion override on --duration-base.
+    --duration-normal: var(--duration-base);
+    --shadow-accent: var(--shadow-primary);
+
+    // Staggered-animation offset. Components set this inline per item; this
+    // default keeps the animation valid when they don't.
+    --animation-delay: 0s;
 }
 
 [data-theme="light"] {
