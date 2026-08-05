@@ -47,11 +47,12 @@ authRouter.post("/refresh-token", authController.refreshTokenController)
 
 
 /**
- * @route GET /api/auth/logout
+ * @route GET|POST /api/auth/logout
  * @description clear token from user cookie and add the token in blacklist
  * @access public
  */
 authRouter.get("/logout", authController.logoutUserController)
+authRouter.post("/logout", authController.logoutUserController)
 
 
 /**

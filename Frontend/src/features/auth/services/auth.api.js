@@ -1,4 +1,5 @@
 import api from "../../../lib/apiClient"
+import { getRefreshToken } from "../../../lib/tokenStorage"
 
 export async function register({ username, email, password }) {
     const response = await api.post("/api/auth/register", { username, email, password })
@@ -16,7 +17,9 @@ export async function verifyLoginOtp({ email, otp }) {
 }
 
 export async function logout() {
-    const response = await api.get("/api/auth/logout")
+    const response = await api.post("/api/auth/logout", {
+        refreshToken: getRefreshToken() || undefined
+    })
     return response.data
 }
 

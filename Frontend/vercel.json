@@ -3,6 +3,10 @@
     "outputDirectory": "dist",
     "rewrites": [
         {
+            "source": "/api/:path*",
+            "destination": "https://hirepilotai-whej.onrender.com/api/:path*"
+        },
+        {
             "source": "/((?!assets/).*)",
             "destination": "/index.html"
         }

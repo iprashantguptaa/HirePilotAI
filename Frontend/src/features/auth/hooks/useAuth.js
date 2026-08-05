@@ -1,17 +1,17 @@
-import { useContext, useEffect } from "react";
+import { useContext } from "react";
 import { AuthContext } from "../auth.context";
 import {
     login,
     verifyLoginOtp,
     register,
     logout,
-    getMe,
     forgotPassword,
     resetPassword,
     resetPasswordWithOtp,
     verifyEmail,
     resendVerification
 } from "../services/auth.api";
+import { clearTokens } from "../../../lib/tokenStorage";
 import { useToast } from "../../../components/ui/Toast/useToast";
 
 function getErrorMessage(error, fallback) {
@@ -103,9 +103,12 @@ export const useAuth = () => {
         setLoading(true)
         try {
             await logout()
+            clearTokens()
             setUser(null)
             return true
         } catch (err) {
+            clearTokens()
+            setUser(null)
             toast?.error(getErrorMessage(err, "Couldn't log out. Please try again."))
             return false
         } finally {
@@ -168,24 +171,6 @@ export const useAuth = () => {
             return false
         }
     }
-
-    useEffect(() => {
-
-        const getAndSetUser = async () => {
-            try {
-                const data = await getMe()
-                setUser(data.user)
-            } catch (err) {
-                setUser(null)
-            } finally {
-                setLoading(false)
-            }
-        }
-
-        getAndSetUser()
-
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [])
 
     return {
         user, loading,

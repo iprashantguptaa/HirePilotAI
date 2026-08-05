@@ -8,13 +8,14 @@ const ApiError = require("../utils/ApiError")
 const asyncHandler = require("../utils/asyncHandler")
 const { generateOpaqueToken, hashToken, generateOtp } = require("../utils/token")
 const { sendEmail } = require("../utils/email")
+const { extractAccessToken } = require("../middlewares/auth.middleware")
 
 const OTP_TTL_MS = 10 * 60 * 1000
 
 /**
- * Sends an OTP email. When SMTP is not configured (local free setup),
- * returns the OTP so the frontend can show it in development only.
- * Production never echoes the OTP in the API response.
+ * Sends an OTP email. When SMTP is not configured, returns previewOtp so
+ * password-reset (and local testing) can still complete without a mailbox.
+ * Never echoes the OTP when a real email was sent.
  */
 async function dispatchOtpEmail({ to, subject, rawOtp, purpose }) {
     const text = `Your HirePilot AI ${purpose} code is ${rawOtp}. It expires in 10 minutes. If you did not request this, ignore this email.`
@@ -27,9 +28,7 @@ async function dispatchOtpEmail({ to, subject, rawOtp, purpose }) {
 
     return {
         delivered: Boolean(result?.delivered),
-        // Only expose the code when mail was logged locally (no SMTP).
-        // Never expose it when a real email was sent, or in production.
-        previewOtp: (!config.isProduction && result?.loggedOnly) ? rawOtp : undefined
+        previewOtp: result?.loggedOnly ? rawOtp : undefined
     }
 }
 
@@ -59,8 +58,9 @@ function signAccessToken(user) {
 
 /**
  * Issues a new access + refresh token pair for a user, persists the
- * refresh token's hash, and sets both as httpOnly cookies. Used by
- * register, login, and the refresh endpoint (rotation).
+ * refresh token's hash, and sets both as httpOnly cookies. Also returns
+ * the raw tokens so the SPA can keep a Bearer fallback when third-party
+ * cookies are blocked (phones / Safari / cross-site Vercel↔Render).
  */
 async function issueSession(res, user) {
     const accessToken = signAccessToken(user)
@@ -72,9 +72,8 @@ async function issueSession(res, user) {
         expiresAt: new Date(Date.now() + config.refreshTokenExpiresInMs)
     })
 
-    // Log cookie options in development for debugging
     if (!config.isProduction) {
-        console.log('[AUTH] Setting cookies with options:', {
+        console.log("[AUTH] Setting cookies with options:", {
             httpOnly: accessCookieOptions.httpOnly,
             secure: accessCookieOptions.secure,
             sameSite: accessCookieOptions.sameSite,
@@ -85,6 +84,8 @@ async function issueSession(res, user) {
 
     res.cookie("accessToken", accessToken, accessCookieOptions)
     res.cookie("refreshToken", refreshToken, refreshCookieOptions)
+
+    return { accessToken, refreshToken }
 }
 
 function publicUser(user) {
@@ -164,16 +165,17 @@ const registerUserController = asyncHandler(async function registerUserControlle
         password: hash
     })
 
-    await issueSession(res, user)
-
     // Verification email failures shouldn't block registration -- the
     // account is still usable, the user just stays unverified until they
     // retry or an admin flags it.
     sendVerificationEmail(user).catch(() => { })
 
+    const tokens = await issueSession(res, user)
+
     res.status(201).json({
         message: "User registered successfully",
-        user: publicUser(user)
+        user: publicUser(user),
+        ...tokens
     })
 })
 
@@ -181,7 +183,8 @@ const registerUserController = asyncHandler(async function registerUserControlle
 /**
  * @name loginUserController
  * @description Step 1 of login: validate email/password, then send a free OTP.
- *              Session cookies are issued only after OTP verification.
+ *              When SMTP is not configured, skip OTP and issue the session
+ *              immediately so production demos are not stuck without email.
  * @access Public
  */
 const loginUserController = asyncHandler(async function loginUserController(req, res) {
@@ -204,25 +207,52 @@ const loginUserController = asyncHandler(async function loginUserController(req,
         throw ApiError.badRequest("Invalid email or password")
     }
 
+    // No mail provider configured → do not ask for an OTP the user can never receive.
+    if (!config.smtp.host) {
+        const tokens = await issueSession(res, user)
+        return res.status(200).json({
+            message: "Logged in successfully.",
+            user: publicUser(user),
+            requiresOtp: false,
+            ...tokens
+        })
+    }
+
     const { rawOtp, otpHash } = generateOtp()
     user.loginOtpHash = otpHash
     user.loginOtpExpires = new Date(Date.now() + OTP_TTL_MS)
     await user.save()
 
-    const delivery = await dispatchOtpEmail({
-        to: user.email,
-        subject: "Your HirePilot AI login code",
-        rawOtp,
-        purpose: "login"
-    })
+    let delivery
+    try {
+        delivery = await dispatchOtpEmail({
+            to: user.email,
+            subject: "Your HirePilot AI login code",
+            rawOtp,
+            purpose: "login"
+        })
+    } catch (err) {
+        user.loginOtpHash = undefined
+        user.loginOtpExpires = undefined
+        await user.save()
+        throw ApiError.serviceUnavailable(
+            "Could not send the login OTP email. Please try again in a minute."
+        )
+    }
+
+    if (!delivery.delivered) {
+        user.loginOtpHash = undefined
+        user.loginOtpExpires = undefined
+        await user.save()
+        throw ApiError.serviceUnavailable(
+            "Login email could not be sent. Check SMTP settings on the server, or try again later."
+        )
+    }
 
     res.status(200).json({
-        message: delivery.delivered
-            ? "Password correct. Enter the OTP sent to your email to finish signing in."
-            : "Password correct. Enter the OTP below to finish signing in (email is not configured on this server, so the code is shown here for local/free use).",
+        message: "Password correct. Enter the OTP sent to your email to finish signing in.",
         requiresOtp: true,
-        email: user.email,
-        ...(delivery.previewOtp ? { previewOtp: delivery.previewOtp } : {})
+        email: user.email
     })
 })
 
@@ -257,22 +287,25 @@ const verifyLoginOtpController = asyncHandler(async function verifyLoginOtpContr
     user.loginOtpExpires = undefined
     await user.save()
 
-    await issueSession(res, user)
+    const tokens = await issueSession(res, user)
 
     res.status(200).json({
         message: "Logged in successfully.",
-        user: publicUser(user)
+        user: publicUser(user),
+        ...tokens
     })
 })
 
 
 /**
  * @name refreshTokenController
- * @description exchanges a valid refresh token cookie for a new access + refresh token pair (rotation).
- * @access public (requires refreshToken cookie)
+ * @description exchanges a valid refresh token cookie (or body token) for a
+ *              new access + refresh token pair (rotation).
+ * @access public
  */
 const refreshTokenController = asyncHandler(async function refreshTokenController(req, res) {
     const rawToken = req.cookies.refreshToken
+        || (typeof req.body?.refreshToken === "string" ? req.body.refreshToken : "")
 
     if (!rawToken) {
         throw ApiError.unauthorized("Refresh token not provided.")
@@ -305,9 +338,9 @@ const refreshTokenController = asyncHandler(async function refreshTokenControlle
     existing.revokedAt = new Date()
     await existing.save()
 
-    await issueSession(res, user)
+    const tokens = await issueSession(res, user)
 
-    res.status(200).json({ message: "Session refreshed successfully." })
+    res.status(200).json({ message: "Session refreshed successfully.", ...tokens })
 })
 
 
@@ -317,8 +350,9 @@ const refreshTokenController = asyncHandler(async function refreshTokenControlle
  * @access public
  */
 const logoutUserController = asyncHandler(async function logoutUserController(req, res) {
-    const accessToken = req.cookies.accessToken
+    const accessToken = extractAccessToken(req)
     const refreshToken = req.cookies.refreshToken
+        || (typeof req.body?.refreshToken === "string" ? req.body.refreshToken : "")
 
     if (accessToken) {
         await tokenBlacklistModel.create({ token: accessToken })

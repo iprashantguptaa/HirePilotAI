@@ -5,27 +5,32 @@ const config = require("../config/env")
 const ApiError = require("../utils/ApiError")
 const asyncHandler = require("../utils/asyncHandler")
 
+function extractAccessToken(req) {
+    const fromCookie = req.cookies?.accessToken
+    if (fromCookie) return fromCookie
+
+    const header = req.get("authorization") || ""
+    const match = /^Bearer\s+(.+)$/i.exec(header)
+    return match ? match[ 1 ].trim() : null
+}
+
 /**
- * Verifies the short-lived access token cookie. Renamed from "token" to
- * "accessToken" to be explicit now that a separate "refreshToken" cookie
- * also exists -- httpOnly cookies aren't read by frontend JS, so this
- * rename doesn't affect the client.
+ * Verifies the short-lived access token from cookie OR Authorization Bearer.
+ * Bearer support keeps sessions alive when third-party cookies are blocked
+ * (common on phones / Safari when API is on a different host).
  */
 const authUser = asyncHandler(async function authUser(req, res, next) {
-    const token = req.cookies.accessToken
+    const token = extractAccessToken(req)
 
     if (!token) {
-        // Log for debugging in production - helps diagnose cookie issues
-        const allCookies = Object.keys(req.cookies || {})
-        const hasRefresh = !!req.cookies.refreshToken
-        
         if (!config.isProduction) {
-            console.log('[AUTH] No access token. Available cookies:', allCookies)
-            console.log('[AUTH] Has refresh token:', hasRefresh)
-            console.log('[AUTH] Request origin:', req.get('origin'))
-            console.log('[AUTH] Request referer:', req.get('referer'))
+            const allCookies = Object.keys(req.cookies || {})
+            console.log("[AUTH] No access token. Available cookies:", allCookies)
+            console.log("[AUTH] Has refresh token:", !!req.cookies.refreshToken)
+            console.log("[AUTH] Has Authorization:", Boolean(req.get("authorization")))
+            console.log("[AUTH] Request origin:", req.get("origin"))
         }
-        
+
         throw ApiError.unauthorized("Access token not provided.")
     }
 
@@ -77,4 +82,4 @@ function authorizeRoles(...allowedRoles) {
     }
 }
 
-module.exports = { authUser, authorizeRoles }
+module.exports = { authUser, authorizeRoles, extractAccessToken }
