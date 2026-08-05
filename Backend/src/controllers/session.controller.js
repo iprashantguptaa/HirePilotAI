@@ -211,6 +211,13 @@ const startSessionController = asyncHandler(async function startSessionControlle
     }
 
     const requestedQuestions = Number(plannedQuestions)
+    const resolvedCount = Number.isFinite(requestedQuestions)
+        ? Math.min(Math.max(requestedQuestions, 3), 15)
+        : 6
+
+    // Create the shell first, then generate Q1. If Q1 fails, delete the empty
+    // session so retries (including 3-question starts) don't pile up orphans
+    // and confuse the user with "failed" rows in history.
     const session = await interviewSessionModel.create({
         user: req.user.id,
         interviewReport: interviewReportId || undefined,
@@ -218,14 +225,19 @@ const startSessionController = asyncHandler(async function startSessionControlle
         jobDescription,
         resume,
         mode: [ "technical", "behavioral", "mixed" ].includes(mode) ? mode : "mixed",
-        plannedQuestions: Number.isFinite(requestedQuestions)
-            ? Math.min(Math.max(requestedQuestions, 3), 15)
-            : 6,
+        plannedQuestions: resolvedCount,
         turns: []
     })
 
-    await appendNextQuestion(session, req.user.id)
-    await session.save()
+    try {
+        await appendNextQuestion(session, req.user.id)
+        // Opening question is never a follow-up, even if the model marks it so.
+        if (session.turns[ 0 ]) session.turns[ 0 ].isFollowUp = false
+        await session.save()
+    } catch (err) {
+        await interviewSessionModel.findByIdAndDelete(session._id).catch(() => { })
+        throw err
+    }
 
     res.status(201).json({
         message: "Practice session started.",

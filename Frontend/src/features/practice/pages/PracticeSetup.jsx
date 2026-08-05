@@ -63,14 +63,26 @@ const PracticeSetup = () => {
 
         setStarting(true)
         try {
+            const count = Number(plannedQuestions) || 6
             const payload = source === "report"
-                ? { interviewReportId: effectiveReportId, mode, plannedQuestions }
-                : { jobDescription: jobDescription.trim(), mode, plannedQuestions }
+                ? { interviewReportId: effectiveReportId, mode, plannedQuestions: count }
+                : { jobDescription: jobDescription.trim(), mode, plannedQuestions: count }
 
             const response = await startSession(payload)
             navigate(`/practice/${response.session._id}`)
         } catch (error) {
-            toast?.error(error?.response?.data?.message || "Couldn't start the practice session. Please try again.")
+            const apiMessage = error?.response?.data?.message
+            const timedOut = error?.code === "ECONNABORTED" || /timeout/i.test(error?.message || "")
+            const offline = error?.message === "Network Error" || !error?.response
+
+            toast?.error(
+                apiMessage
+                || (timedOut
+                    ? "The interviewer is taking too long to ask the first question. Wait a few seconds and try again."
+                    : offline
+                        ? "Can't reach the server. Check your connection (or wait if the API is waking up), then try again."
+                        : "Couldn't start the practice session. Please try again.")
+            )
             setStarting(false)
         }
     }
@@ -82,7 +94,20 @@ const PracticeSetup = () => {
                 description="Practice a real interview one question at a time and get every answer scored against a rubric."
             />
 
-            <div className="practice-setup container">
+            {starting && (
+                <div className="practice-start-overlay" role="status" aria-live="polite" aria-busy="true">
+                    <div className="practice-start-overlay__card">
+                        <div className="practice-start-overlay__spinner" aria-hidden="true" />
+                        <h2>Starting your interview…</h2>
+                        <p>
+                            Preparing question 1 of {plannedQuestions}. This usually takes a few seconds —
+                            hang tight.
+                        </p>
+                    </div>
+                </div>
+            )}
+
+            <div className={`practice-setup container ${starting ? "practice-setup--starting" : ""}`}>
                 <header className="practice-setup__header">
                     <Badge variant="default">Live practice</Badge>
                     <h1>Practice a real interview</h1>

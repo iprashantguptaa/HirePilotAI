@@ -13,7 +13,8 @@ export const startSession = async ({ interviewReportId, jobDescription, title, m
         plannedQuestions
     }, {
         // First question is one AI call — allow cold-start + generation time.
-        timeout: 120000
+        // 3 vs 6 questions uses the same path; failures were mostly timeouts/AI flakiness.
+        timeout: 180000
     })
     return response.data
 }

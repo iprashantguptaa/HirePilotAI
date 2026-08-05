@@ -396,9 +396,15 @@ How to behave:
 
 const sessionQuestionSchema = z.object({
     question: z.string().describe("The single next interview question to ask the candidate. Ask exactly one question, phrased the way a real interviewer would say it out loud."),
-    category: z.enum([ "technical", "behavioral" ]).describe("Whether this is a technical/domain question or a behavioral/situational question"),
+    // Coerce common model variants ("Behavioural", "TECHNICAL") so a strict
+    // enum miss doesn't fail the whole "Start interview" request.
+    category: z.preprocess((value) => {
+        const normalized = String(value || "").toLowerCase()
+        if (normalized.startsWith("behav")) return "behavioral"
+        return "technical"
+    }, z.enum([ "technical", "behavioral" ])),
     intention: z.string().describe("What the interviewer is actually trying to assess with this question. Not shown to the candidate before they answer."),
-    isFollowUp: z.boolean().describe("True if this question drills deeper into the candidate's previous answer rather than opening a new topic")
+    isFollowUp: z.preprocess((value) => Boolean(value), z.boolean())
 })
 
 /**
@@ -453,8 +459,16 @@ Rules:
         }
     }, "session_question")
 
+    const data = parseStructured(response, sessionQuestionSchema, "session_question")
+
     return {
-        data: parseStructured(response, sessionQuestionSchema, "session_question"),
+        data: {
+            ...data,
+            category: data.category === "behavioral" ? "behavioral" : "technical",
+            isFollowUp: Boolean(data.isFollowUp),
+            question: String(data.question || "").trim(),
+            intention: String(data.intention || "").trim()
+        },
         usage: extractUsage(response)
     }
 }

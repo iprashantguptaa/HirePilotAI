@@ -14,10 +14,13 @@ export const ToastProvider = ({ children }) => {
 
     const showToast = useCallback((message, { type = "info", duration = 4000 } = {}) => {
         const id = ++idCounter
+        // Errors stay longer — clipped/under-header toasts were disappearing
+        // before people could read them.
+        const resolvedDuration = type === "error" ? Math.max(duration, 7000) : duration
         setToasts((current) => [ ...current, { id, message, type } ])
 
-        if (duration > 0) {
-            setTimeout(() => dismissToast(id), duration)
+        if (resolvedDuration > 0) {
+            setTimeout(() => dismissToast(id), resolvedDuration)
         }
 
         return id

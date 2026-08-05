@@ -7,6 +7,64 @@
 @use "../../../styles/tokens" as *;
 
 // ============================================================================
+// START INTERVIEW — FULL PAGE LOADING
+// ============================================================================
+
+.practice-start-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1080;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-6);
+    background: color-mix(in srgb, var(--color-bg) 72%, transparent);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+}
+
+.practice-start-overlay__card {
+    width: min(28rem, 100%);
+    padding: var(--space-8) var(--space-6);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-xl);
+    background: var(--color-surface);
+    box-shadow: var(--shadow-lg);
+    text-align: center;
+
+    h2 {
+        margin: var(--space-5) 0 var(--space-2);
+        font-size: var(--font-size-xl);
+    }
+
+    p {
+        margin: 0;
+        color: var(--color-text-secondary);
+        font-size: var(--font-size-sm);
+        line-height: var(--line-height-relaxed);
+    }
+}
+
+.practice-start-overlay__spinner {
+    width: 2.75rem;
+    height: 2.75rem;
+    margin: 0 auto;
+    border-radius: var(--radius-full);
+    border: 3px solid var(--color-border);
+    border-top-color: var(--color-primary-600);
+    animation: practiceSpin 0.8s linear infinite;
+}
+
+.practice-setup--starting {
+    pointer-events: none;
+    user-select: none;
+}
+
+@keyframes practiceSpin {
+    to { transform: rotate(360deg); }
+}
+
+// ============================================================================
 // SHARED: SCORE DIAL
 // ============================================================================
 
