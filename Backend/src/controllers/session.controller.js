@@ -205,7 +205,7 @@ const startSessionController = asyncHandler(async function startSessionControlle
         title = (req.body.title || "").trim() || "Practice Session"
 
         // Fall back to the resume saved on the user's profile so they don't
-        // have to re-upload it just to practise.
+        // have to re-upload it just to practice.
         const user = await userModel.findById(req.user.id).select("resume")
         resume = user?.resume?.text
     }

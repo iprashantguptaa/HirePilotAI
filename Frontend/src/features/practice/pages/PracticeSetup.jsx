@@ -14,7 +14,7 @@ const PracticeSetup = () => {
     const [ searchParams ] = useSearchParams()
     const { reports, loading: loadingReports, getReports } = useInterview()
 
-    // Deep-linked from an interview report's "Practise this interview" action.
+    // Deep-linked from an interview report's "Practice this interview" action.
     const preselectedReportId = searchParams.get("report")
 
     const [ source, setSource ] = useState(preselectedReportId ? "report" : "jobDescription")
@@ -79,13 +79,13 @@ const PracticeSetup = () => {
         <>
             <SEO
                 title="Mock Interview Practice | HirePilot AI"
-                description="Practise a real interview one question at a time and get every answer scored against a rubric."
+                description="Practice a real interview one question at a time and get every answer scored against a rubric."
             />
 
             <div className="practice-setup container">
                 <header className="practice-setup__header">
                     <Badge variant="default">Live practice</Badge>
-                    <h1>Practise a real interview</h1>
+                    <h1>Practice a real interview</h1>
                     <p>
                         One question at a time. You answer, we score it against a rubric and tell you
                         exactly what was missing, then the next question adapts to how you did.

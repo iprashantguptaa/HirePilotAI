@@ -7,7 +7,7 @@ import { scoreTone, scoreLabel, RUBRIC_DIMENSIONS } from "../practice.utils"
 /**
  * Finds the rubric dimension the candidate scored lowest on across the whole
  * session. A single weak answer is noise; the weakest *average* dimension is
- * the thing worth practising next.
+ * the thing worth practicing next.
  */
 function weakestDimension(rubricAverages) {
     if (!rubricAverages) return null
@@ -148,7 +148,7 @@ const SessionReport = ({ session }) => {
 
             <footer className="session-report__footer">
                 <Link to="/practice">
-                    <Button variant="primary" size="lg">Practise again</Button>
+                    <Button variant="primary" size="lg">Practice again</Button>
                 </Link>
                 {session.interviewReport && (
                     <Link to={`/interview/${session.interviewReport}`}>
