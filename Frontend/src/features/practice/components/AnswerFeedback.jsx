@@ -26,8 +26,16 @@ const AnswerFeedback = ({ turn, onContinue, continueLabel = "Next question", bus
                     <Badge variant={tone === "high" ? "success" : tone === "mid" ? "warning" : "error"}>
                         {scoreLabel(turn.overallScore)}
                     </Badge>
+                    {turn.scoringMode === "basic" && (
+                        <Badge variant="warning">Basic scoring (AI busy)</Badge>
+                    )}
                     <h3>How that answer scored</h3>
                     <p>Question {turn.questionNumber}{turn.isFollowUp ? " (follow-up)" : ""} &middot; {turn.category}</p>
+                    {turn.scoringMode === "basic" && (
+                        <p className="answer-feedback__degraded">
+                            Full AI coaching was unavailable, so this used a basic local rubric. You can still continue the interview.
+                        </p>
+                    )}
                 </div>
             </header>
 

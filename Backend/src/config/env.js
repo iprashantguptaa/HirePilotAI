@@ -57,6 +57,14 @@ const config = {
     refreshTokenExpiresIn,
     refreshTokenExpiresInMs: parseDurationToMs(refreshTokenExpiresIn, 30 * 24 * 60 * 60 * 1000),
     googleGenAiApiKey: process.env.GOOGLE_GENAI_API_KEY,
+    // Prefer free-tier Flash-Lite. Preview / Gemini 3 Flash models burn quota fast.
+    // Override with GEMINI_MODEL on Render if you want a specific model.
+    geminiModel: process.env.GEMINI_MODEL || "gemini-2.5-flash-lite",
+    geminiFallbackModels: (process.env.GEMINI_FALLBACK_MODELS
+        || "gemini-2.5-flash-lite,gemini-2.5-flash,gemini-3.1-flash-lite,gemini-3-flash-preview")
+        .split(",")
+        .map((value) => value.trim())
+        .filter(Boolean),
     // Primary frontend URL (email links, etc.). Also used for CORS.
     // Strip trailing slash — "https://app.vercel.app/" !== "https://app.vercel.app"
     // and would silently break cross-origin auth.

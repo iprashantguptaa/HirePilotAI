@@ -10,6 +10,7 @@ const {
 const ApiError = require("../utils/ApiError")
 const asyncHandler = require("../utils/asyncHandler")
 const logger = require("../utils/logger")
+const config = require("../config/env")
 
 const MAX_ANSWER_LENGTH = 5000
 const RUBRIC_KEYS = [ "relevance", "depth", "structure", "clarity", "specificity" ]
@@ -23,7 +24,7 @@ async function logAiUsage(userId, type, usage) {
         await aiUsageLogModel.create({
             user: userId,
             type,
-            model: "gemini-3-flash-preview",
+            model: config.geminiModel,
             promptTokens: usage?.promptTokens || 0,
             responseTokens: usage?.responseTokens || 0,
             totalTokens: usage?.totalTokens || 0
@@ -286,6 +287,7 @@ const submitAnswerController = asyncHandler(async function submitAnswerControlle
     pendingTurn.overallScore = score.overallScore
     pendingTurn.rubric = score.rubric
     pendingTurn.feedback = score.feedback
+    pendingTurn.scoringMode = score.scoringMode === "basic" ? "basic" : "ai"
     pendingTurn.answeredAt = new Date()
 
     // Persist the grading before generating the next question. If question

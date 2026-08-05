@@ -4,12 +4,16 @@ const { zodToJsonSchema } = require("zod-to-json-schema")
 const puppeteer = require("puppeteer")
 const ApiError = require("../utils/ApiError")
 const logger = require("../utils/logger")
+const config = require("../config/env")
 
 const ai = new GoogleGenAI({
     apiKey: process.env.GOOGLE_GENAI_API_KEY
 })
 
-const MODEL = "gemini-3-flash-preview"
+// Stable flash by default. Preview models (e.g. gemini-3-flash-preview) burn
+// free-tier quota fast and surface as "usage limit" on every practice submit.
+const MODEL = config.geminiModel
+const MODEL_CANDIDATES = [ ...new Set([ MODEL, ...config.geminiFallbackModels ]) ]
 
 // The provider returns these when it is overloaded or rate-limiting rather
 // than when the request is wrong, so they are worth retrying.
@@ -62,38 +66,49 @@ function isQuotaError(error) {
 /**
  * Single entry point for every model call.
  *
- * Retries transient provider failures with exponential backoff, and converts
- * anything that still fails into an ApiError with a message safe to show a
- * user. Without this, a momentary provider 503 surfaced as a 500 containing
- * the raw provider JSON body.
+ * Tries the primary model, then fallbacks, with short retries on transient
+ * overload. Converts failures into ApiErrors safe to show a user.
  */
 async function callModel(request, label) {
+    const requestedModel = request.model || MODEL
+    const modelsToTry = [ ...new Set([ requestedModel, ...MODEL_CANDIDATES ]) ]
     let lastError
 
-    for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt += 1) {
-        try {
-            return await ai.models.generateContent(request)
-        } catch (error) {
-            lastError = error
+    for (const modelName of modelsToTry) {
+        for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt += 1) {
+            try {
+                return await ai.models.generateContent({
+                    ...request,
+                    model: modelName
+                })
+            } catch (error) {
+                lastError = error
 
-            const status = upstreamStatus(error)
-            const isRetryable = status !== undefined
-                && RETRYABLE_UPSTREAM_STATUSES.has(status)
-                && !isQuotaError(error)
+                const status = upstreamStatus(error)
+                const quota = isQuotaError(error)
+                const isRetryable = status !== undefined
+                    && RETRYABLE_UPSTREAM_STATUSES.has(status)
+                    && !quota
 
-            if (!isRetryable || attempt === MAX_ATTEMPTS) break
+                logger.warn(
+                    `AI call "${label}" failed on ${modelName}`
+                    + ` (attempt ${attempt}/${MAX_ATTEMPTS}`
+                    + `${status ? `, status ${status}` : ""}`
+                    + `${quota ? ", quota" : ""}): ${upstreamMessage(error)}`
+                )
 
-            const backoff = BASE_BACKOFF_MS * 2 ** (attempt - 1)
-            logger.warn(`AI call "${label}" hit upstream ${status} (attempt ${attempt}/${MAX_ATTEMPTS}); retrying in ${backoff}ms`)
-            await sleep(backoff)
+                if (quota) break // try next model immediately
+                if (!isRetryable || attempt === MAX_ATTEMPTS) break
+
+                const backoff = BASE_BACKOFF_MS * 2 ** (attempt - 1)
+                await sleep(backoff)
+            }
         }
     }
 
     const status = upstreamStatus(lastError)
-    logger.error(`AI call "${label}" failed: ${upstreamMessage(lastError)}`)
+    logger.error(`AI call "${label}" failed on all models: ${upstreamMessage(lastError)}`)
 
-    // Distinguished from ordinary overload because the operator, not the user,
-    // has to act -- and no amount of retrying by the user will help.
     if (isQuotaError(lastError)) {
         throw ApiError.serviceUnavailable(
             "Our AI service has reached its usage limit. Please try again later."
@@ -534,14 +549,47 @@ Rules:
             usage: extractUsage(response)
         }
     } catch (err) {
-        // Opening question must not hard-fail the whole "Start interview" flow
-        // when Gemini returns truncated/malformed JSON. Later questions still
-        // surface the real error so quality doesn't silently degrade forever.
+        // Keep the session usable when Gemini is quota-blocked or busy.
+        logger.warn(`Session question ${questionNumber} AI failed (${err.message}); using fallback question`)
         if (questionNumber === 1) {
-            logger.warn(`Opening question AI failed (${err.message}); using fallback opener`)
             return { data: fallbackOpeningQuestion(mode), usage: { promptTokens: 0, responseTokens: 0, totalTokens: 0 } }
         }
-        throw err
+        return {
+            data: fallbackNextQuestion({ mode, questionNumber, priorTurns: recentTurns }),
+            usage: { promptTokens: 0, responseTokens: 0, totalTokens: 0 }
+        }
+    }
+}
+
+function fallbackNextQuestion({ mode, questionNumber, priorTurns }) {
+    const last = (priorTurns || []).filter((turn) => turn.answer).at(-1)
+    const lastScore = typeof last?.overallScore === "number" ? last.overallScore : 50
+    const preferBehavioral = mode === "behavioral"
+        || (mode === "mixed" && questionNumber % 2 === 0)
+
+    if (last && lastScore < 60) {
+        return {
+            question: "Thanks. Dig one level deeper on that — what specifically was hard, what options did you consider, and what did you choose and why?",
+            category: preferBehavioral ? "behavioral" : "technical",
+            intention: "Probe depth and ownership after a thin or vague answer.",
+            isFollowUp: true
+        }
+    }
+
+    if (preferBehavioral) {
+        return {
+            question: "Tell me about a time you disagreed with a teammate or stakeholder. How did you handle it, and what was the outcome?",
+            category: "behavioral",
+            intention: "Assess conflict handling, communication, and judgment.",
+            isFollowUp: false
+        }
+    }
+
+    return {
+        question: "For this role, how would you design or reason about a system that needs to handle growth in traffic — what would you watch, cache, or scale first?",
+        category: "technical",
+        intention: "Assess system design instincts and practical trade-off thinking.",
+        isFollowUp: false
     }
 }
 
@@ -563,9 +611,83 @@ const answerScoreSchema = z.object({
 })
 
 /**
+ * Local rubric when Gemini is out of quota / busy. Honest enough to keep
+ * practice moving; not a substitute for full AI coaching.
+ */
+function fallbackScoreAnswer({ question, answer }) {
+    const text = String(answer || "").trim()
+    const words = text ? text.split(/\s+/).filter(Boolean) : []
+    const wordCount = words.length
+    const lower = text.toLowerCase()
+
+    const hasNumber = /\d/.test(text)
+    const hasProjectCue = /project|built|developed|implemented|designed|worked|handled|backend|frontend|api|database|user/i.test(text)
+    const hasOutcomeCue = /result|impact|improved|reduced|increased|performance|scale|load|cache|balancing|latency|users/i.test(text)
+    const hasStructureCue = /first|then|after|because|so that|for example|specifically/i.test(text)
+    const questionTokens = String(question || "")
+        .toLowerCase()
+        .split(/[^a-z0-9]+/)
+        .filter((token) => token.length > 4)
+        .slice(0, 12)
+    const overlap = questionTokens.filter((token) => lower.includes(token)).length
+
+    let relevance = 38
+    let depth = 35
+    let structure = 35
+    let clarity = 40
+    let specificity = 32
+
+    if (wordCount >= 20) { relevance += 8; clarity += 6; depth += 4 }
+    if (wordCount >= 45) { relevance += 6; depth += 8; structure += 6; clarity += 6 }
+    if (wordCount >= 80) { depth += 6; structure += 4 }
+    if (wordCount < 12) { relevance -= 10; depth -= 12; clarity -= 8; specificity -= 8 }
+
+    if (overlap >= 2) relevance += 10
+    if (overlap >= 4) relevance += 6
+    if (hasProjectCue) { depth += 8; relevance += 4 }
+    if (hasOutcomeCue) { specificity += 14; depth += 6 }
+    if (hasNumber) specificity += 12
+    if (hasStructureCue) structure += 12
+
+    const clamp = (n) => Math.max(18, Math.min(78, Math.round(n)))
+    relevance = clamp(relevance)
+    depth = clamp(depth)
+    structure = clamp(structure)
+    clarity = clamp(clarity)
+    specificity = clamp(specificity)
+
+    const overallScore = Math.round(
+        (relevance + depth + structure + clarity + specificity) / 5
+    )
+
+    const gaps = []
+    if (wordCount < 40) gaps.push("Give a fuller spoken answer (about 45–90 seconds).")
+    if (!hasNumber) gaps.push("Add a concrete number or measurable outcome.")
+    if (!hasOutcomeCue) gaps.push("Explain the impact — what changed because of your work?")
+    if (overlap < 2) gaps.push("Tie the story more directly back to what the question asked.")
+    if (!gaps.length) gaps.push("Add more specifics from your own experience for this exact question.")
+
+    return {
+        overallScore,
+        rubric: { relevance, depth, structure, clarity, specificity },
+        feedback: {
+            whatWorked: hasProjectCue
+                ? "You named a real project and your role — that is a usable start."
+                : "You attempted an answer; keep grounding it in a real project from your experience.",
+            whatWasMissing: gaps.slice(0, 2).join(" "),
+            improvedAnswer: "Pick one project. Say the problem, what you built, your specific ownership, one hard challenge, and one measurable result (users, latency, errors, revenue). Keep it under 90 seconds."
+        },
+        scoringMode: "basic"
+    }
+}
+
+/**
  * Grades one answer against a fixed rubric. Deliberately prompted to resist
  * grade inflation -- an encouraging-but-useless scorer would make the whole
  * practice feature worthless.
+ *
+ * If every Gemini model is quota-blocked or busy, falls back to basic local
+ * scoring so the candidate is never stuck mid-interview.
  */
 async function scoreSessionAnswer({ resume, jobDescription, question, category, intention, answer }) {
 
@@ -590,19 +712,30 @@ Rules:
 - Judge depth against the seniority implied by the JD.
 - Keep feedback short. improvedAnswer max ~90 words, spoken style, use only facts from their background.`
 
-    const response = await callModel({
-        model: MODEL,
-        contents: prompt,
-        config: {
-            responseMimeType: "application/json",
-            responseSchema: zodToJsonSchema(answerScoreSchema),
-            maxOutputTokens: 1024
-        }
-    }, "session_score")
+    try {
+        const response = await callModel({
+            model: MODEL,
+            contents: prompt,
+            config: {
+                responseMimeType: "application/json",
+                responseSchema: zodToJsonSchema(answerScoreSchema),
+                maxOutputTokens: 1024
+            }
+        }, "session_score")
 
-    return {
-        data: parseStructured(response, answerScoreSchema, "session_score"),
-        usage: extractUsage(response)
+        return {
+            data: {
+                ...parseStructured(response, answerScoreSchema, "session_score"),
+                scoringMode: "ai"
+            },
+            usage: extractUsage(response)
+        }
+    } catch (err) {
+        logger.warn(`AI scoring unavailable (${err.message}); using basic local rubric`)
+        return {
+            data: fallbackScoreAnswer({ question, answer }),
+            usage: { promptTokens: 0, responseTokens: 0, totalTokens: 0 }
+        }
     }
 }
 

@@ -54,6 +54,12 @@ const sessionTurnSchema = new mongoose.Schema({
     overallScore: { type: Number, min: 0, max: 100 },
     rubric: answerRubricSchema,
     feedback: answerFeedbackSchema,
+    // "ai" = Gemini graded; "basic" = local heuristic when Gemini quota/busy.
+    scoringMode: {
+        type: String,
+        enum: [ "ai", "basic" ],
+        default: "ai"
+    },
     askedAt: { type: Date, default: Date.now },
     answeredAt: { type: Date }
 }, {

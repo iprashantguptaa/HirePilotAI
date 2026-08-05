@@ -697,6 +697,13 @@
         }
     }
 
+    &__degraded {
+        text-transform: none !important;
+        color: var(--color-warning, #b45309) !important;
+        max-width: 36rem;
+        line-height: 1.45;
+    }
+
     &__notes {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
