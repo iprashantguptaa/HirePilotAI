@@ -3,8 +3,17 @@ import api from "../../../lib/apiClient"
 /**
  * @description Start a live practice interview session. Resolves with the session
  * and its first question already generated.
+ * @param {object} opts
+ * @param {AbortSignal} [opts.signal] - optional abort when user cancels start
  */
-export const startSession = async ({ interviewReportId, jobDescription, title, mode, plannedQuestions }) => {
+export const startSession = async ({
+    interviewReportId,
+    jobDescription,
+    title,
+    mode,
+    plannedQuestions,
+    signal
+}) => {
     const response = await api.post("/api/session", {
         interviewReportId,
         jobDescription,
@@ -13,8 +22,8 @@ export const startSession = async ({ interviewReportId, jobDescription, title, m
         plannedQuestions
     }, {
         // First question is one AI call — allow cold-start + generation time.
-        // 3 vs 6 questions uses the same path; failures were mostly timeouts/AI flakiness.
-        timeout: 180000
+        timeout: 180000,
+        signal
     })
     return response.data
 }

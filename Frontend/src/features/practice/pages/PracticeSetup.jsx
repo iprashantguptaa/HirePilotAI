@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { Link, useNavigate, useSearchParams } from "react-router"
 import { Button, Textarea, Badge, SkeletonCard, EmptyState } from "../../../components/ui"
 import { useToast } from "../../../components/ui/Toast/useToast"
@@ -13,6 +13,7 @@ const PracticeSetup = () => {
     const toast = useToast()
     const [ searchParams ] = useSearchParams()
     const { reports, loading: loadingReports, getReports } = useInterview()
+    const startAbortRef = useRef(null)
 
     // Deep-linked from an interview report's "Practice this interview" action.
     const preselectedReportId = searchParams.get("report")
@@ -26,6 +27,12 @@ const PracticeSetup = () => {
 
     const [ pastSessions, setPastSessions ] = useState([])
     const [ loadingSessions, setLoadingSessions ] = useState(true)
+
+    useEffect(() => {
+        return () => {
+            startAbortRef.current?.abort()
+        }
+    }, [])
 
     useEffect(() => {
         getReports()
@@ -58,19 +65,40 @@ const PracticeSetup = () => {
 
     const canStart = source === "report" ? Boolean(effectiveReportId) : jobDescription.trim().length > 30
 
+    const handleCancelStart = () => {
+        startAbortRef.current?.abort()
+        startAbortRef.current = null
+        setStarting(false)
+        toast?.info("Interview start cancelled. You can change options and try again.")
+    }
+
     const handleStart = async () => {
         if (!canStart || starting) return
+
+        startAbortRef.current?.abort()
+        const controller = new AbortController()
+        startAbortRef.current = controller
 
         setStarting(true)
         try {
             const count = Number(plannedQuestions) || 6
             const payload = source === "report"
-                ? { interviewReportId: effectiveReportId, mode, plannedQuestions: count }
-                : { jobDescription: jobDescription.trim(), mode, plannedQuestions: count }
+                ? { interviewReportId: effectiveReportId, mode, plannedQuestions: count, signal: controller.signal }
+                : { jobDescription: jobDescription.trim(), mode, plannedQuestions: count, signal: controller.signal }
 
             const response = await startSession(payload)
+            if (controller.signal.aborted) return
             navigate(`/practice/${response.session._id}`)
         } catch (error) {
+            if (
+                controller.signal.aborted
+                || error?.code === "ERR_CANCELED"
+                || error?.name === "CanceledError"
+                || error?.name === "AbortError"
+            ) {
+                return
+            }
+
             const apiMessage = error?.response?.data?.message
             const timedOut = error?.code === "ECONNABORTED" || /timeout/i.test(error?.message || "")
             const offline = error?.message === "Network Error" || !error?.response
@@ -83,6 +111,10 @@ const PracticeSetup = () => {
                         ? "Can't reach the server. Check your connection (or wait if the API is waking up), then try again."
                         : "Couldn't start the practice session. Please try again.")
             )
+        } finally {
+            if (startAbortRef.current === controller) {
+                startAbortRef.current = null
+            }
             setStarting(false)
         }
     }
@@ -94,20 +126,7 @@ const PracticeSetup = () => {
                 description="Practice a real interview one question at a time and get every answer scored against a rubric."
             />
 
-            {starting && (
-                <div className="practice-start-overlay" role="status" aria-live="polite" aria-busy="true">
-                    <div className="practice-start-overlay__card">
-                        <div className="practice-start-overlay__spinner" aria-hidden="true" />
-                        <h2>Starting your interview…</h2>
-                        <p>
-                            Preparing question 1 of {plannedQuestions}. This usually takes a few seconds —
-                            hang tight.
-                        </p>
-                    </div>
-                </div>
-            )}
-
-            <div className={`practice-setup container ${starting ? "practice-setup--starting" : ""}`}>
+            <div className="practice-setup container">
                 <header className="practice-setup__header">
                     <Badge variant="default">Live practice</Badge>
                     <h1>Practice a real interview</h1>
@@ -215,16 +234,32 @@ const PracticeSetup = () => {
                 </section>
 
                 <div className="practice-setup__start">
-                    <Button
-                        variant="primary"
-                        size="lg"
-                        onClick={handleStart}
-                        disabled={!canStart}
-                        loading={starting}
-                    >
-                        {starting ? "Preparing your first question" : "Start interview"}
-                    </Button>
-                    {!canStart && source === "jobDescription" && (
+                    {starting ? (
+                        <div className="practice-start-banner" role="status" aria-live="polite" aria-busy="true">
+                            <div className="practice-start-banner__row">
+                                <div className="practice-start-banner__spinner" aria-hidden="true" />
+                                <div className="practice-start-banner__copy">
+                                    <strong>Starting your interview…</strong>
+                                    <span>Preparing question 1 of {plannedQuestions}. Header and other pages stay usable.</span>
+                                </div>
+                            </div>
+                            <div className="practice-start-banner__actions">
+                                <Button type="button" variant="secondary" onClick={handleCancelStart}>
+                                    Cancel start
+                                </Button>
+                            </div>
+                        </div>
+                    ) : (
+                        <Button
+                            variant="primary"
+                            size="lg"
+                            onClick={handleStart}
+                            disabled={!canStart}
+                        >
+                            Start interview
+                        </Button>
+                    )}
+                    {!canStart && source === "jobDescription" && !starting && (
                         <small>Paste a job description to continue.</small>
                     )}
                 </div>

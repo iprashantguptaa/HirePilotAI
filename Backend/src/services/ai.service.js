@@ -114,6 +114,38 @@ async function callModel(request, label) {
 }
 
 /**
+ * Gemini sometimes wraps JSON in markdown fences or adds trailing prose.
+ * Pull out the first object so a "malformed" wrapper doesn't fail the request.
+ */
+function extractJsonObject(text) {
+    const trimmed = String(text || "").trim()
+    if (!trimmed) throw new Error("empty")
+
+    try {
+        return JSON.parse(trimmed)
+    } catch {
+        // continue
+    }
+
+    const fenced = trimmed.match(/```(?:json)?\s*([\s\S]*?)```/i)
+    if (fenced?.[ 1 ]) {
+        try {
+            return JSON.parse(fenced[ 1 ].trim())
+        } catch {
+            // continue
+        }
+    }
+
+    const start = trimmed.indexOf("{")
+    const end = trimmed.lastIndexOf("}")
+    if (start >= 0 && end > start) {
+        return JSON.parse(trimmed.slice(start, end + 1))
+    }
+
+    throw new Error("no-json-object")
+}
+
+/**
  * Parses a structured (JSON mode) response and validates it against the schema
  * we asked the model for. A truncated or malformed body would otherwise be
  * written to the database as partial data.
@@ -131,9 +163,9 @@ function parseStructured(response, schema, label) {
 
     let parsed
     try {
-        parsed = JSON.parse(text)
+        parsed = extractJsonObject(text)
     } catch {
-        logger.error(`AI call "${label}" returned invalid JSON (${text.length} chars)`)
+        logger.error(`AI call "${label}" returned invalid JSON (${text.length} chars): ${text.slice(0, 240)}`)
         throw ApiError.serviceUnavailable(
             "The AI service returned a malformed response. Please try again."
         )
@@ -413,6 +445,33 @@ const sessionQuestionSchema = z.object({
  * with a follow-up and moving on to a fresh topic -- which is what makes the
  * session feel like a real interview rather than a fixed questionnaire.
  */
+function fallbackOpeningQuestion(mode) {
+    if (mode === "behavioral") {
+        return {
+            question: "Tell me about a recent project you're proud of. What was your specific role, and what impact did you have?",
+            category: "behavioral",
+            intention: "Assess storytelling, ownership, and communication with a concrete example.",
+            isFollowUp: false
+        }
+    }
+
+    if (mode === "technical") {
+        return {
+            question: "Walk me through a recent technical project you worked on. What was the hardest problem you solved, and how did you approach it?",
+            category: "technical",
+            intention: "Assess technical depth, problem-solving, and clarity of explanation.",
+            isFollowUp: false
+        }
+    }
+
+    return {
+        question: "To start, walk me through a recent project relevant to this role — what you built, your part in it, and one challenge you hit.",
+        category: "technical",
+        intention: "Open the interview and assess relevance, ownership, and communication.",
+        isFollowUp: false
+    }
+}
+
 async function generateSessionQuestion({ resume, jobDescription, mode, priorTurns, questionNumber, plannedQuestions }) {
     // Only the last 3 turns matter for follow-up decisions — full history
     // makes every later question slower without improving quality much.
@@ -447,29 +506,42 @@ ${transcript ? `Recent interview so far:\n${transcript}` : "Opening question —
 Rules:
 - Ask exactly ONE question. No coaching or hints in the question text.
 - Ground it in this JD and candidate. Prefer a follow-up (isFollowUp=true) if the last score was below 60 or vague.
-- Keep intention to one short sentence.`
+- Keep intention to one short sentence.
+- Return ONLY valid JSON matching the schema. No markdown.`
 
-    const response = await callModel({
-        model: MODEL,
-        contents: prompt,
-        config: {
-            responseMimeType: "application/json",
-            responseSchema: zodToJsonSchema(sessionQuestionSchema),
-            maxOutputTokens: 512
+    try {
+        const response = await callModel({
+            model: MODEL,
+            contents: prompt,
+            config: {
+                responseMimeType: "application/json",
+                responseSchema: zodToJsonSchema(sessionQuestionSchema),
+                // 512 was truncating some openings into invalid JSON.
+                maxOutputTokens: 1024
+            }
+        }, "session_question")
+
+        const data = parseStructured(response, sessionQuestionSchema, "session_question")
+
+        return {
+            data: {
+                ...data,
+                category: data.category === "behavioral" ? "behavioral" : "technical",
+                isFollowUp: questionNumber === 1 ? false : Boolean(data.isFollowUp),
+                question: String(data.question || "").trim(),
+                intention: String(data.intention || "").trim() || "Assess fit for this role."
+            },
+            usage: extractUsage(response)
         }
-    }, "session_question")
-
-    const data = parseStructured(response, sessionQuestionSchema, "session_question")
-
-    return {
-        data: {
-            ...data,
-            category: data.category === "behavioral" ? "behavioral" : "technical",
-            isFollowUp: Boolean(data.isFollowUp),
-            question: String(data.question || "").trim(),
-            intention: String(data.intention || "").trim()
-        },
-        usage: extractUsage(response)
+    } catch (err) {
+        // Opening question must not hard-fail the whole "Start interview" flow
+        // when Gemini returns truncated/malformed JSON. Later questions still
+        // surface the real error so quality doesn't silently degrade forever.
+        if (questionNumber === 1) {
+            logger.warn(`Opening question AI failed (${err.message}); using fallback opener`)
+            return { data: fallbackOpeningQuestion(mode), usage: { promptTokens: 0, responseTokens: 0, totalTokens: 0 } }
+        }
+        throw err
     }
 }
 
