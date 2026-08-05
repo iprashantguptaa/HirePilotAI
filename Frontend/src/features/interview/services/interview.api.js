@@ -14,7 +14,10 @@ export const generateInterviewReport = async ({ jobDescription, selfDescription,
     const response = await api.post("/api/interview/", formData, {
         headers: {
             "Content-Type": "multipart/form-data"
-        }
+        },
+        // Plan generation is two parallel AI calls; 60s was too aggressive
+        // when Gemini is slow and caused false "couldn't reach server" errors.
+        timeout: 180000
     })
 
     return response.data

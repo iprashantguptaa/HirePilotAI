@@ -8,7 +8,7 @@ import { scoreTone, scoreLabel } from "../practice.utils"
  * toggle rather than shown by default -- reading it before absorbing your own
  * gaps turns practice into passive copying.
  */
-const AnswerFeedback = ({ turn, onContinue, continueLabel = "Next question", busy = false }) => {
+const AnswerFeedback = ({ turn, onContinue, continueLabel = "Next question", busy = false, hint = null }) => {
     const [ showImproved, setShowImproved ] = useState(false)
 
     if (!turn) return null
@@ -70,8 +70,11 @@ const AnswerFeedback = ({ turn, onContinue, continueLabel = "Next question", bus
             {onContinue && (
                 <div className="answer-feedback__actions">
                     <Button type="button" variant="primary" size="lg" onClick={onContinue} loading={busy}>
-                        {continueLabel}
+                        {busy ? "Preparing next question…" : continueLabel}
                     </Button>
+                    {hint && !busy && (
+                        <small className="answer-feedback__hint">{hint}</small>
+                    )}
                 </div>
             )}
         </section>

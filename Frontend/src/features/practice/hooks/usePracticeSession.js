@@ -54,6 +54,16 @@ export function usePracticeSession(sessionId) {
     const answeredTurns = (session?.turns || []).filter((turn) => typeof turn.overallScore === "number")
     const isComplete = session?.status === "completed"
 
+    const prefetchNextQuestion = useCallback(async () => {
+        try {
+            const response = await getSession(sessionId)
+            setSession(response.session)
+            return response.session
+        } catch {
+            return null
+        }
+    }, [ sessionId ])
+
     const answer = useCallback(async (text) => {
         const trimmed = (text || "").trim()
         if (!trimmed || submitting) return false
@@ -68,6 +78,13 @@ export function usePracticeSession(sessionId) {
                 completed: Boolean(response.completed),
                 needsNextQuestion: Boolean(response.needsNextQuestion)
             })
+
+            // While the candidate reads feedback, load the next question in
+            // the background so "Next question" is usually instant.
+            if (!response.completed && response.needsNextQuestion) {
+                prefetchNextQuestion()
+            }
+
             return true
         } catch (error) {
             toast?.error(getErrorMessage(error, "Couldn't score that answer. Please try again."))
@@ -82,7 +99,7 @@ export function usePracticeSession(sessionId) {
         } finally {
             setSubmitting(false)
         }
-    }, [ sessionId, submitting, toast ])
+    }, [ sessionId, submitting, toast, prefetchNextQuestion ])
 
     const continueToNext = useCallback(async () => {
         const wasComplete = Boolean(reveal?.completed)
@@ -90,14 +107,16 @@ export function usePracticeSession(sessionId) {
 
         if (wasComplete) return true
 
-        // If the next question wasn't generated with the score response,
-        // GET /session self-heals by appending one.
-        if (session?.status === "in_progress" && !findOpenQuestion(session)) {
+        // Prefetch may already have appended the next question.
+        if (session?.status === "in_progress" && findOpenQuestion(session)) {
+            return true
+        }
+
+        if (session?.status === "in_progress") {
             setAdvancing(true)
             try {
-                const response = await getSession(sessionId)
-                setSession(response.session)
-                if (!findOpenQuestion(response.session) && response.session.status === "in_progress") {
+                const nextSession = await prefetchNextQuestion()
+                if (!nextSession || (!findOpenQuestion(nextSession) && nextSession.status === "in_progress")) {
                     toast?.error("Couldn't load the next question yet. Please try again in a few seconds.")
                     return false
                 }
@@ -111,7 +130,7 @@ export function usePracticeSession(sessionId) {
         }
 
         return true
-    }, [ reveal, session, sessionId, toast ])
+    }, [ reveal, session, prefetchNextQuestion, toast ])
 
     const finishEarly = useCallback(async () => {
         if (finishing) return

@@ -108,9 +108,9 @@ async function appendNextQuestion(session, userId) {
 }
 
 /**
- * Generates and stores the end-of-session analytics, then closes the session.
- * Numeric aggregates are computed locally; the model supplies only the
- * qualitative narrative.
+ * Closes the session with locally computed scores immediately.
+ * Qualitative narrative is filled in the background (or on next GET via
+ * backfill) so the last answer doesn't wait on a second AI call.
  */
 async function finalizeSession(session, userId) {
     const answeredTurns = getAnsweredTurns(session)
@@ -119,35 +119,24 @@ async function finalizeSession(session, userId) {
     // show up in the report as a blank exchange.
     session.turns = session.turns.filter((turn) => typeof turn.overallScore === "number")
 
-    let narrative = {}
-    if (answeredTurns.length) {
-        try {
-            const { data, usage } = await generateSessionAnalytics({
-                title: session.title,
-                jobDescription: session.jobDescription,
-                turns: answeredTurns
-            })
-            narrative = data
-            await logAiUsage(userId, "session_analytics", usage)
-        } catch (err) {
-            // The scores are the valuable part and they're already saved --
-            // losing the narrative shouldn't lose the whole session.
-            logger.warn(`Failed to generate session analytics: ${err.message}`)
-        }
-    }
-
     session.report = {
         overallScore: computeOverallScore(answeredTurns),
         rubricAverages: computeRubricAverages(answeredTurns),
-        verdict: narrative.verdict,
-        strengths: narrative.strengths || [],
-        weaknesses: narrative.weaknesses || [],
-        recommendations: narrative.recommendations || []
+        verdict: undefined,
+        strengths: [],
+        weaknesses: [],
+        recommendations: []
     }
     session.status = "completed"
     session.completedAt = new Date()
 
     await session.save()
+
+    // Non-blocking — getSession already self-heals missing narrative.
+    backfillSessionNarrative(session, userId).catch((err) => {
+        logger.warn(`Background session narrative failed for ${session._id}: ${err.message}`)
+    })
+
     return session
 }
 
@@ -309,33 +298,17 @@ const submitAnswerController = asyncHandler(async function submitAnswerControlle
         })
     }
 
-    // Next-question generation is a separate AI call. If it fails, the
-    // score above is already saved — return success so the candidate can
-    // read feedback and load the next question on Continue (GET heals).
-    try {
-        const nextTurn = await appendNextQuestion(session, req.user.id)
-        await session.save()
-
-        return res.status(200).json({
-            message: "Answer scored.",
-            scoredTurn: pendingTurn,
-            nextQuestion: nextTurn,
-            completed: false,
-            needsNextQuestion: false,
-            session
-        })
-    } catch (err) {
-        logger.warn(`Next question failed after scoring session ${session._id}: ${err.message}`)
-
-        return res.status(200).json({
-            message: "Answer scored. The next question will load when you continue.",
-            scoredTurn: pendingTurn,
-            nextQuestion: null,
-            completed: false,
-            needsNextQuestion: true,
-            session
-        })
-    }
+    // Speed: return the score immediately. The next question is generated
+    // when the candidate taps Continue (GET /session self-heals). Waiting
+    // for both AI calls here made every answer feel twice as slow.
+    return res.status(200).json({
+        message: "Answer scored.",
+        scoredTurn: pendingTurn,
+        nextQuestion: null,
+        completed: false,
+        needsNextQuestion: true,
+        session
+    })
 })
 
 /**

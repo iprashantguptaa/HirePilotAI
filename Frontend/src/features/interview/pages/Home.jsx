@@ -72,8 +72,8 @@ const Home = () => {
               <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
             </svg>
           </div>
-          <h2>Generating your interview plan...</h2>
-          <p>Our AI is analyzing the job requirements and your profile</p>
+          <h2>Generating your interview plan…</h2>
+          <p>Usually under a minute — scoring your fit and building questions in parallel.</p>
         </div>
       </div>
     )

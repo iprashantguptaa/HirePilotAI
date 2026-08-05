@@ -11,21 +11,22 @@ export const startSession = async ({ interviewReportId, jobDescription, title, m
         title,
         mode,
         plannedQuestions
+    }, {
+        // First question is one AI call — allow cold-start + generation time.
+        timeout: 120000
     })
     return response.data
 }
 
 /**
- * @description Submit an answer to the session's current question. Resolves with the
- * score for that answer plus the next question (or null if the session just ended).
+ * @description Submit an answer for scoring. The next question is loaded on
+ * Continue (separate request) so feedback appears as soon as scoring finishes.
  */
 export const submitAnswer = async (sessionId, answer) => {
-    // Scoring + next-question generation are two AI calls; 60s is too short
-    // when the provider is slow and left candidates stuck after question 1.
     const response = await api.post(
         `/api/session/${sessionId}/answer`,
         { answer },
-        { timeout: 180000 }
+        { timeout: 120000 }
     )
     return response.data
 }

@@ -14,10 +14,23 @@ const MODEL = "gemini-3-flash-preview"
 // The provider returns these when it is overloaded or rate-limiting rather
 // than when the request is wrong, so they are worth retrying.
 const RETRYABLE_UPSTREAM_STATUSES = new Set([ 429, 500, 502, 503, 504 ])
-const MAX_ATTEMPTS = 3
-const BASE_BACKOFF_MS = 800
+// Keep retries short — each attempt can take tens of seconds with Gemini.
+const MAX_ATTEMPTS = 2
+const BASE_BACKOFF_MS = 500
+
+// Cap prompt size so huge resumes/JDs don't dominate latency.
+const MAX_RESUME_CHARS = 5500
+const MAX_JD_CHARS = 3500
+const MAX_ANSWER_CHARS = 3500
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
+
+function clipText(value, maxChars) {
+    if (!value || typeof value !== "string") return ""
+    const trimmed = value.trim()
+    if (trimmed.length <= maxChars) return trimmed
+    return `${trimmed.slice(0, maxChars)}\n\n[truncated for speed]`
+}
 
 /**
  * The GenAI SDK throws an Error whose message is the raw upstream JSON body.
@@ -153,61 +166,111 @@ function extractUsage(response) {
 }
 
 
-const interviewReportSchema = z.object({
-    matchScore: z.number().describe("A score between 0 and 100 indicating how well the candidate's profile matches the job describe"),
+const reportProfileSchema = z.object({
+    title: z.string().describe("Short job title for this interview plan"),
+    matchScore: z.number().describe("Overall match score 0-100"),
     scoreBreakdown: z.object({
-        technicalSkills: z.number().describe("Score 0-100 for how well the candidate's technical/hard skills match the job requirements"),
-        communication: z.number().describe("Score 0-100 estimating the candidate's communication clarity based on their resume/self description"),
-        experience: z.number().describe("Score 0-100 for how relevant and sufficient the candidate's experience is for this role"),
-        cultureFit: z.number().describe("Score 0-100 estimating alignment between the candidate's background and the likely team/company culture implied by the job description")
-    }).describe("A breakdown of the overall match score into contributing dimensions"),
+        technicalSkills: z.number().describe("0-100 technical/hard skills match"),
+        communication: z.number().describe("0-100 communication clarity estimate"),
+        experience: z.number().describe("0-100 experience relevance"),
+        cultureFit: z.number().describe("0-100 culture/team fit estimate")
+    }),
     strengths: z.array(z.object({
-        skill: z.string().describe("A skill or trait where the candidate is strong relative to this job"),
-        note: z.string().describe("A short explanation of why this is a strength for this specific role")
-    })).describe("The candidate's strongest points relative to this specific job description"),
-    technicalQuestions: z.array(z.object({
-        question: z.string().describe("The technical question can be asked in the interview"),
-        intention: z.string().describe("The intention of interviewer behind asking this question"),
-        answer: z.string().describe("How to answer this question, what points to cover, what approach to take etc.")
-    })).describe("Technical questions that can be asked in the interview along with their intention and how to answer them"),
-    behavioralQuestions: z.array(z.object({
-        question: z.string().describe("The technical question can be asked in the interview"),
-        intention: z.string().describe("The intention of interviewer behind asking this question"),
-        answer: z.string().describe("How to answer this question, what points to cover, what approach to take etc.")
-    })).describe("Behavioral questions that can be asked in the interview along with their intention and how to answer them"),
+        skill: z.string(),
+        note: z.string().describe("One short sentence")
+    })).describe("3 to 5 strengths"),
     skillGaps: z.array(z.object({
-        skill: z.string().describe("The skill which the candidate is lacking"),
-        severity: z.enum([ "low", "medium", "high" ]).describe("The severity of this skill gap, i.e. how important is this skill for the job and how much it can impact the candidate's chances")
-    })).describe("List of skill gaps in the candidate's profile along with their severity"),
-    preparationPlan: z.array(z.object({
-        day: z.number().describe("The day number in the preparation plan, starting from 1"),
-        focus: z.string().describe("The main focus of this day in the preparation plan, e.g. data structures, system design, mock interviews etc."),
-        tasks: z.array(z.string()).describe("List of tasks to be done on this day to follow the preparation plan, e.g. read a specific book or article, solve a set of problems, watch a video etc.")
-    })).describe("A day-wise preparation plan for the candidate to follow in order to prepare for the interview effectively"),
-    title: z.string().describe("The title of the job for which the interview report is generated"),
+        skill: z.string(),
+        severity: z.enum([ "low", "medium", "high" ])
+    })).describe("3 to 6 skill gaps")
 })
 
+const reportPrepSchema = z.object({
+    technicalQuestions: z.array(z.object({
+        question: z.string(),
+        intention: z.string().describe("One short sentence"),
+        answer: z.string().describe("3-5 bullet-style coaching points, keep under 80 words")
+    })).describe("Exactly 5 technical questions"),
+    behavioralQuestions: z.array(z.object({
+        question: z.string(),
+        intention: z.string().describe("One short sentence"),
+        answer: z.string().describe("3-5 bullet-style coaching points, keep under 80 words")
+    })).describe("Exactly 5 behavioral questions"),
+    preparationPlan: z.array(z.object({
+        day: z.number(),
+        focus: z.string(),
+        tasks: z.array(z.string()).describe("2 to 4 short tasks")
+    })).describe("Exactly 5 days")
+})
+
+function sumUsage(a = {}, b = {}) {
+    return {
+        promptTokens: (a.promptTokens || 0) + (b.promptTokens || 0),
+        responseTokens: (a.responseTokens || 0) + (b.responseTokens || 0),
+        totalTokens: (a.totalTokens || 0) + (b.totalTokens || 0)
+    }
+}
+
+/**
+ * Interview plan generation used to be one giant structured call (scores +
+ * 2 question banks + multi-day plan). That was the main latency sink.
+ * Split into two parallel smaller calls so wall-clock ≈ the slower half.
+ */
 async function generateInterviewReport({ resume, selfDescription, jobDescription }) {
+    const resumeText = clipText(resume, MAX_RESUME_CHARS)
+    const selfText = clipText(selfDescription, 1500)
+    const jdText = clipText(jobDescription, MAX_JD_CHARS)
 
+    const sharedContext = `Resume:
+${resumeText || "Not provided."}
 
-    const prompt = `Generate an interview report for a candidate with the following details:
-                        Resume: ${resume}
-                        Self Description: ${selfDescription}
-                        Job Description: ${jobDescription}
-`
+Self description:
+${selfText || "Not provided."}
 
-    const response = await callModel({
-        model: MODEL,
-        contents: prompt,
-        config: {
-            responseMimeType: "application/json",
-            responseSchema: zodToJsonSchema(interviewReportSchema),
-        }
-    }, "interview_report")
+Job description:
+${jdText || "Not provided."}`
+
+    const [ profileResult, prepResult ] = await Promise.all([
+        (async () => {
+            const response = await callModel({
+                model: MODEL,
+                contents: `Assess this candidate against the role. Be concise.\n\n${sharedContext}`,
+                config: {
+                    responseMimeType: "application/json",
+                    responseSchema: zodToJsonSchema(reportProfileSchema),
+                    maxOutputTokens: 2048
+                }
+            }, "interview_report_profile")
+
+            return {
+                data: parseStructured(response, reportProfileSchema, "interview_report_profile"),
+                usage: extractUsage(response)
+            }
+        })(),
+        (async () => {
+            const response = await callModel({
+                model: MODEL,
+                contents: `Create interview prep for this candidate. Keep coaching answers short.\n\n${sharedContext}`,
+                config: {
+                    responseMimeType: "application/json",
+                    responseSchema: zodToJsonSchema(reportPrepSchema),
+                    maxOutputTokens: 4096
+                }
+            }, "interview_report_prep")
+
+            return {
+                data: parseStructured(response, reportPrepSchema, "interview_report_prep"),
+                usage: extractUsage(response)
+            }
+        })()
+    ])
 
     return {
-        data: parseStructured(response, interviewReportSchema, "interview_report"),
-        usage: extractUsage(response)
+        data: {
+            ...profileResult.data,
+            ...prepResult.data
+        },
+        usage: sumUsage(profileResult.usage, prepResult.usage)
     }
 }
 
@@ -345,12 +408,14 @@ const sessionQuestionSchema = z.object({
  * session feel like a real interview rather than a fixed questionnaire.
  */
 async function generateSessionQuestion({ resume, jobDescription, mode, priorTurns, questionNumber, plannedQuestions }) {
+    // Only the last 3 turns matter for follow-up decisions — full history
+    // makes every later question slower without improving quality much.
+    const recentTurns = (priorTurns || []).filter((turn) => turn.answer).slice(-3)
 
-    const transcript = (priorTurns || [])
-        .filter((turn) => turn.answer)
+    const transcript = recentTurns
         .map((turn) => `Q${turn.questionNumber} (${turn.category}): ${turn.question}
-Candidate answered: ${turn.answer}
-Score given: ${turn.overallScore ?? "n/a"}/100. Missing: ${turn.feedback?.whatWasMissing || "n/a"}`)
+Answer (clipped): ${clipText(turn.answer, 500)}
+Score: ${turn.overallScore ?? "n/a"}/100. Missing: ${clipText(turn.feedback?.whatWasMissing || "n/a", 220)}`)
         .join("\n\n")
 
     const modeInstruction = {
@@ -365,22 +430,18 @@ ${modeInstruction}
 
 This is question ${questionNumber} of approximately ${plannedQuestions}.
 
-Job description the candidate is interviewing for:
-${jobDescription || "Not provided."}
+Job description:
+${clipText(jobDescription, MAX_JD_CHARS) || "Not provided."}
 
-Candidate's resume / background:
-${resume || "Not provided."}
+Candidate background:
+${clipText(resume, MAX_RESUME_CHARS) || "Not provided."}
 
-${transcript ? `Interview so far:\n${transcript}` : "The interview has not started yet -- this is your opening question."}
+${transcript ? `Recent interview so far:\n${transcript}` : "Opening question — start with something a real interviewer would open with for this role."}
 
-Rules for choosing the next question:
-- Ask exactly ONE question. Never bundle multiple questions together.
-- Ground the question in this specific job description and this specific candidate's background. Avoid generic filler questions.
-- If the candidate's last answer was vague, shallow, or scored below 60, strongly prefer a follow-up that presses them on the specific thing they left out. Set isFollowUp to true.
-- If the last answer was strong, move on to a new topic and set isFollowUp to false.
-- Do not repeat a topic you have already covered adequately.
-- If this is the opening question, start with something reasonable an interviewer would actually open with for this role.
-- Do not include the answer, hints, or coaching in the question text.`
+Rules:
+- Ask exactly ONE question. No coaching or hints in the question text.
+- Ground it in this JD and candidate. Prefer a follow-up (isFollowUp=true) if the last score was below 60 or vague.
+- Keep intention to one short sentence.`
 
     const response = await callModel({
         model: MODEL,
@@ -388,6 +449,7 @@ Rules for choosing the next question:
         config: {
             responseMimeType: "application/json",
             responseSchema: zodToJsonSchema(sessionQuestionSchema),
+            maxOutputTokens: 512
         }
     }, "session_question")
 
@@ -399,18 +461,18 @@ Rules for choosing the next question:
 
 
 const answerScoreSchema = z.object({
-    overallScore: z.number().describe("Overall score 0-100 for this single answer. Be rigorous and honest -- an average, unremarkable answer should land in the 50s, not the 80s."),
+    overallScore: z.number().describe("Overall score 0-100. Average unremarkable answers land in the 50s."),
     rubric: z.object({
-        relevance: z.number().describe("0-100: did the candidate actually answer the question that was asked, or drift to something else?"),
-        depth: z.number().describe("0-100: technical/substantive depth and correctness of the reasoning shown"),
-        structure: z.number().describe("0-100: was the answer organised and easy to follow? For behavioural questions, reward clear situation-action-result structure."),
-        clarity: z.number().describe("0-100: communication clarity and concision, free of rambling and filler"),
-        specificity: z.number().describe("0-100: use of concrete examples, real numbers, and specifics from their own experience rather than generic statements")
-    }).describe("Independent scores per dimension so the candidate learns which aspect of their answering is weak"),
+        relevance: z.number(),
+        depth: z.number(),
+        structure: z.number(),
+        clarity: z.number(),
+        specificity: z.number()
+    }),
     feedback: z.object({
-        whatWorked: z.string().describe("Specifically what was good about this answer. If genuinely nothing was good, say so honestly rather than inventing praise."),
-        whatWasMissing: z.string().describe("The specific points, examples, or reasoning the answer should have included but did not. Be concrete and actionable."),
-        improvedAnswer: z.string().describe("A stronger version of the answer, written in the candidate's own voice using their real background. Keep it realistic in length -- what a strong candidate would actually say out loud, not an essay.")
+        whatWorked: z.string().describe("1-2 short sentences"),
+        whatWasMissing: z.string().describe("1-2 short concrete sentences"),
+        improvedAnswer: z.string().describe("A stronger spoken answer, max ~90 words. Not an essay.")
     })
 })
 
@@ -421,28 +483,26 @@ const answerScoreSchema = z.object({
  */
 async function scoreSessionAnswer({ resume, jobDescription, question, category, intention, answer }) {
 
-    const prompt = `You are a rigorous but fair interview assessor. Score the candidate's answer to a single interview question.
+    const prompt = `Score this interview answer honestly and briefly.
 
 Job description:
-${jobDescription || "Not provided."}
+${clipText(jobDescription, MAX_JD_CHARS) || "Not provided."}
 
-Candidate's resume / background:
-${resume || "Not provided."}
+Candidate background:
+${clipText(resume, MAX_RESUME_CHARS) || "Not provided."}
 
-Question asked (${category}): ${question}
-What the interviewer was assessing: ${intention || "Not specified."}
+Question (${category}): ${question}
+Assessing: ${intention || "Not specified."}
 
-The candidate's answer, verbatim:
+Candidate answer:
 """
-${answer}
+${clipText(answer, MAX_ANSWER_CHARS)}
 """
 
-Scoring rules:
-- Be honest. Do not inflate scores to be encouraging. A generic answer with no specifics should not score above 55 regardless of how confident it sounds.
-- Score what they actually said, not what they might have meant.
-- If the answer is empty, off-topic, or an admission that they don't know, score it low and say why plainly.
-- Judge depth against the seniority implied by the job description.
-- In the improved answer, use the candidate's real background from their resume where possible. Do not invent employers, titles, or metrics they never mentioned.`
+Rules:
+- Do not inflate scores. Generic answers stay at/below 55.
+- Judge depth against the seniority implied by the JD.
+- Keep feedback short. improvedAnswer max ~90 words, spoken style, use only facts from their background.`
 
     const response = await callModel({
         model: MODEL,
@@ -450,6 +510,7 @@ Scoring rules:
         config: {
             responseMimeType: "application/json",
             responseSchema: zodToJsonSchema(answerScoreSchema),
+            maxOutputTokens: 1024
         }
     }, "session_score")
 

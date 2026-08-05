@@ -131,11 +131,14 @@ const PracticeSession = () => {
                         onContinue={handleContinue}
                         continueLabel={reveal.completed ? "See your report" : "Next question"}
                         busy={advancing}
+                        hint={reveal.completed
+                            ? null
+                            : "Your score is ready. The next question loads when you continue."}
                     />
                 ) : advancing ? (
                     <div className="practice-session__missing">
-                        <h2>Loading next question…</h2>
-                        <p>Hang tight — the interviewer is preparing the next question.</p>
+                        <h2>Preparing next question…</h2>
+                        <p>Almost there — usually a few seconds.</p>
                     </div>
                 ) : currentQuestion ? (
                     <form className="question-card" onSubmit={handleSubmit} action="#">
