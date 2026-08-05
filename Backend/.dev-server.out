@@ -1,0 +1,165 @@
+◇ injected env (16) from .env // tip: ⌘ override existing { override: true }
+[2026-08-04T16:17:20.695Z] [INFO] Connected to database
+[2026-08-04T16:17:20.719Z] [INFO] Server is running on 0.0.0.0:3000 [development]
+[AUTH] Setting cookies with options: {
+  httpOnly: true,
+  secure: false,
+  sameSite: 'lax',
+  path: '/',
+  maxAge: '900000ms'
+}
+[2026-08-04T16:17:23.578Z] [INFO] [0mPOST /api/auth/register [32m201[0m 245.913 ms - 186[0m
+[2026-08-04T16:17:23.623Z] [INFO] Welcome u1785860243056! Verify your email: http://localhost:5173/verify-email/506bcf2a52c37462e85ff84af0816d0f0f603c65e40169401a048fe72a43b218
+[2026-08-04T16:17:23.746Z] [INFO] Your HirePilot AI login code is 303826. It expires in 10 minutes. If you did not request this, ignore this email.
+[2026-08-04T16:17:23.748Z] [INFO] [0mPOST /api/auth/login [32m200[0m 147.604 ms - 238[0m
+[AUTH] Setting cookies with options: {
+  httpOnly: true,
+  secure: false,
+  sameSite: 'lax',
+  path: '/',
+  maxAge: '900000ms'
+}
+[2026-08-04T16:17:59.109Z] [INFO] [0mPOST /api/auth/register [32m201[0m 243.552 ms - 190[0m
+[2026-08-04T16:17:59.151Z] [INFO] Welcome s1785860276708! Verify your email: http://localhost:5173/verify-email/b17ed32168f19e6de5fea73f7456be5e1d0bce778c6cae85d1c51ec5df1af19b
+[2026-08-04T16:17:59.396Z] [INFO] Your HirePilot AI login code is 634889. It expires in 10 minutes. If you did not request this, ignore this email.
+[2026-08-04T16:17:59.397Z] [INFO] [0mPOST /api/auth/login [32m200[0m 231.228 ms - 242[0m
+[AUTH] Setting cookies with options: {
+  httpOnly: true,
+  secure: false,
+  sameSite: 'lax',
+  path: '/',
+  maxAge: '900000ms'
+}
+[2026-08-04T16:17:59.978Z] [INFO] [0mPOST /api/auth/verify-login-otp [32m200[0m 449.311 ms - 185[0m
+[2026-08-04T16:18:00.088Z] [INFO] Your HirePilot AI password reset code is 432458. It expires in 10 minutes. If you did not request this, ignore this email.
+[2026-08-04T16:18:00.091Z] [INFO] [0mPOST /api/auth/forgot-password [32m200[0m 74.337 ms - 109[0m
+[AUTH] No access token. Available cookies: [ 'refreshToken' ]
+[AUTH] Has refresh token: true
+[AUTH] Request origin: http://localhost:5176
+[AUTH] Request referer: http://localhost:5176/
+[2026-08-04T16:18:25.422Z] [INFO] [0mGET /api/auth/get-me [33m401[0m 8.685 ms - -[0m
+[AUTH] No access token. Available cookies: [ 'refreshToken' ]
+[AUTH] Has refresh token: true
+[AUTH] Request origin: http://localhost:5176
+[AUTH] Request referer: http://localhost:5176/
+[2026-08-04T16:18:25.427Z] [INFO] [0mGET /api/auth/get-me [33m401[0m 2.510 ms - -[0m
+[AUTH] Setting cookies with options: {
+  httpOnly: true,
+  secure: false,
+  sameSite: 'lax',
+  path: '/',
+  maxAge: '900000ms'
+}
+[2026-08-04T16:18:25.857Z] [INFO] [0mPOST /api/auth/refresh-token [32m200[0m 411.654 ms - 45[0m
+[2026-08-04T16:18:25.968Z] [INFO] [0mGET /api/auth/get-me [32m200[0m 107.047 ms - 171[0m
+[2026-08-04T16:18:26.069Z] [INFO] [0mGET /api/auth/get-me [36m304[0m 98.129 ms - -[0m
+[2026-08-04T16:18:27.939Z] [INFO] [0mGET /api/auth/get-me [36m304[0m 117.381 ms - -[0m
+[2026-08-04T16:18:27.948Z] [INFO] [0mGET /api/interview/ [36m304[0m 122.765 ms - -[0m
+[2026-08-04T16:18:28.048Z] [INFO] [0mGET /api/auth/get-me [36m304[0m 106.934 ms - -[0m
+[2026-08-04T16:18:28.052Z] [INFO] [0mGET /api/interview/ [36m304[0m 101.376 ms - -[0m
+[2026-08-04T16:18:31.647Z] [INFO] [0mGET /api/auth/get-me [36m304[0m 125.904 ms - -[0m
+[2026-08-04T16:18:31.803Z] [INFO] [0mGET /api/auth/get-me [36m304[0m 154.009 ms - -[0m
+[2026-08-04T16:20:28.024Z] [INFO] [0mGET /api/auth/logout [36m304[0m 96.975 ms - -[0m
+[AUTH] No access token. Available cookies: []
+[AUTH] Has refresh token: false
+[AUTH] Request origin: http://localhost:5176
+[AUTH] Request referer: http://localhost:5176/
+[2026-08-04T16:20:28.113Z] [INFO] [0mGET /api/auth/get-me [33m401[0m 4.009 ms - -[0m
+[AUTH] No access token. Available cookies: []
+[AUTH] Has refresh token: false
+[AUTH] Request origin: http://localhost:5176
+[AUTH] Request referer: http://localhost:5176/
+[2026-08-04T16:20:28.122Z] [INFO] [0mGET /api/auth/get-me [33m401[0m 4.180 ms - -[0m
+[2026-08-04T16:20:28.129Z] [INFO] [0mPOST /api/auth/refresh-token [33m401[0m 2.199 ms - -[0m
+[AUTH] No access token. Available cookies: []
+[AUTH] Has refresh token: false
+[AUTH] Request origin: http://localhost:5176
+[AUTH] Request referer: http://localhost:5176/
+[2026-08-04T16:20:34.617Z] [INFO] [0mGET /api/auth/get-me [33m401[0m 12.309 ms - -[0m
+[AUTH] No access token. Available cookies: []
+[AUTH] Has refresh token: false
+[AUTH] Request origin: http://localhost:5176
+[AUTH] Request referer: http://localhost:5176/
+[2026-08-04T16:20:34.633Z] [INFO] [0mGET /api/auth/get-me [33m401[0m 7.069 ms - -[0m
+[2026-08-04T16:20:34.635Z] [INFO] [0mPOST /api/auth/refresh-token [33m401[0m 1.613 ms - -[0m
+[2026-08-04T16:20:45.321Z] [INFO] [0mPOST /api/auth/register [33m400[0m 7.098 ms - -[0m
+[2026-08-04T16:20:55.155Z] [INFO] [0mPOST /api/auth/register [33m400[0m 69.307 ms - 460[0m
+[AUTH] Setting cookies with options: {
+  httpOnly: true,
+  secure: false,
+  sameSite: 'lax',
+  path: '/',
+  maxAge: '900000ms'
+}
+[2026-08-04T16:21:18.402Z] [INFO] [0mPOST /api/auth/register [32m201[0m 629.321 ms - 177[0m
+[2026-08-04T16:21:18.438Z] [INFO] Welcome prashantgupta291! Verify your email: http://localhost:5173/verify-email/fccaf9c3f8c3d37e6f49f6f1e5e37b7486c33a756597a19c589cb24952133da1
+[2026-08-04T16:21:18.577Z] [INFO] [0mGET /api/interview/ [32m200[0m 101.449 ms - 75[0m
+[2026-08-04T16:21:18.592Z] [INFO] [0mGET /api/auth/get-me [32m200[0m 123.773 ms - 182[0m
+[2026-08-04T16:21:18.685Z] [INFO] [0mGET /api/interview/ [36m304[0m 103.028 ms - -[0m
+[2026-08-04T16:21:18.699Z] [INFO] [0mGET /api/auth/get-me [36m304[0m 103.882 ms - -[0m
+[2026-08-04T16:21:18.801Z] [INFO] [0mGET /api/auth/get-me [36m304[0m 98.006 ms - -[0m
+[2026-08-04T16:21:18.945Z] [INFO] [0mGET /api/auth/get-me [36m304[0m 139.121 ms - -[0m
+[2026-08-04T16:22:36.984Z] [INFO] [0mPOST /api/interview/ [32m201[0m 45153.410 ms - -[0m
+[2026-08-04T16:22:37.166Z] [INFO] [0mGET /api/interview/report/6a7211cc3c2de1c5990e6400 [32m200[0m 112.173 ms - -[0m
+[2026-08-04T16:22:37.284Z] [INFO] [0mGET /api/interview/report/6a7211cc3c2de1c5990e6400 [36m304[0m 114.572 ms - -[0m
+[2026-08-04T16:23:09.932Z] [INFO] [0mGET /api/chat/6a7211cc3c2de1c5990e6400 [32m200[0m 289.160 ms - 277[0m
+[2026-08-04T16:23:10.178Z] [INFO] [0mGET /api/chat/6a7211cc3c2de1c5990e6400 [32m200[0m 238.721 ms - 277[0m
+[2026-08-04T16:24:07.933Z] [INFO] [0mGET /api/chat/6a7211cc3c2de1c5990e6400 [36m304[0m 139.407 ms - -[0m
+[2026-08-04T16:24:08.080Z] [INFO] [0mGET /api/chat/6a7211cc3c2de1c5990e6400 [36m304[0m 139.760 ms - -[0m
+[2026-08-04T16:24:10.317Z] [INFO] [0mPOST /api/chat/6a7211cc3c2de1c5990e6400/message [32m200[0m 40793.517 ms - -[0m
+[2026-08-04T16:24:10.808Z] [INFO] [0mGET /api/interview/ [32m200[0m 104.433 ms - -[0m
+[2026-08-04T16:24:10.823Z] [INFO] [0mGET /api/session [32m200[0m 115.763 ms - 67[0m
+[2026-08-04T16:24:10.921Z] [INFO] [0mGET /api/interview/ [36m304[0m 106.323 ms - -[0m
+[2026-08-04T16:24:10.930Z] [INFO] [0mGET /api/session [36m304[0m 102.736 ms - -[0m
+[2026-08-04T16:25:16.593Z] [INFO] [0mPOST /api/session [32m201[0m 50897.594 ms - -[0m
+[2026-08-04T16:25:16.764Z] [INFO] [0mGET /api/session/6a7212393c2de1c5990e6431 [32m200[0m 118.522 ms - -[0m
+[2026-08-04T16:25:16.877Z] [INFO] [0mGET /api/session/6a7212393c2de1c5990e6431 [36m304[0m 105.049 ms - -[0m
+[2026-08-04T16:25:59.417Z] [INFO] [0mGET /api/session/6a7212393c2de1c5990e6431 [36m304[0m 137.677 ms - -[0m
+[2026-08-04T16:25:59.531Z] [INFO] [0mGET /api/auth/get-me [36m304[0m 106.340 ms - -[0m
+[2026-08-04T16:25:59.641Z] [INFO] [0mGET /api/session/6a7212393c2de1c5990e6431 [36m304[0m 106.658 ms - -[0m
+[2026-08-04T16:25:59.716Z] [INFO] [0mGET /api/auth/get-me [36m304[0m 122.972 ms - -[0m
+[2026-08-04T16:26:04.981Z] [INFO] [0mGET /api/session [32m200[0m 105.907 ms - 227[0m
+[2026-08-04T16:26:04.985Z] [INFO] [0mGET /api/interview/ [36m304[0m 106.366 ms - -[0m
+[2026-08-04T16:26:05.291Z] [INFO] [0mGET /api/interview/ [36m304[0m 300.866 ms - -[0m
+[2026-08-04T16:26:05.352Z] [INFO] [0mGET /api/session [36m304[0m 365.486 ms - -[0m
+[2026-08-04T16:26:38.267Z] [INFO] [0mPOST /api/session/6a7212393c2de1c5990e6431/answer [0m-[0m - ms - -[0m
+[2026-08-04T16:26:48.898Z] [INFO] [0mGET /api/session/6a7212393c2de1c5990e6431 [32m200[0m 117.530 ms - -[0m
+[2026-08-04T16:26:49.006Z] [INFO] [0mGET /api/session/6a7212393c2de1c5990e6431 [36m304[0m 100.625 ms - -[0m
+[2026-08-04T16:27:20.239Z] [INFO] [0mGET /api/interview/ [36m304[0m 98.405 ms - -[0m
+[2026-08-04T16:27:20.355Z] [INFO] [0mGET /api/auth/get-me [36m304[0m 109.931 ms - -[0m
+[2026-08-04T16:27:20.456Z] [INFO] [0mGET /api/interview/ [36m304[0m 99.161 ms - -[0m
+[2026-08-04T16:27:20.552Z] [INFO] [0mGET /api/auth/get-me [36m304[0m 104.355 ms - -[0m
+[2026-08-04T16:27:24.776Z] [INFO] [0mGET /api/auth/logout [36m304[0m 88.543 ms - -[0m
+[AUTH] No access token. Available cookies: []
+[AUTH] Has refresh token: false
+[AUTH] Request origin: http://localhost:5176
+[AUTH] Request referer: http://localhost:5176/
+[2026-08-04T16:27:24.824Z] [INFO] [0mGET /api/auth/get-me [33m401[0m 4.866 ms - -[0m
+[AUTH] No access token. Available cookies: []
+[AUTH] Has refresh token: false
+[AUTH] Request origin: http://localhost:5176
+[AUTH] Request referer: http://localhost:5176/
+[2026-08-04T16:27:24.839Z] [INFO] [0mGET /api/auth/get-me [33m401[0m 5.007 ms - -[0m
+[2026-08-04T16:27:24.842Z] [INFO] [0mPOST /api/auth/refresh-token [33m401[0m 2.315 ms - -[0m
+[AUTH] No access token. Available cookies: []
+[AUTH] Has refresh token: false
+[AUTH] Request origin: http://localhost:5176
+[AUTH] Request referer: http://localhost:5176/
+[2026-08-04T16:27:28.849Z] [INFO] [0mGET /api/auth/get-me [33m401[0m 3.281 ms - -[0m
+[AUTH] No access token. Available cookies: []
+[AUTH] Has refresh token: false
+[AUTH] Request origin: http://localhost:5176
+[AUTH] Request referer: http://localhost:5176/
+[2026-08-04T16:27:28.855Z] [INFO] [0mGET /api/auth/get-me [33m401[0m 2.834 ms - -[0m
+[2026-08-04T16:27:29.008Z] [INFO] [0mPOST /api/auth/refresh-token [33m401[0m 1.154 ms - -[0m
+[AUTH] No access token. Available cookies: []
+[AUTH] Has refresh token: false
+[AUTH] Request origin: http://localhost:5176
+[AUTH] Request referer: http://localhost:5176/
+[2026-08-04T16:29:13.922Z] [INFO] [0mGET /api/auth/get-me [33m401[0m 9.960 ms - -[0m
+[AUTH] No access token. Available cookies: []
+[AUTH] Has refresh token: false
+[AUTH] Request origin: http://localhost:5176
+[AUTH] Request referer: http://localhost:5176/
+[2026-08-04T16:29:13.930Z] [INFO] [0mGET /api/auth/get-me [33m401[0m 3.907 ms - -[0m
+[2026-08-04T16:29:13.937Z] [INFO] [0mPOST /api/auth/refresh-token [33m401[0m 2.300 ms - -[0m

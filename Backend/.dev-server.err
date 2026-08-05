@@ -1,0 +1,28 @@
+[2026-08-04T16:17:23.620Z] [WARN] SMTP not configured -- logging email instead of sending. To: u1785860243056@example.com, Subject: Verify your email
+[2026-08-04T16:17:23.739Z] [WARN] SMTP not configured -- logging email instead of sending. To: u1785860243056@example.com, Subject: Your HirePilot AI login code
+[2026-08-04T16:17:59.148Z] [WARN] SMTP not configured -- logging email instead of sending. To: smoke1785860276708@example.com, Subject: Verify your email
+[2026-08-04T16:17:59.392Z] [WARN] SMTP not configured -- logging email instead of sending. To: smoke1785860276708@example.com, Subject: Your HirePilot AI login code
+[2026-08-04T16:18:00.087Z] [WARN] SMTP not configured -- logging email instead of sending. To: smoke1785860276708@example.com, Subject: Your HirePilot AI password reset code
+[2026-08-04T16:18:25.419Z] [WARN] GET /api/auth/get-me -> Access token not provided.
+[2026-08-04T16:18:25.425Z] [WARN] GET /api/auth/get-me -> Access token not provided.
+[2026-08-04T16:20:28.108Z] [WARN] GET /api/auth/get-me -> Access token not provided.
+[2026-08-04T16:20:28.119Z] [WARN] GET /api/auth/get-me -> Access token not provided.
+[2026-08-04T16:20:28.125Z] [WARN] POST /api/auth/refresh-token -> Refresh token not provided.
+[2026-08-04T16:20:34.608Z] [WARN] GET /api/auth/get-me -> Access token not provided.
+[2026-08-04T16:20:34.625Z] [WARN] GET /api/auth/get-me -> Access token not provided.
+[2026-08-04T16:20:34.628Z] [WARN] POST /api/auth/refresh-token -> Refresh token not provided.
+[2026-08-04T16:20:45.311Z] [WARN] POST /api/auth/register -> Username can only contain letters, numbers, dots, underscores and hyphens
+[2026-08-04T16:20:55.153Z] [WARN] POST /api/auth/register -> Account already exists with this email address or username
+[2026-08-04T16:21:18.436Z] [WARN] SMTP not configured -- logging email instead of sending. To: test3@gmail.com, Subject: Verify your email
+Warning: UnknownErrorException: Ensure that the `standardFontDataUrl` API parameter is provided.
+Warning: UnknownErrorException: Ensure that the `standardFontDataUrl` API parameter is provided.
+Warning: UnknownErrorException: Ensure that the `standardFontDataUrl` API parameter is provided.
+[2026-08-04T16:27:24.822Z] [WARN] GET /api/auth/get-me -> Access token not provided.
+[2026-08-04T16:27:24.830Z] [WARN] GET /api/auth/get-me -> Access token not provided.
+[2026-08-04T16:27:24.836Z] [WARN] POST /api/auth/refresh-token -> Refresh token not provided.
+[2026-08-04T16:27:28.845Z] [WARN] GET /api/auth/get-me -> Access token not provided.
+[2026-08-04T16:27:28.853Z] [WARN] GET /api/auth/get-me -> Access token not provided.
+[2026-08-04T16:27:29.006Z] [WARN] POST /api/auth/refresh-token -> Refresh token not provided.
+[2026-08-04T16:29:13.919Z] [WARN] GET /api/auth/get-me -> Access token not provided.
+[2026-08-04T16:29:13.927Z] [WARN] GET /api/auth/get-me -> Access token not provided.
+[2026-08-04T16:29:13.934Z] [WARN] POST /api/auth/refresh-token -> Refresh token not provided.
