@@ -1,299 +1,233 @@
-# 🎯 HirePilot AI - AI-Powered Interview Preparation Platform
+# HirePilot AI
 
-> Master Your Interview, Land Your Dream Job
+### AI interview prep that scores you honestly — not with empty pep talk
 
-[![Made in India](https://img.shields.io/badge/Made%20in-India-orange?style=for-the-badge)](https://en.wikipedia.org/wiki/India)
-[![MERN Stack](https://img.shields.io/badge/MERN-Stack-green?style=for-the-badge)](https://www.mongodb.com/mern-stack)
+[![Live Demo](https://img.shields.io/badge/Live_Demo-Vercel-black?style=for-the-badge&logo=vercel)](https://hirepilot-frontend-mu.vercel.app)
+[![API](https://img.shields.io/badge/API-Render-46E3B7?style=for-the-badge&logo=render)](https://hirepilotai-whej.onrender.com/api/health)
+[![MongoDB](https://img.shields.io/badge/Database-MongoDB_Atlas-47A248?style=for-the-badge&logo=mongodb&logoColor=white)](https://www.mongodb.com/atlas)
+[![License](https://img.shields.io/badge/License-ISC-blue?style=for-the-badge)](#license)
 
-## 🌟 Overview
-
-HirePilot AI is a production-ready AI-powered interview preparation platform designed specifically for the Indian job market. It helps candidates prepare for technical and behavioral interviews with personalized coaching, real-time feedback, and comprehensive skill assessment.
-
-## ✨ Features
-
-### 🎨 **Premium UI/UX**
-- Modern, responsive design system
-- Dark mode support
-- Glassmorphism effects
-- Smooth animations and transitions
-- Mobile-first approach
-
-### 🤖 **AI-Powered Features**
-- Intelligent interview report generation
-- Personalized skill gap analysis
-- AI Assistant for mock interviews
-- Resume analysis and tailored PDF generation
-- Real-time chat with AI interviewer
-
-### 📊 **Dashboard & Analytics**
-- Comprehensive dashboard with animated metrics
-- Interview history tracking
-- Performance trends visualization
-- Skill gap charts
-- Match score tracking
-
-### 👤 **User Management**
-- Secure authentication (JWT + Refresh Tokens)
-- Email verification
-- Password reset functionality
-- Profile management with resume upload
-- Experience and education tracking
-
-### 🛡️ **Admin Panel**
-- User management
-- Interview reports monitoring
-- AI usage tracking
-- Feature flags
-- Feedback management
-- Audit logging
-
-### 🇮🇳 **Indianized**
-- Indian Rupees (₹) currency format
-- Lakh/Crore number formatting (1L+, 5L+)
-- Indian phone numbers (+91)
-- Indian company examples
-- Bengaluru-based company info
-
-## 🏗️ Tech Stack
-
-### **Frontend**
-- **React 19** - UI Library
-- **Vite** - Build Tool
-- **React Router v7** - Routing
-- **SCSS** - Styling with Design Tokens
-- **Context API** - State Management
-- **Axios** - HTTP Client
-
-### **Backend**
-- **Node.js & Express** - Server
-- **MongoDB & Mongoose** - Database
-- **JWT** - Authentication
-- **Google Gemini AI** - AI Integration
-- **Puppeteer** - PDF Generation
-- **bcryptjs** - Password Hashing
-
-## 📁 Project Structure
-
-```
-interview-ai-production-ready/
-├── Frontend/
-│   ├── src/
-│   │   ├── components/
-│   │   │   ├── ui/              # Design System Components
-│   │   │   ├── layout/          # Layout Components
-│   │   │   └── common/          # Common Components
-│   │   ├── features/
-│   │   │   ├── auth/            # Authentication
-│   │   │   ├── dashboard/       # Dashboard
-│   │   │   ├── interview/       # Interview Features
-│   │   │   ├── profile/         # User Profile
-│   │   │   ├── admin/           # Admin Panel
-│   │   │   └── chat/            # AI Chat
-│   │   ├── config/              # Brand & Config
-│   │   ├── hooks/               # Custom Hooks
-│   │   └── styles/              # Global Styles & Tokens
-│   └── public/
-├── Backend/
-│   ├── src/
-│   │   ├── models/              # Mongoose Models
-│   │   ├── controllers/         # Route Controllers
-│   │   ├── routes/              # API Routes
-│   │   ├── middleware/          # Custom Middleware
-│   │   ├── services/            # Business Logic
-│   │   └── utils/               # Utility Functions
-│   └── server.js
-└── create-admin.js              # Admin User Creation Script
-```
-
-## 🚀 Quick Start
-
-### **Prerequisites**
-- Node.js (v18+)
-- MongoDB (local or Atlas)
-- Google Gemini API Key
-
-### **1. Clone Repository**
-```bash
-git clone https://github.com/iprashantguptaa/interview-ai-production-ready.git
-cd interview-ai-production-ready
-```
-
-### **2. Backend Setup**
-```bash
-cd Backend
-npm install
-
-# Create .env file
-cp .env.example .env
-# Add your environment variables:
-# - MONGO_URI
-# - JWT_SECRET
-# - REFRESH_TOKEN_SECRET
-# - GEMINI_API_KEY
-# - FRONTEND_URL
-# - etc.
-
-# Start backend server
-npm run dev
-```
-
-### **3. Frontend Setup**
-```bash
-cd Frontend
-npm install
-
-# Create .env file
-cp .env.example .env
-# Add: VITE_API_URL=http://localhost:5000
-
-# Start frontend dev server
-npm run dev
-```
-
-### **4. Create Admin User**
-```bash
-# From root directory
-node create-admin.js
-```
-
-## 🔐 Creating Admin Account
-
-**Method 1: Using Script**
-```bash
-# Edit create-admin.js with your details
-node create-admin.js
-```
-
-**Method 2: Using MongoDB**
-```javascript
-// In MongoDB Compass or mongosh
-db.users.updateOne(
-  { email: "your-email@example.com" },
-  { $set: { role: "admin" } }
-)
-```
-
-## 📚 Environment Variables
-
-### **Backend (.env)**
-```env
-# Server
-PORT=5000
-NODE_ENV=development
-
-# Database
-MONGO_URI=mongodb://localhost:27017/interview-ai
-
-# JWT
-JWT_SECRET=your-super-secret-jwt-key
-JWT_EXPIRES_IN=15m
-REFRESH_TOKEN_SECRET=your-refresh-token-secret
-REFRESH_TOKEN_EXPIRES_IN=7d
-
-# Google Gemini AI
-GEMINI_API_KEY=your-gemini-api-key
-
-# Frontend
-FRONTEND_URL=http://localhost:5173
-
-# Email (optional)
-EMAIL_HOST=smtp.gmail.com
-EMAIL_PORT=587
-EMAIL_USER=your-email@gmail.com
-EMAIL_PASSWORD=your-app-password
-```
-
-### **Frontend (.env)**
-```env
-VITE_API_URL=http://localhost:5000
-```
-
-## 🎨 Design System
-
-HirePilot AI features a comprehensive design system with:
-- **Design Tokens** - Colors, Typography, Spacing, Shadows
-- **Component Library** - 20+ reusable UI components
-- **Responsive Breakpoints** - Mobile-first approach
-- **Dark Mode** - Full dark mode support
-- **Accessibility** - WCAG 2.1 AA/AAA compliant
-
-## 📱 Pages
-
-- **Auth Pages** - Login, Register, Forgot Password, Email Verification
-- **Dashboard** - Overview with metrics and charts
-- **Interview Creation** - Job description & resume upload
-- **Interview Report** - Detailed analysis with roadmap
-- **Interview History** - All past interviews
-- **Profile** - User profile and settings
-- **Admin Panel** - Complete admin dashboard
-- **AI Chat** - Real-time AI assistant
-
-## 🔒 Security Features
-
-- JWT-based authentication
-- Refresh token rotation
-- Password hashing (bcrypt)
-- Email verification
-- Rate limiting
-- Token blacklisting
-- Audit logging
-- CORS protection
-- Input validation
-
-## 📊 Database Models
-
-- **User** - User accounts and profiles
-- **InterviewReport** - Generated interview reports
-- **ChatConversation** - AI chat history
-- **RefreshToken** - Refresh token storage
-- **Feedback** - User feedback
-- **AiUsageLog** - AI API usage tracking
-- **Blacklist** - Invalidated tokens
-- **AuditLog** - Admin action logs
-- **FeatureFlag** - Feature toggles
-
-## 🚢 Deployment
-
-### **Backend (Railway)**
-1. Create Railway account
-2. New Project → Deploy from GitHub
-3. Add environment variables
-4. Deploy
-
-### **Frontend (Vercel)**
-1. Create Vercel account
-2. Import Git Repository
-3. Framework: Vite
-4. Build Command: `npm run build`
-5. Output Directory: `dist`
-6. Add environment variables
-7. Deploy
-
-## 🤝 Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-## 📝 License
-
-This project is licensed under the MIT License.
-
-## 👨‍💻 Author
-
-**Prashant Gupta**
-- GitHub: [@iprashantguptaa](https://github.com/iprashantguptaa)
-
-## 🙏 Acknowledgments
-
-- Google Gemini AI for AI capabilities
-- MongoDB for database
-- React & Vite teams
-- Open source community
+**Live app:** [hirepilot-frontend-mu.vercel.app](https://hirepilot-frontend-mu.vercel.app)  
+**Stack:** React 19 · Vite · Express · MongoDB · Google Gemini · JWT cookies
 
 ---
 
-**Made with ❤️ in India 🇮🇳**
+## Why this exists
 
-**HirePilot AI India Pvt Ltd**  
-Gorakhpur, Uttar Pradesh, India  
-📧 hello.hirepilotai@gmail.com  
-📞 +91 9569293150
+Most interview prep tools either give generic questions or inflate your score so you feel good.  
+**HirePilot AI** is built for the opposite: upload a resume, paste a real job description, and get a **role-specific plan + scored practice** that tells you where you actually stand.
+
+I built this as a full-stack MERN product end-to-end — auth, AI workflows, practice sessions, admin tooling, and production deploy (Vercel + Render + Atlas).
+
+---
+
+## What you can do
+
+| Flow | What happens |
+|------|----------------|
+| **Interview plan** | Resume + JD → match score, strengths, skill gaps, tech/behavioral questions, 5-day prep roadmap, PDF export |
+| **Scored practice** | Live mock interview — every answer graded on **relevance, depth, structure, clarity, specificity** |
+| **Adaptive follow-ups** | Weak/vague answers get probed on the next turn (not a fixed quiz list) |
+| **Auth** | Register / login with **email OTP**, forgot-password OTP, JWT access + rotating refresh cookies |
+| **Profile & history** | Resume on profile, past plans, past practice reports |
+| **Admin** | Users, interviews, AI usage, feature flags, feedback, audit log |
+
+> **Coming soon (not shipped yet):** camera-based mock interviews that analyze expression, gesture, posture, and confidence. Today’s practice is **text-based scored interviews only**.
+
+---
+
+## Demo
+
+| | |
+|---|---|
+| **Frontend** | https://hirepilot-frontend-mu.vercel.app |
+| **API health** | https://hirepilotai-whej.onrender.com/api/health |
+
+> Render free tier may cold-start (~30–60s) after idle time. If login/register fails once, wait a minute and retry.
+
+**Try this path:** Register → New interview plan (paste any JD + resume PDF) → open Practice → answer 3–6 questions → read the report.
+
+---
+
+## Product walkthrough
+
+```text
+1. Paste target job description + upload resume (PDF)
+2. Gemini generates a structured interview plan
+3. Start a practice session (technical / behavioral / mixed)
+4. Answer → get rubric score + feedback → next question
+5. End with overall score, weakest dimension, and transcript
+```
+
+```mermaid
+flowchart LR
+  A[Candidate] --> B[React SPA on Vercel]
+  B --> C[Express API on Render]
+  C --> D[(MongoDB Atlas)]
+  C --> E[Google Gemini]
+  C --> F[Puppeteer PDFs]
+```
+
+---
+
+## Tech stack
+
+### Frontend
+- **React 19** + **Vite 7**
+- **React Router 7**
+- **SCSS** design tokens / component system
+- **Axios** with cookie credentials + silent token refresh
+
+### Backend
+- **Node.js** + **Express 5**
+- **MongoDB** + **Mongoose**
+- **JWT** httpOnly cookies (`access` + rotating `refresh`)
+- **Google Gemini** (`@google/genai`) structured JSON via Zod schemas
+- **Multer** + **pdf-parse** for resume upload
+- **Puppeteer** for resume/report PDFs
+- **Helmet**, **CORS**, **rate limiting**, central error middleware
+
+### Deploy
+- Frontend → **Vercel**
+- Backend → **Render**
+- Database → **MongoDB Atlas**
+
+---
+
+## Engineering highlights (recruiter-facing)
+
+Things I cared about beyond “it works on my machine”:
+
+- **Cross-origin auth** — Vercel ↔ Render cookies with `SameSite=None; Secure`, explicit CORS allowlist (not `origin: true`)
+- **AI reliability** — structured outputs validated with Zod; retries for transient 503/429; quota errors fail fast
+- **Latency-aware AI UX** — interview plan split into **parallel** Gemini calls; practice returns **score first**, next question prefetches while you read feedback
+- **Honest product copy** — no fake contact emails, no selectable “Coming Soon” paid plans
+- **Admin observability** — AI token usage logging, audit log, feature flags
+- **Security basics** — bcrypt passwords, httpOnly cookies, token blacklist on logout, rate limits on auth routes
+
+---
+
+## Project structure
+
+```text
+HirePilotAI/
+├── Frontend/                 # React + Vite SPA
+│   ├── src/
+│   │   ├── features/         # auth, interview, practice, profile, admin
+│   │   ├── components/       # shared UI + layout
+│   │   ├── pages/            # landing + marketing
+│   │   └── lib/              # apiClient, etc.
+│   └── vercel.json
+├── Backend/                  # Express API
+│   ├── src/
+│   │   ├── controllers/
+│   │   ├── models/
+│   │   ├── routes/
+│   │   ├── services/         # Gemini + PDF
+│   │   ├── middlewares/
+│   │   └── config/
+│   └── server.js
+├── DEPLOYMENT.md             # Production setup notes
+└── README.md
+```
+
+---
+
+## Local setup
+
+### Prerequisites
+- Node.js 18+
+- MongoDB (local or Atlas)
+- Google Gemini API key
+
+### 1. Backend
+
+```bash
+cd Backend
+cp .env.example .env   # if present — or create .env with the vars below
+npm install
+npm run dev
+```
+
+**Required env**
+
+```env
+MONGO_URI=your_mongodb_uri
+JWT_SECRET=a_long_random_string
+GOOGLE_GENAI_API_KEY=your_gemini_key
+FRONTEND_URL=http://localhost:5173
+PORT=3000
+NODE_ENV=development
+```
+
+Optional SMTP vars: if unset, OTP / verification emails are logged in the console (fine for local).
+
+### 2. Frontend
+
+```bash
+cd Frontend
+cp .env.example .env
+# VITE_API_URL=http://localhost:3000
+npm install
+npm run dev
+```
+
+Open **http://localhost:5173** (prefer `localhost` over `127.0.0.1` so CORS matches).
+
+### 3. Admin user (optional)
+
+```bash
+cd Backend
+npm run create-admin -- --email you@example.com --username you --password "StrongPass123"
+```
+
+---
+
+## Production deploy (short version)
+
+Full checklist: [`DEPLOYMENT.md`](./DEPLOYMENT.md)
+
+| Piece | Platform | Key env |
+|-------|----------|---------|
+| API | Render | `MONGO_URI`, `JWT_SECRET`, `GOOGLE_GENAI_API_KEY`, `FRONTEND_URL`, `NODE_ENV=production` |
+| SPA | Vercel | `VITE_API_URL` = backend URL (set at **build** time) |
+| DB | Atlas | Network access for Render |
+
+`FRONTEND_URL` must match the Vercel origin exactly (**no trailing slash**), or browsers will block auth as a “network error”.
+
+---
+
+## API surface (high level)
+
+| Area | Examples |
+|------|----------|
+| Auth | `/api/auth/register`, `/login`, `/verify-login-otp`, `/forgot-password`, `/refresh-token` |
+| Interview plans | `/api/interview/` (multipart resume + JD) |
+| Practice | `/api/session`, `/api/session/:id/answer`, `/complete` |
+| Profile / admin / feedback | `/api/profile`, `/api/admin/*`, `/api/feedback` |
+| Health | `GET /api/health` |
+
+---
+
+## Roadmap
+
+- [x] Resume + JD → AI interview plan  
+- [x] Scored text mock interviews with adaptive follow-ups  
+- [x] OTP login / password reset (email; local preview when SMTP unset)  
+- [x] PDF exports, admin panel, marketing pages  
+- [ ] Camera / voice mock interviews (expression, posture, confidence) — **planned**  
+- [ ] Deeper progress analytics across many sessions  
+
+---
+
+## Author
+
+Built by **[Prashant Gupta](https://github.com/iprashantguptaa)**  
+
+If you’re a recruiter or hiring manager reviewing this repo: the live demo is the fastest way to evaluate the product; this README is the map of what’s real vs planned.
+
+---
+
+## License
+
+ISC — see package metadata. Feel free to fork for learning; please don’t rebrand the live demo as your own product without changes.
