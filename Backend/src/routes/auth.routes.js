@@ -30,6 +30,13 @@ authRouter.post("/register", sensitiveAuthLimiter, authController.registerUserCo
  */
 authRouter.post("/login", sensitiveAuthLimiter, authController.loginUserController)
 
+/**
+ * @route POST /api/auth/verify-login-otp
+ * @description finish login by verifying the free email OTP
+ * @access Public
+ */
+authRouter.post("/verify-login-otp", sensitiveAuthLimiter, authController.verifyLoginOtpController)
+
 
 /**
  * @route POST /api/auth/refresh-token
@@ -62,10 +69,16 @@ authRouter.get("/get-me", authMiddleware.authUser, authController.getMeControlle
  */
 authRouter.post("/forgot-password", sensitiveAuthLimiter, authController.forgotPasswordController)
 
+/**
+ * @route POST /api/auth/reset-password-otp
+ * @description set a new password using a free email OTP
+ * @access Public
+ */
+authRouter.post("/reset-password-otp", sensitiveAuthLimiter, authController.resetPasswordWithOtpController)
 
 /**
  * @route POST /api/auth/reset-password/:token
- * @description set a new password using a valid reset token
+ * @description set a new password using a valid reset token (legacy link flow)
  * @access Public
  */
 authRouter.post("/reset-password/:token", sensitiveAuthLimiter, authController.resetPasswordController)

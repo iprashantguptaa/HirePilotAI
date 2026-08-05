@@ -22,10 +22,10 @@ export const BRAND = {
   // ============================================================================
   
   company: {
-    name: 'HirePilot AI India Pvt Ltd',
-    legalName: 'HirePilot AI India Private Limited',
+    name: 'HirePilot AI',
+    legalName: 'HirePilot AI',
     founded: '2026',
-    location: 'Bengaluru, Karnataka, India'
+    location: ''
   },
 
   // ============================================================================
@@ -33,42 +33,23 @@ export const BRAND = {
   // ============================================================================
   
   contact: {
-    email: 'hello@hirepilot.ai',
-    supportEmail: 'support@hirepilot.ai',
-    businessEmail: 'business@hirepilot.ai',
-    pressEmail: 'press@hirepilot.ai',
+    email: '',
+    supportEmail: '',
+    businessEmail: '',
+    pressEmail: '',
     website: 'https://hirepilot.ai',
-    phone: '+91 80 4567 8900'
+    phone: ''
   },
 
   // ============================================================================
   // SOCIAL LINKS
   // ============================================================================
   
+  // Only list channels that actually exist. Empty url = hidden in the footer.
   social: {
-    twitter: {
-      username: '@HirePilotAI',
-      url: 'https://twitter.com/HirePilotAI'
-    },
-    linkedin: {
-      username: 'hirepilot-ai',
-      url: 'https://linkedin.com/company/hirepilot-ai'
-    },
     github: {
-      username: 'hirepilot-ai',
-      url: 'https://github.com/hirepilot-ai'
-    },
-    youtube: {
-      username: '@HirePilotAI',
-      url: 'https://youtube.com/@HirePilotAI'
-    },
-    discord: {
-      inviteCode: 'hirepilot',
-      url: 'https://discord.gg/hirepilot'
-    },
-    instagram: {
-      username: '@hirepilot.ai',
-      url: 'https://instagram.com/hirepilot.ai'
+      username: 'iprashantguptaa',
+      url: 'https://github.com/iprashantguptaa/HirePilotAI'
     }
   },
 
@@ -77,7 +58,7 @@ export const BRAND = {
   // ============================================================================
   
   legal: {
-    copyright: `© ${new Date().getFullYear()} HirePilot AI India Pvt Ltd. All rights reserved.`,
+    copyright: `© ${new Date().getFullYear()} HirePilot AI. All rights reserved.`,
     privacyPolicyUrl: '/legal/privacy',
     termsOfServiceUrl: '/legal/terms',
     cookiePolicyUrl: '/legal/cookies',
@@ -328,10 +309,10 @@ export const BRAND = {
         { label: 'Contact', href: '/contact' }
       ],
       resources: [
-        { label: 'Interview Tips', href: '/resources/tips' },
-        { label: 'Career Guides', href: '/resources/guides' },
-        { label: 'Success Stories', href: '/resources/stories' },
-        { label: 'API Documentation', href: '/docs/api' }
+        { label: 'How it Works', href: '/how-it-works' },
+        { label: 'FAQ', href: '/faq' },
+        { label: 'Documentation', href: '/documentation' },
+        { label: 'Feedback', href: '/feedback' }
       ],
       legal: [
         { label: 'Privacy Policy', href: '/legal/privacy' },
@@ -341,9 +322,9 @@ export const BRAND = {
       ],
       support: [
         { label: 'Help Center', href: '/support' },
-        { label: 'System Status', href: '/status' },
         { label: 'Contact Support', href: '/contact' },
-        { label: 'FAQ', href: '/faq' }
+        { label: 'FAQ', href: '/faq' },
+        { label: 'Feedback', href: '/feedback' }
       ]
     }
   },

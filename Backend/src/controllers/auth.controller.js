@@ -6,8 +6,32 @@ const tokenBlacklistModel = require("../models/blacklist.model")
 const config = require("../config/env")
 const ApiError = require("../utils/ApiError")
 const asyncHandler = require("../utils/asyncHandler")
-const { generateOpaqueToken, hashToken } = require("../utils/token")
+const { generateOpaqueToken, hashToken, generateOtp } = require("../utils/token")
 const { sendEmail } = require("../utils/email")
+
+const OTP_TTL_MS = 10 * 60 * 1000
+
+/**
+ * Sends an OTP email. When SMTP is not configured (local free setup),
+ * returns the OTP so the frontend can show it in development only.
+ * Production never echoes the OTP in the API response.
+ */
+async function dispatchOtpEmail({ to, subject, rawOtp, purpose }) {
+    const text = `Your HirePilot AI ${purpose} code is ${rawOtp}. It expires in 10 minutes. If you did not request this, ignore this email.`
+    const result = await sendEmail({
+        to,
+        subject,
+        text,
+        html: `<p>Your HirePilot AI <strong>${purpose}</strong> code is:</p><p style="font-size:28px;letter-spacing:6px;font-weight:700">${rawOtp}</p><p>It expires in 10 minutes.</p>`
+    })
+
+    return {
+        delivered: Boolean(result?.delivered),
+        // Only expose the code when mail was logged locally (no SMTP).
+        // Never expose it when a real email was sent, or in production.
+        previewOtp: (!config.isProduction && result?.loggedOnly) ? rawOtp : undefined
+    }
+}
 
 // Cookie options for cross-origin authentication
 // CRITICAL: sameSite="none" requires secure=true (HTTPS)
@@ -156,7 +180,8 @@ const registerUserController = asyncHandler(async function registerUserControlle
 
 /**
  * @name loginUserController
- * @description login a user, expects email and password in the request body
+ * @description Step 1 of login: validate email/password, then send a free OTP.
+ *              Session cookies are issued only after OTP verification.
  * @access Public
  */
 const loginUserController = asyncHandler(async function loginUserController(req, res) {
@@ -179,10 +204,63 @@ const loginUserController = asyncHandler(async function loginUserController(req,
         throw ApiError.badRequest("Invalid email or password")
     }
 
+    const { rawOtp, otpHash } = generateOtp()
+    user.loginOtpHash = otpHash
+    user.loginOtpExpires = new Date(Date.now() + OTP_TTL_MS)
+    await user.save()
+
+    const delivery = await dispatchOtpEmail({
+        to: user.email,
+        subject: "Your HirePilot AI login code",
+        rawOtp,
+        purpose: "login"
+    })
+
+    res.status(200).json({
+        message: delivery.delivered
+            ? "Password correct. Enter the OTP sent to your email to finish signing in."
+            : "Password correct. Enter the OTP below to finish signing in (email is not configured on this server, so the code is shown here for local/free use).",
+        requiresOtp: true,
+        email: user.email,
+        ...(delivery.previewOtp ? { previewOtp: delivery.previewOtp } : {})
+    })
+})
+
+/**
+ * @name verifyLoginOtpController
+ * @description Step 2 of login: verify the email OTP and issue session cookies.
+ * @access Public
+ */
+const verifyLoginOtpController = asyncHandler(async function verifyLoginOtpController(req, res) {
+    const email = typeof req.body.email === "string" ? req.body.email.trim().toLowerCase() : ""
+    const otp = typeof req.body.otp === "string" ? req.body.otp.trim() : ""
+
+    if (!email || !otp) {
+        throw ApiError.badRequest("Please provide email and OTP")
+    }
+
+    if (!/^\d{6}$/.test(otp)) {
+        throw ApiError.badRequest("OTP must be a 6-digit code")
+    }
+
+    const user = await userModel.findOne({ email }).select("+loginOtpHash +loginOtpExpires")
+
+    if (!user || !user.loginOtpHash || !user.loginOtpExpires || user.loginOtpExpires < new Date()) {
+        throw ApiError.badRequest("OTP is invalid or has expired. Please log in again.")
+    }
+
+    if (hashToken(otp) !== user.loginOtpHash) {
+        throw ApiError.badRequest("Incorrect OTP. Please try again.")
+    }
+
+    user.loginOtpHash = undefined
+    user.loginOtpExpires = undefined
+    await user.save()
+
     await issueSession(res, user)
 
     res.status(200).json({
-        message: "User loggedIn successfully.",
+        message: "Logged in successfully.",
         user: publicUser(user)
     })
 })
@@ -281,44 +359,92 @@ const getMeController = asyncHandler(async function getMeController(req, res) {
 
 /**
  * @name forgotPasswordController
- * @description generates a password reset token and emails it to the user. Always returns 200 to avoid leaking which emails are registered.
+ * @description sends a free 6-digit OTP for password reset. Always returns 200
+ *              (with a generic message) to avoid leaking which emails are registered.
  * @access Public
  */
 const forgotPasswordController = asyncHandler(async function forgotPasswordController(req, res) {
-    const { email } = req.body
+    const email = typeof req.body.email === "string" ? req.body.email.trim().toLowerCase() : ""
 
     if (!email) {
         throw ApiError.badRequest("Please provide an email address")
     }
 
+    let previewOtp
     const user = await userModel.findOne({ email })
 
     if (user) {
-        const { rawToken, tokenHash } = generateOpaqueToken()
-
-        user.passwordResetTokenHash = tokenHash
-        user.passwordResetExpires = new Date(Date.now() + config.passwordResetExpiresInMs)
+        const { rawOtp, otpHash } = generateOtp()
+        user.passwordResetOtpHash = otpHash
+        user.passwordResetOtpExpires = new Date(Date.now() + OTP_TTL_MS)
+        // Clear legacy link-based reset fields if any remain.
+        user.passwordResetTokenHash = undefined
+        user.passwordResetExpires = undefined
         await user.save()
 
-        const resetUrl = `${config.frontendUrl}/reset-password/${rawToken}`
-
-        await sendEmail({
+        const delivery = await dispatchOtpEmail({
             to: user.email,
-            subject: "Reset your password",
-            text: `Reset your password: ${resetUrl}. This link expires in ${config.passwordResetExpiresInMs / 60000} minutes.`,
-            html: `<p>Reset your password: <a href="${resetUrl}">${resetUrl}</a></p><p>This link expires in ${config.passwordResetExpiresInMs / 60000} minutes.</p>`
+            subject: "Your HirePilot AI password reset code",
+            rawOtp,
+            purpose: "password reset"
         })
+        previewOtp = delivery.previewOtp
     }
 
-    // Same response whether or not the email exists -- prevents account enumeration.
     res.status(200).json({
-        message: "If an account with that email exists, a password reset link has been sent."
+        message: "If an account with that email exists, a password reset OTP has been sent.",
+        ...(previewOtp ? { previewOtp } : {})
     })
 })
 
 /**
+ * @name resetPasswordWithOtpController
+ * @description sets a new password using a valid, unexpired email OTP.
+ * @access Public
+ */
+const resetPasswordWithOtpController = asyncHandler(async function resetPasswordWithOtpController(req, res) {
+    const email = typeof req.body.email === "string" ? req.body.email.trim().toLowerCase() : ""
+    const otp = typeof req.body.otp === "string" ? req.body.otp.trim() : ""
+    const password = typeof req.body.password === "string" ? req.body.password : ""
+
+    if (!email || !otp || !password) {
+        throw ApiError.badRequest("Please provide email, OTP and a new password")
+    }
+
+    if (!/^\d{6}$/.test(otp)) {
+        throw ApiError.badRequest("OTP must be a 6-digit code")
+    }
+
+    if (password.length < 8) {
+        throw ApiError.badRequest("Password must be at least 8 characters long")
+    }
+
+    const user = await userModel.findOne({ email }).select("+passwordResetOtpHash +passwordResetOtpExpires")
+
+    if (!user || !user.passwordResetOtpHash || !user.passwordResetOtpExpires || user.passwordResetOtpExpires < new Date()) {
+        throw ApiError.badRequest("OTP is invalid or has expired. Please request a new one.")
+    }
+
+    if (hashToken(otp) !== user.passwordResetOtpHash) {
+        throw ApiError.badRequest("Incorrect OTP. Please try again.")
+    }
+
+    user.password = await bcrypt.hash(password, 10)
+    user.passwordResetOtpHash = undefined
+    user.passwordResetOtpExpires = undefined
+    await user.save()
+
+    await refreshTokenModel.updateMany(
+        { user: user._id, revokedAt: null },
+        { revokedAt: new Date() }
+    )
+
+    res.status(200).json({ message: "Password has been reset successfully. Please log in." })
+})
+
+/**
  * @name resetPasswordController
- * @description sets a new password using a valid, unexpired reset token.
+ * @description Legacy link-based reset kept for old emails already in the wild.
  * @access Public
  */
 const resetPasswordController = asyncHandler(async function resetPasswordController(req, res) {
@@ -337,7 +463,7 @@ const resetPasswordController = asyncHandler(async function resetPasswordControl
     }).select("+passwordResetTokenHash +passwordResetExpires")
 
     if (!user) {
-        throw ApiError.badRequest("Password reset link is invalid or has expired.")
+        throw ApiError.badRequest("Password reset link is invalid or has expired. Use Forgot Password to get a new OTP.")
     }
 
     user.password = await bcrypt.hash(password, 10)
@@ -345,7 +471,6 @@ const resetPasswordController = asyncHandler(async function resetPasswordControl
     user.passwordResetExpires = undefined
     await user.save()
 
-    // Resetting the password invalidates every existing session.
     await refreshTokenModel.updateMany(
         { user: user._id, revokedAt: null },
         { revokedAt: new Date() }
@@ -404,10 +529,12 @@ const resendVerificationEmailController = asyncHandler(async function resendVeri
 module.exports = {
     registerUserController,
     loginUserController,
+    verifyLoginOtpController,
     refreshTokenController,
     logoutUserController,
     getMeController,
     forgotPasswordController,
+    resetPasswordWithOtpController,
     resetPasswordController,
     verifyEmailController,
     resendVerificationEmailController

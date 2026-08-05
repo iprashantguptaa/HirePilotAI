@@ -1,58 +1,64 @@
 import { useState } from 'react'
-import { Link } from 'react-router'
+import { Link, useNavigate } from 'react-router'
 import { useAuth } from '../hooks/useAuth'
 import AuthLayout from '../../../components/layout/AuthLayout'
 import AuthFormCard from '../../../components/layout/AuthFormCard'
-import { Input, Button, Alert } from '../../../components/ui'
+import { Input, PasswordInput, Button, Alert } from '../../../components/ui'
 
 const ForgotPassword = () => {
-  const { handleForgotPassword } = useAuth()
-  const [email, setEmail] = useState("")
-  const [submitting, setSubmitting] = useState(false)
-  const [sent, setSent] = useState(false)
-  const [error, setError] = useState("")
+  const { handleForgotPassword, handleResetPasswordWithOtp } = useAuth()
+  const navigate = useNavigate()
 
-  const validateEmail = () => {
+  const [ email, setEmail ] = useState("")
+  const [ otp, setOtp ] = useState("")
+  const [ password, setPassword ] = useState("")
+  const [ step, setStep ] = useState("request") // request | reset
+  const [ previewOtp, setPreviewOtp ] = useState("")
+  const [ submitting, setSubmitting ] = useState(false)
+  const [ error, setError ] = useState("")
+
+  const requestOtp = async (e) => {
+    e.preventDefault()
     if (!email) {
       setError("Email is required")
-      return false
+      return
     }
     if (!/\S+@\S+\.\S+/.test(email)) {
       setError("Please enter a valid email address")
-      return false
-    }
-    return true
-  }
-
-  const handleSubmit = async (e) => {
-    e.preventDefault()
-    
-    if (!validateEmail()) {
       return
     }
 
     setSubmitting(true)
     setError("")
-    const success = await handleForgotPassword({ email })
+    const result = await handleForgotPassword({ email })
     setSubmitting(false)
-    
-    if (success) {
-      setSent(true)
+
+    if (result?.ok) {
+      setPreviewOtp(result.previewOtp || "")
+      setStep("reset")
     }
   }
 
+  const resetWithOtp = async (e) => {
+    e.preventDefault()
+    if (!/^\d{6}$/.test(otp.trim())) {
+      setError("Enter the 6-digit OTP")
+      return
+    }
+    if (!password || password.length < 8) {
+      setError("Password must be at least 8 characters")
+      return
+    }
+
+    setSubmitting(true)
+    setError("")
+    const ok = await handleResetPasswordWithOtp({ email, otp: otp.trim(), password })
+    setSubmitting(false)
+    if (ok) navigate("/login")
+  }
+
   const EmailIcon = () => (
-    <svg 
-      xmlns="http://www.w3.org/2000/svg" 
-      width="18" 
-      height="18" 
-      viewBox="0 0 24 24" 
-      fill="none" 
-      stroke="currentColor" 
-      strokeWidth="2" 
-      strokeLinecap="round" 
-      strokeLinejoin="round"
-    >
+    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <rect x="2" y="4" width="20" height="16" rx="2"/>
       <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
     </svg>
@@ -62,24 +68,17 @@ const ForgotPassword = () => {
     <AuthLayout>
       <AuthFormCard
         title="Reset your password"
-        subtitle={sent ? "" : "Enter your email address and we'll send you a reset link"}
-        footer={
-          <Link to="/login">Back to sign in</Link>
-        }
+        subtitle={step === "request"
+          ? "We'll send a free 6-digit OTP to your email. No paid SMS."
+          : "Enter the OTP and choose a new password."}
+        footer={<Link to="/login">Back to sign in</Link>}
       >
-        {sent ? (
-          <Alert 
-            variant="success" 
-            title="Check your email"
-            message="If an account exists for that email, we've sent a password reset link. Please check your inbox and spam folder."
-            className="animate-scale-in"
-          />
-        ) : (
-          <form onSubmit={handleSubmit}>
+        {step === "request" ? (
+          <form onSubmit={requestOtp}>
             <Input
               type="email"
               label="Email address"
-              placeholder="rahul@example.com"
+              placeholder="you@example.com"
               value={email}
               onChange={(e) => {
                 setEmail(e.target.value)
@@ -92,15 +91,82 @@ const ForgotPassword = () => {
               autoComplete="email"
             />
 
-            <Button
-              type="submit"
-              variant="primary"
-              size="lg"
+            <Button type="submit" variant="primary" size="lg" fullWidth loading={submitting}>
+              Send free OTP
+            </Button>
+          </form>
+        ) : (
+          <form onSubmit={resetWithOtp}>
+            {previewOtp && (
+              <Alert
+                variant="warning"
+                title="Local / free OTP preview"
+                message={`SMTP is not configured, so your reset code is: ${previewOtp}`}
+                className="animate-scale-in"
+              />
+            )}
+
+            {!previewOtp && (
+              <Alert
+                variant="success"
+                title="OTP sent"
+                message="If that email has an account, a 6-digit code was sent. Check inbox and spam."
+                className="animate-scale-in"
+              />
+            )}
+
+            <Input
+              type="text"
+              inputMode="numeric"
+              label="6-digit OTP"
+              placeholder="123456"
+              value={otp}
+              onChange={(e) => {
+                setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))
+                if (error) setError("")
+              }}
+              error={error && error.includes("OTP") ? error : undefined}
+              required
               fullWidth
-              loading={submitting}
-              disabled={submitting}
+              autoComplete="one-time-code"
+            />
+
+            <PasswordInput
+              label="New password"
+              placeholder="At least 8 characters"
+              value={password}
+              onChange={(e) => {
+                setPassword(e.target.value)
+                if (error) setError("")
+              }}
+              error={error && error.includes("Password") ? error : undefined}
+              required
+              fullWidth
+              autoComplete="new-password"
+            />
+
+            {error && !error.includes("OTP") && !error.includes("Password") && (
+              <Alert variant="error" title="Couldn't reset" message={error} />
+            )}
+
+            <Button type="submit" variant="primary" size="lg" fullWidth loading={submitting}>
+              Reset password
+            </Button>
+
+            <Button
+              type="button"
+              variant="ghost"
+              size="md"
+              fullWidth
+              onClick={() => {
+                setStep("request")
+                setOtp("")
+                setPassword("")
+                setPreviewOtp("")
+                setError("")
+              }}
             >
-              Send reset link
+              Use a different email
             </Button>
           </form>
         )}

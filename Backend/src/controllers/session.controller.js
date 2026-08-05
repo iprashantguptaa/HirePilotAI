@@ -304,20 +304,38 @@ const submitAnswerController = asyncHandler(async function submitAnswerControlle
             scoredTurn: pendingTurn,
             nextQuestion: null,
             completed: true,
+            needsNextQuestion: false,
             session
         })
     }
 
-    const nextTurn = await appendNextQuestion(session, req.user.id)
-    await session.save()
+    // Next-question generation is a separate AI call. If it fails, the
+    // score above is already saved — return success so the candidate can
+    // read feedback and load the next question on Continue (GET heals).
+    try {
+        const nextTurn = await appendNextQuestion(session, req.user.id)
+        await session.save()
 
-    res.status(200).json({
-        message: "Answer scored.",
-        scoredTurn: pendingTurn,
-        nextQuestion: nextTurn,
-        completed: false,
-        session
-    })
+        return res.status(200).json({
+            message: "Answer scored.",
+            scoredTurn: pendingTurn,
+            nextQuestion: nextTurn,
+            completed: false,
+            needsNextQuestion: false,
+            session
+        })
+    } catch (err) {
+        logger.warn(`Next question failed after scoring session ${session._id}: ${err.message}`)
+
+        return res.status(200).json({
+            message: "Answer scored. The next question will load when you continue.",
+            scoredTurn: pendingTurn,
+            nextQuestion: null,
+            completed: false,
+            needsNextQuestion: true,
+            session
+        })
+    }
 })
 
 /**

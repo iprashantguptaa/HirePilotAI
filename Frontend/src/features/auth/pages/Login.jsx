@@ -1,159 +1,182 @@
 import { useState } from 'react'
-import { useNavigate, Link } from 'react-router'
+import { useNavigate, Link, useLocation } from 'react-router'
 import { useAuth } from '../hooks/useAuth'
 import { SEO } from '../../../components/common'
 import { useBrand } from '../../../hooks/useBrand'
 import AuthLayout from '../../../components/layout/AuthLayout'
 import AuthFormCard from '../../../components/layout/AuthFormCard'
-import { Input, PasswordInput, Button } from '../../../components/ui'
+import { Input, PasswordInput, Button, Alert } from '../../../components/ui'
 
 const Login = () => {
-  const { loading, handleLogin } = useAuth()
+  const { loading, handleLogin, handleVerifyLoginOtp } = useAuth()
   const brand = useBrand()
   const navigate = useNavigate()
+  const location = useLocation()
 
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [errors, setErrors] = useState({})
+  const [ email, setEmail ] = useState("")
+  const [ password, setPassword ] = useState("")
+  const [ otp, setOtp ] = useState("")
+  const [ step, setStep ] = useState("credentials") // credentials | otp
+  const [ previewOtp, setPreviewOtp ] = useState("")
+  const [ infoMessage, setInfoMessage ] = useState(location.state?.message || "")
+  const [ errors, setErrors ] = useState({})
 
-  const validateForm = () => {
-    const newErrors = {}
-    
-    if (!email) {
-      newErrors.email = "Email is required"
-    } else if (!/\S+@\S+\.\S+/.test(email)) {
-      newErrors.email = "Email is invalid"
-    }
-    
-    if (!password) {
-      newErrors.password = "Password is required"
-    } else if (password.length < 6) {
-      newErrors.password = "Password must be at least 6 characters"
-    }
-    
-    setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
+  const validateCredentials = () => {
+    const next = {}
+    if (!email) next.email = "Email is required"
+    else if (!/\S+@\S+\.\S+/.test(email)) next.email = "Email is invalid"
+    if (!password) next.password = "Password is required"
+    else if (password.length < 6) next.password = "Password must be at least 6 characters"
+    setErrors(next)
+    return Object.keys(next).length === 0
   }
 
-  const handleSubmit = async (e) => {
+  const onCredentialsSubmit = async (e) => {
     e.preventDefault()
-    
-    if (!validateForm()) {
+    if (!validateCredentials()) return
+
+    const result = await handleLogin({ email, password })
+    if (!result) return
+
+    if (result.requiresOtp) {
+      setStep("otp")
+      setPreviewOtp(result.previewOtp || "")
+      setInfoMessage(result.message || "Enter the 6-digit OTP sent to your email.")
       return
     }
 
-    const success = await handleLogin({ email, password })
-    if (success) {
-      navigate('/dashboard')
+    navigate(location.state?.from || "/dashboard")
+  }
+
+  const onOtpSubmit = async (e) => {
+    e.preventDefault()
+    if (!/^\d{6}$/.test(otp.trim())) {
+      setErrors({ otp: "Enter the 6-digit OTP" })
+      return
     }
+
+    const ok = await handleVerifyLoginOtp({ email, otp: otp.trim() })
+    if (ok) navigate(location.state?.from || "/dashboard")
   }
 
   const EmailIcon = () => (
-    <svg 
-      xmlns="http://www.w3.org/2000/svg" 
-      width="18" 
-      height="18" 
-      viewBox="0 0 24 24" 
-      fill="none" 
-      stroke="currentColor" 
-      strokeWidth="2" 
-      strokeLinecap="round" 
-      strokeLinejoin="round"
-    >
+    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <rect x="2" y="4" width="20" height="16" rx="2"/>
       <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
     </svg>
   )
 
-  if (loading) {
-    return (
-      <AuthLayout>
-        <AuthFormCard>
-          <div className="center" style={{ padding: 'var(--space-12) 0' }}>
-            <div className="animate-spin">
-              <svg 
-                xmlns="http://www.w3.org/2000/svg" 
-                width="32" 
-                height="32" 
-                viewBox="0 0 24 24" 
-                fill="none" 
-                stroke="currentColor" 
-                strokeWidth="2" 
-                strokeLinecap="round" 
-                strokeLinejoin="round"
-              >
-                <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
-              </svg>
-            </div>
-          </div>
-        </AuthFormCard>
-      </AuthLayout>
-    )
-  }
-
   return (
     <>
-      <SEO 
+      <SEO
         title={brand.pages.login.title}
         description={brand.pages.login.description}
       />
-      
+
       <AuthLayout>
         <AuthFormCard
-          title={`Welcome back to ${brand.productName}`}
-          subtitle={brand.tagline}
+          title={step === "otp" ? "Enter login OTP" : `Welcome back to ${brand.productName}`}
+          subtitle={step === "otp"
+            ? "Free email OTP — no paid SMS. Check your inbox, or the code shown below if email is not configured."
+            : (brand.product?.tagline || "Sign in to continue")}
           footer={
             <>
               Don't have an account?{' '}
-              <Link to="/register">Sign up</Link>
+              <Link to="/register" state={location.state}>Sign up</Link>
             </>
           }
         >
-          <form onSubmit={handleSubmit}>
-            <Input
-              type="email"
-              label="Email address"
-              placeholder="rahul@example.com"
-              value={email}
-              onChange={(e) => {
-                setEmail(e.target.value)
-                if (errors.email) setErrors({ ...errors, email: null })
-              }}
-              leftIcon={<EmailIcon />}
-              error={errors.email}
-              required
-              fullWidth
-              autoComplete="email"
-            />
+          {infoMessage && (
+            <Alert variant="info" title="Continue" message={infoMessage} className="animate-scale-in" />
+          )}
 
-            <PasswordInput
-              label="Password"
-              placeholder="Enter your password"
-              value={password}
-              onChange={(e) => {
-                setPassword(e.target.value)
-                if (errors.password) setErrors({ ...errors, password: null })
-              }}
-              error={errors.password}
-              required
-              fullWidth
-              autoComplete="current-password"
-            />
+          {step === "credentials" ? (
+            <form onSubmit={onCredentialsSubmit}>
+              <Input
+                type="email"
+                label="Email address"
+                placeholder="you@example.com"
+                value={email}
+                onChange={(e) => {
+                  setEmail(e.target.value)
+                  if (errors.email) setErrors({ ...errors, email: null })
+                }}
+                leftIcon={<EmailIcon />}
+                error={errors.email}
+                required
+                fullWidth
+                autoComplete="email"
+              />
 
-            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-              <Link to="/forgot-password">Forgot password?</Link>
-            </div>
+              <PasswordInput
+                label="Password"
+                placeholder="Enter your password"
+                value={password}
+                onChange={(e) => {
+                  setPassword(e.target.value)
+                  if (errors.password) setErrors({ ...errors, password: null })
+                }}
+                error={errors.password}
+                required
+                fullWidth
+                autoComplete="current-password"
+              />
 
-            <Button
-              type="submit"
-              variant="primary"
-              size="lg"
-              fullWidth
-              loading={loading}
-            >
-              Sign in
-            </Button>
-          </form>
+              <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                <Link to="/forgot-password">Forgot password?</Link>
+              </div>
+
+              <Button type="submit" variant="primary" size="lg" fullWidth loading={loading}>
+                Continue
+              </Button>
+            </form>
+          ) : (
+            <form onSubmit={onOtpSubmit}>
+              {previewOtp && (
+                <Alert
+                  variant="warning"
+                  title="Local / free OTP preview"
+                  message={`SMTP is not configured, so your login code is: ${previewOtp}`}
+                  className="animate-scale-in"
+                />
+              )}
+
+              <Input
+                type="text"
+                inputMode="numeric"
+                label="6-digit OTP"
+                placeholder="123456"
+                value={otp}
+                onChange={(e) => {
+                  setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))
+                  if (errors.otp) setErrors({ ...errors, otp: null })
+                }}
+                error={errors.otp}
+                required
+                fullWidth
+                autoComplete="one-time-code"
+              />
+
+              <Button type="submit" variant="primary" size="lg" fullWidth loading={loading}>
+                Verify and sign in
+              </Button>
+
+              <Button
+                type="button"
+                variant="ghost"
+                size="md"
+                fullWidth
+                onClick={() => {
+                  setStep("credentials")
+                  setOtp("")
+                  setPreviewOtp("")
+                  setInfoMessage("")
+                }}
+              >
+                Back to email and password
+              </Button>
+            </form>
+          )}
         </AuthFormCard>
       </AuthLayout>
     </>

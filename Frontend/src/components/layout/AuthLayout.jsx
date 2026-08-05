@@ -35,7 +35,7 @@ const AuthLayout = ({ children }) => {
           </h2>
           
           <p className="auth-layout__brand-subtitle">
-            Upload your resume, paste a job description, and practise with answers scored on five dimensions.
+            Upload your resume, paste a job description, and practice with answers scored on five dimensions.
           </p>
 
           {/* Animated gradient mesh background */}

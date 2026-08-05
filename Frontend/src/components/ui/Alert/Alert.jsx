@@ -7,6 +7,7 @@ import './Alert.scss'
 
 export const Alert = ({
   children,
+  message,
   variant = 'info',
   title,
   icon,
@@ -20,6 +21,8 @@ export const Alert = ({
     className
   ].filter(Boolean).join(' ')
 
+  const body = children ?? message
+
   return (
     <div className={classes} role="alert" {...props}>
       {icon && (
@@ -32,7 +35,7 @@ export const Alert = ({
         {title && (
           <div className="hp-alert__title">{title}</div>
         )}
-        <div className="hp-alert__message">{children}</div>
+        {body && <div className="hp-alert__message">{body}</div>}
       </div>
       
       {onClose && (

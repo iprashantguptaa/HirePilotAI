@@ -69,7 +69,7 @@ const AnswerFeedback = ({ turn, onContinue, continueLabel = "Next question", bus
 
             {onContinue && (
                 <div className="answer-feedback__actions">
-                    <Button variant="primary" size="lg" onClick={onContinue} loading={busy}>
+                    <Button type="button" variant="primary" size="lg" onClick={onContinue} loading={busy}>
                         {continueLabel}
                     </Button>
                 </div>

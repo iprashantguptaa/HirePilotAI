@@ -104,7 +104,18 @@
     border-radius: var(--radius-xl);
     background: var(--color-surface);
     text-align: left;
-    cursor: pointer;
+    cursor: default;
+
+    &--disabled {
+        opacity: 0.92;
+        cursor: default;
+
+        &:hover {
+            transform: none;
+            box-shadow: none;
+            border-color: var(--color-border);
+        }
+    }
     transition:
         transform var(--duration-base) var(--ease-out),
         border-color var(--duration-base) var(--ease-out),
@@ -237,6 +248,90 @@
     max-width: 40rem;
     color: var(--color-text-tertiary);
     font-size: var(--font-size-sm);
+}
+
+@media (max-width: 768px) {
+    .marketing-page {
+        padding-block: var(--space-6) var(--space-8);
+
+        &__header {
+            margin-bottom: var(--space-6);
+        }
+
+        h1 {
+            font-size: var(--font-size-2xl);
+        }
+
+        &__lede {
+            font-size: var(--font-size-base);
+        }
+
+        &__sections {
+            gap: var(--space-5);
+        }
+
+        &__section {
+            padding-bottom: var(--space-5);
+
+            h2 {
+                font-size: var(--font-size-lg);
+            }
+
+            p {
+                font-size: var(--font-size-sm);
+            }
+        }
+
+        &__cta {
+            margin-top: var(--space-6);
+
+            a, button {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    }
+
+    .pricing-page {
+        padding-block: var(--space-6) var(--space-8);
+
+        &__header {
+            margin-bottom: var(--space-6);
+
+            h1 {
+                font-size: var(--font-size-2xl);
+            }
+
+            p {
+                font-size: var(--font-size-sm);
+            }
+        }
+
+        &__grid {
+            grid-template-columns: 1fr;
+            gap: var(--space-3);
+        }
+
+        &__note {
+            margin-top: var(--space-4);
+            font-size: var(--font-size-xs);
+        }
+    }
+
+    .plan-card {
+        padding: var(--space-4);
+
+        &__features li:nth-child(n + 5) {
+            display: none;
+        }
+
+        &--disabled {
+            .plan-card__features,
+            .plan-card__price {
+                display: none;
+            }
+        }
+    }
 }
 
 @media (prefers-reduced-motion: reduce) {

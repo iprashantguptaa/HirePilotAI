@@ -478,8 +478,6 @@
 
         span {
             flex-shrink: 0;
-            font-size: var(--font-size-xs);
-            color: var(--color-text-tertiary);
             font-variant-numeric: tabular-nums;
         }
     }
@@ -518,6 +516,20 @@
             color: var(--color-text-secondary);
         }
     }
+
+    &__missing-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--space-3);
+        justify-content: center;
+    }
+
+    &__progress-label {
+        font-size: var(--font-size-sm);
+        font-weight: var(--font-weight-semibold);
+        color: var(--color-text-primary);
+        white-space: nowrap;
+    }
 }
 
 .question-card {
@@ -538,11 +550,16 @@
     }
 
     &__number {
-        font-size: var(--font-size-xs);
-        font-weight: var(--font-weight-semibold);
-        text-transform: uppercase;
-        letter-spacing: var(--letter-spacing-wider);
-        color: var(--color-text-tertiary);
+        display: inline-flex;
+        align-items: center;
+        padding: var(--space-1) var(--space-3);
+        font-size: var(--font-size-sm);
+        font-weight: var(--font-weight-bold);
+        letter-spacing: var(--letter-spacing-tight);
+        color: var(--color-primary-600);
+        background: color-mix(in srgb, var(--color-primary-600) 12%, var(--color-surface));
+        border: 1px solid color-mix(in srgb, var(--color-primary-600) 28%, var(--color-border));
+        border-radius: var(--radius-full);
     }
 
     &__question {

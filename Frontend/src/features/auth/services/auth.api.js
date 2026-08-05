@@ -10,6 +10,11 @@ export async function login({ email, password }) {
     return response.data
 }
 
+export async function verifyLoginOtp({ email, otp }) {
+    const response = await api.post("/api/auth/verify-login-otp", { email, otp })
+    return response.data
+}
+
 export async function logout() {
     const response = await api.get("/api/auth/logout")
     return response.data
@@ -22,6 +27,11 @@ export async function getMe() {
 
 export async function forgotPassword({ email }) {
     const response = await api.post("/api/auth/forgot-password", { email })
+    return response.data
+}
+
+export async function resetPasswordWithOtp({ email, otp, password }) {
+    const response = await api.post("/api/auth/reset-password-otp", { email, otp, password })
     return response.data
 }
 

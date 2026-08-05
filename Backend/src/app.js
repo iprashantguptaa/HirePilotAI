@@ -32,31 +32,48 @@ app.use(compression())
 app.use(express.json({ limit: "50kb" }))
 app.use(cookieParser())
 
-// CORS configuration - CRITICAL for cross-origin cookie authentication
-// In production, frontend (Vercel) and backend (Render) are on different domains
-// Cookies with sameSite="none" require explicit origin matching, not origin:true
-const allowedOrigins = [
+// CORS configuration - CRITICAL for cross-origin cookie authentication.
+// Frontend (Vercel) and backend (Render) are different origins. If the
+// Vercel origin is missing from this list, the browser blocks the response
+// and the UI shows "Can't reach the server" even though /api/health is fine.
+const allowedOrigins = new Set([
     config.frontendUrl,
+    ...config.frontendUrls,
+    // Known production frontend — kept as a safety net so a missing/wrong
+    // FRONTEND_URL on Render does not take auth offline again.
+    "https://hirepilot-frontend-mu.vercel.app",
     "http://localhost:5173",
-    "http://localhost:3000"
-].filter(Boolean)
+    "http://localhost:5174",
+    "http://localhost:5175",
+    "http://localhost:5176",
+    "http://localhost:3000",
+    "http://127.0.0.1:5173",
+    "http://127.0.0.1:5174",
+    "http://127.0.0.1:5175",
+    "http://127.0.0.1:5176",
+    "http://127.0.0.1:3000"
+].filter(Boolean))
+
+logger.info(`CORS allowlist: ${[ ...allowedOrigins ].join(", ")}`)
 
 app.use(cors({
     origin: function (origin, callback) {
-        // Allow requests with no origin (mobile apps, Postman, curl, etc.)
+        // Allow non-browser clients (health checks, curl, server-to-server).
         if (!origin) return callback(null, true)
-        
-        if (allowedOrigins.includes(origin)) {
-            callback(null, true)
-        } else {
-            logger.warn(`CORS blocked origin: ${origin}`)
-            callback(new Error('Not allowed by CORS'))
+
+        if (allowedOrigins.has(origin)) {
+            return callback(null, true)
         }
+
+        // Never throw here — cors() turns thrown errors into opaque 500s that
+        // the browser reports as "Network Error". Deny cleanly instead.
+        logger.warn(`CORS blocked origin: ${origin}`)
+        return callback(null, false)
     },
     credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'],
-    exposedHeaders: ['Set-Cookie']
+    methods: [ "GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS" ],
+    allowedHeaders: [ "Content-Type", "Authorization", "Cookie" ],
+    exposedHeaders: [ "Set-Cookie" ]
 }))
 app.use(morgan(config.isProduction ? "combined" : "dev", { stream: logger.stream }))
 

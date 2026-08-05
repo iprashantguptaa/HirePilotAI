@@ -16,6 +16,7 @@ const PracticeSession = () => {
         loading,
         submitting,
         finishing,
+        advancing,
         reveal,
         currentQuestion,
         answeredCount,
@@ -28,7 +29,8 @@ const PracticeSession = () => {
     const [ draft, setDraft ] = useState("")
     const answerRef = useRef(null)
 
-    const currentQuestionNumber = currentQuestion?.questionNumber
+    const questionNumber = currentQuestion?.questionNumber
+        ?? (answeredCount + 1)
     const hasOpenQuestion = Boolean(currentQuestion) && !reveal && !isComplete
 
     // Focus the answer box whenever a new question comes up so the candidate
@@ -37,17 +39,17 @@ const PracticeSession = () => {
         if (hasOpenQuestion) {
             answerRef.current?.focus()
         }
-    }, [ hasOpenQuestion, currentQuestionNumber ])
+    }, [ hasOpenQuestion, questionNumber ])
 
     const handleSubmit = async (event) => {
         event.preventDefault()
+        event.stopPropagation()
         const succeeded = await answer(draft)
         if (succeeded) setDraft("")
     }
 
-    const handleContinue = () => {
-        if (reveal?.completed) return
-        continueToNext()
+    const handleContinue = async () => {
+        await continueToNext()
     }
 
     if (loading) {
@@ -72,7 +74,9 @@ const PracticeSession = () => {
         )
     }
 
-    if (isComplete) {
+    // Keep answer feedback on screen until the candidate continues — even if
+    // the session just completed — so the last score isn't skipped.
+    if (isComplete && !reveal) {
         return (
             <>
                 <SEO title={`${session.title} — Practice Report | HirePilot AI`} />
@@ -83,8 +87,11 @@ const PracticeSession = () => {
         )
     }
 
-    const total = session.plannedQuestions
+    const total = session.plannedQuestions || 6
     const progressPercent = Math.min((answeredCount / total) * 100, 100)
+    const progressLabel = reveal
+        ? `Answered ${Math.min(answeredCount, total)} of ${total}`
+        : `Question ${questionNumber} of ${total}`
 
     return (
         <>
@@ -97,24 +104,25 @@ const PracticeSession = () => {
                         <h1>{session.title}</h1>
                     </div>
                     <Button
+                        type="button"
                         variant="ghost"
                         onClick={finishEarly}
                         loading={finishing}
-                        disabled={answeredCount === 0}
+                        disabled={answeredCount === 0 || Boolean(reveal)}
                         title={answeredCount === 0 ? "Answer at least one question first" : "End the session and get your report"}
                     >
                         End &amp; get report
                     </Button>
                 </header>
 
-                <div className="practice-session__progress">
+                <div className="practice-session__progress" aria-live="polite">
                     <div className="practice-session__progress-track">
                         <div
                             className="practice-session__progress-fill"
                             style={{ width: `${progressPercent}%` }}
                         />
                     </div>
-                    <span>{answeredCount} of {total} answered</span>
+                    <span className="practice-session__progress-label">{progressLabel}</span>
                 </div>
 
                 {reveal ? (
@@ -122,13 +130,18 @@ const PracticeSession = () => {
                         turn={reveal.scoredTurn}
                         onContinue={handleContinue}
                         continueLabel={reveal.completed ? "See your report" : "Next question"}
-                        busy={false}
+                        busy={advancing}
                     />
+                ) : advancing ? (
+                    <div className="practice-session__missing">
+                        <h2>Loading next question…</h2>
+                        <p>Hang tight — the interviewer is preparing the next question.</p>
+                    </div>
                 ) : currentQuestion ? (
-                    <form className="question-card" onSubmit={handleSubmit}>
+                    <form className="question-card" onSubmit={handleSubmit} action="#">
                         <div className="question-card__meta">
                             <span className="question-card__number">
-                                Question {currentQuestion.questionNumber}
+                                Question {questionNumber} of {total}
                             </span>
                             <Badge variant={currentQuestion.category === "technical" ? "default" : "success"}>
                                 {currentQuestion.category}
@@ -169,10 +182,20 @@ const PracticeSession = () => {
                 ) : (
                     <div className="practice-session__missing">
                         <h2>No open question</h2>
-                        <p>This session has no question waiting. Wrap it up to see your report.</p>
-                        <Button variant="primary" onClick={finishEarly} loading={finishing}>
-                            Get my report
-                        </Button>
+                        <p>This session has no question waiting. Load the next one, or wrap up for your report.</p>
+                        <div className="practice-session__missing-actions">
+                            <Button
+                                type="button"
+                                variant="primary"
+                                onClick={handleContinue}
+                                loading={advancing}
+                            >
+                                Load next question
+                            </Button>
+                            <Button type="button" variant="secondary" onClick={finishEarly} loading={finishing}>
+                                Get my report
+                            </Button>
+                        </div>
                     </div>
                 )}
             </div>

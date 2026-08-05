@@ -1,4 +1,3 @@
-import { useState } from "react"
 import { Link } from "react-router"
 import { SEO } from "../../components/common"
 import { useToast } from "../../components/ui/Toast/useToast"
@@ -10,140 +9,93 @@ const CheckIcon = () => (
     </svg>
 )
 
-const PLANS = [
-    {
-        id: "starter",
-        name: "Starter",
-        badge: "Available now",
-        amount: "₹0",
-        period: "/month",
-        description: "Full access while we build in the open. No card required.",
-        features: [
-            "Unlimited interview plans",
-            "Resume analysis and match score",
-            "Scored mock interviews",
-            "Adaptive follow-up questions",
-            "Preparation roadmap",
-            "AI interview assistant",
-            "PDF exports"
-        ],
-        cta: { type: "link", to: "/register", label: "Get started free" }
-    },
-    {
-        id: "professional",
-        name: "Professional",
-        badge: "Coming Soon",
-        badgeSoon: true,
-        amount: "₹1,499",
-        period: "/month",
-        description: "For serious candidates who want voice practice and deeper analytics when it ships.",
-        features: [
-            "Everything in Starter",
-            "Voice-based mock interviews",
-            "Company-specific question banks",
-            "Progress tracking across sessions",
-            "Priority support"
-        ],
-        cta: { type: "notify", label: "Notify Me" }
-    }
+const STARTER_FEATURES = [
+    "Unlimited interview plans",
+    "Resume analysis and match score",
+    "Text mock interviews with every answer scored",
+    "Adaptive follow-up questions",
+    "Preparation roadmap",
+    "AI interview assistant",
+    "PDF exports"
+]
+
+const COMING_SOON_FEATURES = [
+    "Camera-based mock interviews (expression, gesture, posture, confidence)",
+    "Voice answers with spoken feedback",
+    "Company-specific question banks",
+    "Deeper progress tracking across sessions"
 ]
 
 const PricingPage = () => {
-    const [ selected, setSelected ] = useState("starter")
     const toast = useToast()
-
-    const handleNotify = (event) => {
-        event.stopPropagation()
-        toast?.success("You're on the list. We'll email you when Professional launches.")
-    }
 
     return (
         <>
             <SEO
                 title="Pricing"
-                description="HirePilot AI pricing in Indian Rupees. Start free. Professional plan coming soon."
+                description="HirePilot AI pricing in Indian Rupees. Starter is free today. Advanced interview modes are Coming Soon."
             />
 
             <div className="pricing-page container">
                 <header className="pricing-page__header">
                     <span className="marketing-page__eyebrow">Pricing</span>
                     <h1>Simple pricing in ₹</h1>
-                    <p>Select a plan to preview it. Starter works today. Professional is Coming Soon — you can still select it and join the notify list.</p>
+                    <p>
+                        Starter is available now. Future camera and voice interview modes are listed as Coming Soon —
+                        they are not selectable or purchasable yet.
+                    </p>
                 </header>
 
-                <div className="pricing-page__grid" role="listbox" aria-label="Pricing plans">
-                    {PLANS.map((plan) => {
-                        const isSelected = selected === plan.id
+                <div className="pricing-page__grid">
+                    <div className="plan-card plan-card--selected" aria-current="true">
+                        <span className="plan-card__badge">Available now</span>
+                        <h2 className="plan-card__name">Starter</h2>
+                        <div className="plan-card__price">
+                            <span className="plan-card__amount">₹0</span>
+                            <span className="plan-card__period">/month</span>
+                        </div>
+                        <p className="plan-card__description">
+                            Everything that works today. No card. No trial timer.
+                        </p>
+                        <ul className="plan-card__features">
+                            {STARTER_FEATURES.map((feature) => (
+                                <li key={feature}><CheckIcon />{feature}</li>
+                            ))}
+                        </ul>
+                        <div className="plan-card__cta">
+                            <Link to="/register" className="button primary-button">Get started free</Link>
+                        </div>
+                    </div>
 
-                        return (
+                    <div className="plan-card plan-card--pro plan-card--disabled" aria-disabled="true">
+                        <span className="plan-card__badge plan-card__badge--soon">Coming Soon</span>
+                        <h2 className="plan-card__name">Professional</h2>
+                        <div className="plan-card__price">
+                            <span className="plan-card__amount">₹1,499</span>
+                            <span className="plan-card__period">/month</span>
+                        </div>
+                        <p className="plan-card__description">
+                            Planned later — including AI mock interviews that read answers on screen and analyze facial expression, gesture, posture and confidence. Not available to buy or select yet.
+                        </p>
+                        <ul className="plan-card__features">
+                            {COMING_SOON_FEATURES.map((feature) => (
+                                <li key={feature}><CheckIcon />{feature}</li>
+                            ))}
+                        </ul>
+                        <div className="plan-card__cta">
                             <button
-                                key={plan.id}
                                 type="button"
-                                role="option"
-                                aria-selected={isSelected}
-                                className={[
-                                    "plan-card",
-                                    plan.id === "professional" ? "plan-card--pro" : "",
-                                    isSelected ? "plan-card--selected" : ""
-                                ].filter(Boolean).join(" ")}
-                                onClick={() => setSelected(plan.id)}
+                                className="button secondary-button"
+                                onClick={() => toast?.success("Noted. We'll announce Professional when camera/voice interviews ship.")}
                             >
-                                <span className="plan-card__selected-mark" aria-hidden="true">
-                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
-                                        <polyline points="20 6 9 17 4 12" />
-                                    </svg>
-                                </span>
-
-                                <span className={`plan-card__badge ${plan.badgeSoon ? "plan-card__badge--soon" : ""}`}>
-                                    {plan.badge}
-                                </span>
-
-                                <h2 className="plan-card__name">{plan.name}</h2>
-
-                                <div className="plan-card__price">
-                                    <span className="plan-card__amount">{plan.amount}</span>
-                                    <span className="plan-card__period">{plan.period}</span>
-                                </div>
-
-                                <p className="plan-card__description">{plan.description}</p>
-
-                                <ul className="plan-card__features">
-                                    {plan.features.map((feature) => (
-                                        <li key={feature}><CheckIcon />{feature}</li>
-                                    ))}
-                                </ul>
-
-                                <div className="plan-card__cta">
-                                    {plan.cta.type === "link" ? (
-                                        <Link
-                                            to={plan.cta.to}
-                                            className="button primary-button"
-                                            onClick={(event) => event.stopPropagation()}
-                                        >
-                                            {plan.cta.label}
-                                        </Link>
-                                    ) : (
-                                        <span
-                                            className="button secondary-button"
-                                            role="button"
-                                            tabIndex={0}
-                                            onClick={handleNotify}
-                                            onKeyDown={(event) => {
-                                                if (event.key === "Enter" || event.key === " ") handleNotify(event)
-                                            }}
-                                        >
-                                            {plan.cta.label}
-                                        </span>
-                                    )}
-                                </div>
+                                Notify Me
                             </button>
-                        )
-                    })}
+                        </div>
+                    </div>
                 </div>
 
                 <p className="pricing-page__note">
-                    Selected plan: <strong>{selected === "starter" ? "Starter (₹0)" : "Professional (Coming Soon — ₹1,499/mo when available)"}</strong>.
-                    Professional cannot be purchased yet.
+                    Coming Soon cards are informational only. You cannot select or purchase them until those features ship.
                 </p>
             </div>
         </>

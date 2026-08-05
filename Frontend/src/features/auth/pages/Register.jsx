@@ -1,19 +1,21 @@
 import { useState } from 'react'
-import { useNavigate, Link } from 'react-router'
+import { useNavigate, Link, useLocation } from 'react-router'
 import { useAuth } from '../hooks/useAuth'
 import { SEO } from '../../../components/common'
 import { useBrand } from '../../../hooks/useBrand'
 import AuthLayout from '../../../components/layout/AuthLayout'
 import AuthFormCard from '../../../components/layout/AuthFormCard'
-import { Input, PasswordInput, Button } from '../../../components/ui'
+import { Input, PasswordInput, Button, Alert } from '../../../components/ui'
 
 const Register = () => {
   const navigate = useNavigate()
+  const location = useLocation()
   const brand = useBrand()
   const [username, setUsername] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [errors, setErrors] = useState({})
+  const infoMessage = location.state?.message || ""
 
   const { loading, handleRegister } = useAuth()
 
@@ -51,7 +53,7 @@ const Register = () => {
 
     const success = await handleRegister({ username, email, password })
     if (success) {
-      navigate("/dashboard")
+      navigate(location.state?.from || "/dashboard")
     }
   }
 
@@ -129,10 +131,14 @@ const Register = () => {
           footer={
             <>
               Already have an account?{' '}
-              <Link to="/login">Sign in</Link>
+              <Link to="/login" state={location.state}>Sign in</Link>
             </>
           }
         >
+          {infoMessage && (
+            <Alert variant="info" title="Continue" message={infoMessage} className="animate-scale-in" />
+          )}
+
           <form onSubmit={handleSubmit}>
             <Input
               type="text"

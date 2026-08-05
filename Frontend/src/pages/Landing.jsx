@@ -1,7 +1,8 @@
-import { Link } from "react-router"
+import { Link, useNavigate } from "react-router"
 import { useState, useEffect } from "react"
 import { SEO } from "../components/common"
 import { useToast } from "../components/ui/Toast/useToast"
+import { Textarea, FileUpload, Button, Alert } from "../components/ui"
 import "./Landing.scss"
 import "../pages/marketing/MarketingPage.scss"
 
@@ -23,10 +24,10 @@ const STARTER_FEATURES = [
 
 const PRO_FEATURES = [
     "Everything in Starter",
-    "Voice-based mock interviews",
+    "Camera mock interviews — expression, gesture, posture, confidence (Coming Soon)",
+    "Voice answers with spoken feedback (Coming Soon)",
     "Company-specific question banks",
-    "Progress tracking across sessions",
-    "Priority support"
+    "Deeper progress tracking across sessions"
 ]
 
 // Mirrors the rubric the backend actually grades against
@@ -40,9 +41,12 @@ const SCORING_DIMENSIONS = [
 ]
 
 const Landing = () => {
+    const navigate = useNavigate()
     const [activeFaq, setActiveFaq] = useState(null)
     const [showScrollTop, setShowScrollTop] = useState(false)
-    const [selectedPlan, setSelectedPlan] = useState("starter")
+    const [demoJd, setDemoJd] = useState("")
+    const [demoResumeName, setDemoResumeName] = useState("")
+    const [demoGate, setDemoGate] = useState(false)
     const toast = useToast()
 
     const toggleFaq = (index) => {
@@ -51,6 +55,15 @@ const Landing = () => {
 
     const scrollToTop = () => {
         window.scrollTo({ top: 0, behavior: 'smooth' })
+    }
+
+    const handleDemoSubmit = (e) => {
+        e.preventDefault()
+        if (!demoJd.trim() && !demoResumeName) {
+            toast?.error("Add a job description or resume first — then sign in to run the analysis.")
+            return
+        }
+        setDemoGate(true)
     }
 
     useEffect(() => {
@@ -86,17 +99,10 @@ const Landing = () => {
                         Get personalized AI coaching, practice with real interview questions, and receive instant feedback to ace your technical and behavioral interviews.
                     </p>
                     <div className="hero__actions">
-                        <Link to="/register" className="hero__cta hero__cta--primary">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                                <path d="M10.6144 17.7956 11.492 15.7854C12.2731 13.9966 13.6789 12.5726 15.4325 11.7942L17.8482 10.7219C18.6162 10.381 18.6162 9.26368 17.8482 8.92277L15.5079 7.88394C13.7092 7.08552 12.2782 5.60881 11.5105 3.75894L10.6215 1.61673C10.2916.821765 9.19319.821767 8.8633 1.61673L7.97427 3.75892C7.20657 5.60881 5.77553 7.08552 3.97685 7.88394L1.63658 8.92277C.868537 9.26368.868536 10.381 1.63658 10.7219L4.0523 11.7942C5.80589 12.5726 7.21171 13.9966 7.99275 15.7854L8.8704 17.7956C9.20776 18.5682 10.277 18.5682 10.6144 17.7956ZM19.4014 22.6899 19.6482 22.1242C20.0882 21.1156 20.8807 20.3125 21.8695 19.8732L22.6299 19.5353C23.0412 19.3526 23.0412 18.7549 22.6299 18.5722L21.9121 18.2532C20.8978 17.8026 20.0911 16.9698 19.6586 15.9269L19.4052 15.3156C19.2285 14.8896 18.6395 14.8896 18.4628 15.3156L18.2094 15.9269C17.777 16.9698 16.9703 17.8026 15.956 18.2532L15.2381 18.5722C14.8269 18.7549 14.8269 19.3526 15.2381 19.5353L15.9985 19.8732C16.9874 20.3125 17.7798 21.1156 18.2198 22.1242L18.4667 22.6899C18.6473 23.104 19.2207 23.104 19.4014 22.6899Z"/>
-                            </svg>
-                            Start Free Today
-                        </Link>
+                        <a href="#try-it" className="hero__cta hero__cta--primary">
+                            Try with your resume
+                        </a>
                         <a href="#how-it-works" className="hero__cta hero__cta--secondary">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                <circle cx="12" cy="12" r="10"></circle>
-                                <polygon points="10 8 16 12 10 16 10 8"></polygon>
-                            </svg>
                             See how it works
                         </a>
                     </div>
@@ -114,6 +120,88 @@ const Landing = () => {
                             <div className="hero__stat-label">No card, no trial limit</div>
                         </div>
                     </div>
+                </div>
+            </section>
+
+            {/* Interactive try-it — same shape as the real interview form */}
+            <section id="try-it" className="try-it">
+                <div className="try-it__container">
+                    <div className="section-header">
+                        <span className="section-badge">Try it</span>
+                        <h2>Upload your resume. Paste the job you want.</h2>
+                        <p>This is the same flow you get after signing in. Submit to continue — account required to run the AI analysis.</p>
+                    </div>
+
+                    <form className="try-it__card" onSubmit={handleDemoSubmit}>
+                        <label className="try-it__field">
+                            <span>Target job description</span>
+                            <Textarea
+                                placeholder="Paste the job description you're targeting..."
+                                value={demoJd}
+                                onChange={(e) => setDemoJd(e.target.value)}
+                                rows={5}
+                                fullWidth
+                            />
+                        </label>
+
+                        <div className="try-it__field">
+                            <FileUpload
+                                label="Upload resume (PDF)"
+                                accept=".pdf"
+                                maxSize={5 * 1024 * 1024}
+                                onFileSelect={(file) => setDemoResumeName(file?.name || "")}
+                                hint="PDF up to 5MB — analysis runs after you sign in"
+                            />
+                            {demoResumeName && (
+                                <p className="try-it__file-name">Selected: {demoResumeName}</p>
+                            )}
+                        </div>
+
+                        {demoGate && (
+                            <Alert
+                                variant="info"
+                                title="Login or register to continue"
+                                message="Create a free account (or sign in) to analyze this resume against the job description, get your match score, roadmap, and scored practice interview."
+                            />
+                        )}
+
+                        <div className="try-it__actions">
+                            {!demoGate ? (
+                                <Button type="submit" variant="primary" size="lg">
+                                    Analyze resume
+                                </Button>
+                            ) : (
+                                <>
+                                    <Button
+                                        type="button"
+                                        variant="primary"
+                                        size="lg"
+                                        onClick={() => navigate("/register", {
+                                            state: {
+                                                message: "Register to continue — we'll use your resume and job description after you create an account.",
+                                                from: "/interview/new"
+                                            }
+                                        })}
+                                    >
+                                        Register to continue
+                                    </Button>
+                                    <Button
+                                        type="button"
+                                        variant="secondary"
+                                        size="lg"
+                                        onClick={() => navigate("/login", {
+                                            state: {
+                                                message: "Sign in to continue with your resume analysis.",
+                                                from: "/interview/new"
+                                            }
+                                        })}
+                                    >
+                                        Login to continue
+                                    </Button>
+                                </>
+                            )}
+                        </div>
+                    </form>
                 </div>
             </section>
 
@@ -193,6 +281,20 @@ const Landing = () => {
                             </div>
                             <h3>Interview History</h3>
                             <p>Track your progress, review past preparations, and see your improvement over time</p>
+                        </div>
+
+                        <div className="feature-card feature-card--soon" aria-disabled="true">
+                            <div className="feature-card__icon feature-card__icon--accent">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                                    <circle cx="12" cy="13" r="4"></circle>
+                                </svg>
+                            </div>
+                            <h3>Camera AI mock interviews <span className="section-badge">Coming Soon</span></h3>
+                            <p>
+                                In the future: answer on screen while AI reviews facial expression, gesture, posture, and confidence.
+                                Not available to use yet — today&apos;s practice is text-based scored interviews.
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -325,8 +427,8 @@ const Landing = () => {
                 </div>
             </section>
 
-            {/* Why HirePilot AI */}
-            <section className="why-section">
+            {/* Why HirePilot AI — desktop/tablet; hidden on phones to cut scroll */}
+            <section className="why-section landing-desktop-only">
                 <div className="why-section__container">
                     <div className="section-header">
                         <span className="section-badge">Why Choose Us</span>
@@ -362,8 +464,8 @@ const Landing = () => {
                 </div>
             </section>
 
-            {/* How answers are scored */}
-            <section id="scoring" className="why-section">
+            {/* How answers are scored — desktop/tablet */}
+            <section id="scoring" className="why-section landing-desktop-only">
                 <div className="why-section__container">
                     <div className="section-header">
                         <span className="section-badge">Scoring</span>
@@ -383,8 +485,8 @@ const Landing = () => {
                 </div>
             </section>
 
-            {/* FAQ */}
-            <section id="faq" className="faq">
+            {/* FAQ — full list on desktop; phones use /faq via footer */}
+            <section id="faq" className="faq landing-desktop-only">
                 <div className="faq__container">
                     <div className="section-header">
                         <span className="section-badge">FAQ</span>
@@ -396,27 +498,27 @@ const Landing = () => {
                         {[
                             {
                                 q: "How does the AI analyze my resume?",
-                                a: "Our AI uses advanced natural language processing to extract key skills, experience, and qualifications from your resume. It then compares these against the job requirements to identify your strengths and areas for improvement."
+                                a: "Upload a PDF resume and paste a job description. HirePilot AI extracts your background, compares it to that role, and returns a match score, strengths, skill gaps, tailored questions, and a preparation roadmap."
                             },
                             {
-                                q: "What types of interviews can I prepare for?",
-                                a: "HirePilot AI supports preparation for technical interviews (coding, system design), behavioral interviews (STAR method), and role-specific interviews across various industries including software engineering, product management, and more."
+                                q: "Is the mock interview scored?",
+                                a: "Yes — today's practice is text-based. Each answer is scored on relevance, depth, structure, clarity, and specificity, with feedback before the next question."
                             },
                             {
-                                q: "Is my data secure and private?",
-                                a: "Absolutely. We use industry-standard encryption to protect your data. Your resume and personal information are never shared with third parties, and you can delete your data at any time."
+                                q: "Will you analyze my camera and body language?",
+                                a: "Not yet. Coming soon: AI mock interviews that review facial expression, gesture, posture, and confidence while you answer on screen. That mode is not selectable today."
                             },
                             {
-                                q: "Can I use this for multiple job applications?",
-                                a: "Yes! Create unlimited interview preparation plans for different roles. Each plan is customized to match the specific job description you're targeting."
+                                q: "Is login free? Do I need paid SMS OTP?",
+                                a: "Yes, Starter is free. Login and forgot-password use a free email OTP (no paid SMS). On local setups without email configured, the OTP is shown on screen so you can still sign in."
                             },
                             {
-                                q: "How accurate is the match score?",
-                                a: "Our match score is based on comprehensive analysis across technical skills, communication, experience, and culture fit. While it's a helpful guide, we recommend using it alongside your own judgment and research."
+                                q: "Can I prepare for multiple jobs?",
+                                a: "Yes. Create separate interview plans for different job descriptions — each one is customized to that role."
                             },
                             {
-                                q: "Do I need any special software to use HirePilot AI?",
-                                a: "No special software required! HirePilot AI works directly in your web browser on any device - desktop, tablet, or mobile."
+                                q: "Do I need special software?",
+                                a: "No. HirePilot AI runs in your browser on desktop and mobile."
                             }
                         ].map((faq, index) => (
                             <div key={index} className={`faq__item ${activeFaq === index ? 'faq__item--active' : ''}`}>
@@ -435,26 +537,17 @@ const Landing = () => {
                 </div>
             </section>
 
-            {/* Pricing — INR, selectable cards, Professional = Coming Soon */}
+            {/* Pricing — Starter available; Professional informational only */}
             <section id="pricing" className="pricing">
                 <div className="pricing__container">
                     <div className="section-header">
                         <span className="section-badge">Pricing</span>
                         <h2>Simple pricing in ₹</h2>
-                        <p>Select a plan to preview it. Starter works today. Professional is Coming Soon.</p>
+                        <p>Starter works today. Camera and voice interview modes are Coming Soon — not selectable yet.</p>
                     </div>
 
-                    <div className="pricing-page__grid" role="listbox" aria-label="Pricing plans">
-                        <button
-                            type="button"
-                            role="option"
-                            aria-selected={selectedPlan === "starter"}
-                            className={`plan-card ${selectedPlan === "starter" ? "plan-card--selected" : ""}`}
-                            onClick={() => setSelectedPlan("starter")}
-                        >
-                            <span className="plan-card__selected-mark" aria-hidden="true">
-                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="20 6 9 17 4 12" /></svg>
-                            </span>
+                    <div className="pricing-page__grid" aria-label="Pricing plans">
+                        <div className="plan-card plan-card--selected" aria-current="true">
                             <span className="plan-card__badge">Available now</span>
                             <h3 className="plan-card__name">Starter</h3>
                             <div className="plan-card__price">
@@ -468,58 +561,40 @@ const Landing = () => {
                                 ))}
                             </ul>
                             <div className="plan-card__cta">
-                                <Link to="/register" className="button primary-button" onClick={(e) => e.stopPropagation()}>
+                                <Link to="/register" className="button primary-button">
                                     Get started free
                                 </Link>
                             </div>
-                        </button>
+                        </div>
 
-                        <button
-                            type="button"
-                            role="option"
-                            aria-selected={selectedPlan === "professional"}
-                            className={`plan-card plan-card--pro ${selectedPlan === "professional" ? "plan-card--selected" : ""}`}
-                            onClick={() => setSelectedPlan("professional")}
-                        >
-                            <span className="plan-card__selected-mark" aria-hidden="true">
-                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="20 6 9 17 4 12" /></svg>
-                            </span>
+                        <div className="plan-card plan-card--pro plan-card--disabled" aria-disabled="true">
                             <span className="plan-card__badge plan-card__badge--soon">Coming Soon</span>
                             <h3 className="plan-card__name">Professional</h3>
                             <div className="plan-card__price">
                                 <span className="plan-card__amount">₹1,499</span>
                                 <span className="plan-card__period">/month</span>
                             </div>
-                            <p className="plan-card__description">Voice practice and deeper analytics when it ships. Not purchasable yet.</p>
+                            <p className="plan-card__description">
+                                Planned later — AI mock interviews that read on-screen answers and analyze expression, gesture, posture and confidence. Not available to buy or select yet.
+                            </p>
                             <ul className="plan-card__features">
                                 {PRO_FEATURES.map((feature) => (
                                     <li key={feature}><CheckIcon />{feature}</li>
                                 ))}
                             </ul>
                             <div className="plan-card__cta">
-                                <span
+                                <button
+                                    type="button"
                                     className="button secondary-button"
-                                    role="button"
-                                    tabIndex={0}
-                                    onClick={(e) => {
-                                        e.stopPropagation()
-                                        toast?.success("You're on the list. We'll email you when Professional launches.")
-                                    }}
-                                    onKeyDown={(e) => {
-                                        if (e.key === "Enter" || e.key === " ") {
-                                            e.stopPropagation()
-                                            toast?.success("You're on the list. We'll email you when Professional launches.")
-                                        }
-                                    }}
+                                    onClick={() => toast?.success("Noted. We'll announce Professional when camera/voice interviews ship.")}
                                 >
                                     Notify Me
-                                </span>
+                                </button>
                             </div>
-                        </button>
+                        </div>
                     </div>
                     <p className="pricing-page__note">
-                        Selected: <strong>{selectedPlan === "starter" ? "Starter (₹0)" : "Professional — Coming Soon"}</strong>
-                        {" · "}
+                        Coming Soon is informational only.{" "}
                         <Link to="/pricing">View full pricing</Link>
                     </p>
                 </div>

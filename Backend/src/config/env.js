@@ -57,7 +57,15 @@ const config = {
     refreshTokenExpiresIn,
     refreshTokenExpiresInMs: parseDurationToMs(refreshTokenExpiresIn, 30 * 24 * 60 * 60 * 1000),
     googleGenAiApiKey: process.env.GOOGLE_GENAI_API_KEY,
-    frontendUrl: process.env.FRONTEND_URL || "http://localhost:5173",
+    // Primary frontend URL (email links, etc.). Also used for CORS.
+    // Strip trailing slash — "https://app.vercel.app/" !== "https://app.vercel.app"
+    // and would silently break cross-origin auth.
+    frontendUrl: (process.env.FRONTEND_URL || "http://localhost:5173").replace(/\/$/, ""),
+    // Optional comma-separated extras for CORS (preview deploys, custom domains).
+    frontendUrls: (process.env.FRONTEND_URLS || "")
+        .split(",")
+        .map((value) => value.trim().replace(/\/$/, ""))
+        .filter(Boolean),
     rateLimit: {
         windowMs: parseDurationToMs(process.env.RATE_LIMIT_WINDOW, 15 * 60 * 1000),
         max: Number(process.env.RATE_LIMIT_MAX) || 300

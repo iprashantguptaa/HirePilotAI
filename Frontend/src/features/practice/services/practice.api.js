@@ -20,7 +20,13 @@ export const startSession = async ({ interviewReportId, jobDescription, title, m
  * score for that answer plus the next question (or null if the session just ended).
  */
 export const submitAnswer = async (sessionId, answer) => {
-    const response = await api.post(`/api/session/${sessionId}/answer`, { answer })
+    // Scoring + next-question generation are two AI calls; 60s is too short
+    // when the provider is slow and left candidates stuck after question 1.
+    const response = await api.post(
+        `/api/session/${sessionId}/answer`,
+        { answer },
+        { timeout: 180000 }
+    )
     return response.data
 }
 
@@ -36,7 +42,8 @@ export const completeSession = async (sessionId) => {
  * @description Fetch a single session including its full transcript.
  */
 export const getSession = async (sessionId) => {
-    const response = await api.get(`/api/session/${sessionId}`)
+    // May trigger next-question generation (self-heal) — allow longer wait.
+    const response = await api.get(`/api/session/${sessionId}`, { timeout: 120000 })
     return response.data
 }
 

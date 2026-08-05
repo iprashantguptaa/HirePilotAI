@@ -7,11 +7,15 @@
     height: var(--header-height);
     display: flex;
     align-items: center;
-    background-color: var(--glass-bg);
-    backdrop-filter: var(--glass-blur);
-    -webkit-backdrop-filter: var(--glass-blur);
-    border-bottom: 1px solid var(--glass-border);
-    transition: all var(--duration-fast) var(--ease-out);
+    // Solid opaque bar — no glass/blur. Transparent headers made the
+    // mobile menu unreadable over page content.
+    background-color: var(--color-surface);
+    background-image: none;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    border-bottom: 1px solid var(--color-border);
+    box-shadow: 0 1px 0 color-mix(in srgb, var(--color-border) 80%, transparent);
+    transition: box-shadow var(--duration-fast) var(--ease-out);
     
     // Subtle shadow on scroll
     &::after {
@@ -208,9 +212,7 @@
         align-items: stretch;
         gap: var(--space-2);
         padding: var(--space-4);
-        background: var(--glass-bg);
-        backdrop-filter: var(--glass-blur);
-        -webkit-backdrop-filter: var(--glass-blur);
+        background: var(--color-surface);
         border-bottom: 1px solid var(--color-border);
         box-shadow: var(--shadow-lg);
         transform: translateY(-12px);
@@ -218,6 +220,8 @@
         pointer-events: none;
         transition: transform var(--duration-base) var(--ease-out), 
                     opacity var(--duration-base) var(--ease-out);
+        max-height: calc(100dvh - var(--header-height));
+        overflow-y: auto;
 
         &--open {
             transform: translateY(0);

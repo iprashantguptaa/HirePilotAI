@@ -42,6 +42,13 @@ const userSchema = new mongoose.Schema({
     passwordResetTokenHash: { type: String, select: false },
     passwordResetExpires: { type: Date, select: false },
 
+    // Free email OTP for login (second step) and password reset.
+    // Raw OTP is never stored — only a bcrypt/hash of it.
+    loginOtpHash: { type: String, select: false },
+    loginOtpExpires: { type: Date, select: false },
+    passwordResetOtpHash: { type: String, select: false },
+    passwordResetOtpExpires: { type: Date, select: false },
+
     // ---- Profile ----
     // Stored as a base64 data URI -- fine for small avatars without
     // needing an external object-storage provider configured. For

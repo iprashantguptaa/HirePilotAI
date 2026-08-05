@@ -3,7 +3,7 @@ import { RUBRIC_DIMENSIONS, scoreTone } from "../practice.utils"
 /**
  * The five rubric dimensions as labelled bars. Shown after every answer so
  * the candidate can see *which* aspect of their answering is weak, which is
- * the part that actually tells them what to practise.
+ * the part that actually tells them what to practice.
  */
 const RubricBreakdown = ({ rubric, showHints = false }) => {
     if (!rubric) return null

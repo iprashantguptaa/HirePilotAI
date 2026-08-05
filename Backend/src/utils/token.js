@@ -17,4 +17,13 @@ function hashToken(rawToken) {
     return crypto.createHash("sha256").update(rawToken).digest("hex")
 }
 
-module.exports = { generateOpaqueToken, hashToken }
+/**
+ * 6-digit numeric OTP for free email-based login / password reset.
+ * Uses the same hash-before-store pattern as opaque tokens.
+ */
+function generateOtp() {
+    const rawOtp = String(crypto.randomInt(100000, 1000000))
+    return { rawOtp, otpHash: hashToken(rawOtp) }
+}
+
+module.exports = { generateOpaqueToken, hashToken, generateOtp }

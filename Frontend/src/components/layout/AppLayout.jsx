@@ -8,6 +8,9 @@ const AppLayout = () => {
     // standard content shell. Header and Footer are shared everywhere so
     // the product feels like one application.
     const isLandingPage = location.pathname === "/"
+    // Focused interview UI — hide the marketing footer so long AI waits
+    // don't end with an accidental click on "System Status" / other links.
+    const isPracticeSession = /^\/practice\/[^/]+/.test(location.pathname)
 
     return (
         <>
@@ -15,7 +18,7 @@ const AppLayout = () => {
             <main className={isLandingPage ? "landing-shell" : "app-content"}>
                 <Outlet />
             </main>
-            <Footer />
+            {!isPracticeSession && <Footer />}
         </>
     )
 }

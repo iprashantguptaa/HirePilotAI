@@ -18,8 +18,8 @@ export const MARKETING_PAGES = {
                 body: "Get technical and behavioural questions tailored to the role, with interviewer intention and a model answer for each — so you know what a strong response actually covers."
             },
             {
-                heading: "Scored mock interviews",
-                body: "Practise one question at a time. Every answer is graded on relevance, depth, structure, clarity and specificity. Vague answers are scored honestly. Strong answers earn higher marks."
+                heading: "Scored mock interviews (text-based today)",
+                body: "Practice one question at a time. Every answer is graded on relevance, depth, structure, clarity and specificity. Vague answers are scored honestly. Strong answers earn higher marks."
             },
             {
                 heading: "Adaptive follow-ups",
@@ -36,6 +36,10 @@ export const MARKETING_PAGES = {
             {
                 heading: "Exports",
                 body: "Download a tailored resume PDF and a full interview report PDF when you need something to review offline or share with a mentor."
+            },
+            {
+                heading: "Coming soon: camera-aware mock interviews",
+                body: "We plan to add AI mock interviews that analyze facial expression, gesture, posture, and confidence from your camera. That capability is not available yet — today, practice is text-based scored interviews only."
             }
         ]
     },
@@ -55,19 +59,19 @@ export const MARKETING_PAGES = {
         sections: [
             {
                 heading: "Our mission",
-                body: "Most interview prep is either too generic or too expensive. HirePilot AI exists to give every candidate in India and beyond a personal AI coach that understands their resume, the role they want, and how they actually answer questions."
+                body: "Most interview prep is either too generic or too expensive. HirePilot AI exists to give every candidate a personal AI coach that understands their resume, the role they want, and how they actually answer questions."
             },
             {
                 heading: "What we believe",
                 body: "Feedback should be specific. Scores should be honest. Practice should feel like the real interview. Marketing copy should never claim features that don't exist yet."
             },
             {
-                heading: "Based in India",
-                body: "HirePilot AI India Private Limited is building from Bengaluru. We design for Indian candidates first — INR pricing, local context, and workflows that fit how people here actually prepare for interviews."
+                heading: "Built for real preparation",
+                body: "We design for candidates who want role-specific feedback — INR pricing, practical workflows, and tools that fit how people actually prepare for interviews."
             },
             {
                 heading: "Contact",
-                body: "General: hello@hirepilot.ai · Support: support@hirepilot.ai · Business: business@hirepilot.ai"
+                body: "Use the Feedback page after you sign in. A public support email will be published when available."
             }
         ]
     },
@@ -75,23 +79,23 @@ export const MARKETING_PAGES = {
     contact: {
         title: "Contact",
         eyebrow: "Get in touch",
-        description: "We read every message. Pick the channel that matches what you need.",
+        description: "We read every message sent through the product.",
         sections: [
             {
                 heading: "Product support",
-                body: "Email support@hirepilot.ai with your account email, what you were trying to do, and what went wrong. We typically reply within 1–2 business days."
+                body: "Sign in and open the Feedback page at /feedback. Include your account email, what you were trying to do, and what went wrong. A public support email will be published when available."
             },
             {
                 heading: "Sales and partnerships",
-                body: "For universities, bootcamps and hiring partners: business@hirepilot.ai"
+                body: "Partnership enquiries are not handled by a public inbox yet. Use the in-app Feedback form after you sign in and we will follow up when we can."
             },
             {
                 heading: "Press",
-                body: "press@hirepilot.ai"
+                body: "Press enquiries are not handled by a public inbox yet. Use the in-app Feedback form after you sign in."
             },
             {
-                heading: "Office",
-                body: "HirePilot AI India Private Limited · Bengaluru, Karnataka, India · +91 80 4567 8900"
+                heading: "Public contact channels",
+                body: "We do not publish phone numbers or office addresses on this site. When a public support email is available, it will appear here."
             }
         ]
     },
@@ -110,6 +114,10 @@ export const MARKETING_PAGES = {
                 body: "Yes. Each answer is scored on five dimensions: relevance, depth, structure, clarity and specificity. You see feedback before the next question."
             },
             {
+                heading: "Does HirePilot AI analyze my camera during practice?",
+                body: "Not yet. Today, practice is text-based scored interviews only. Coming soon: AI mock interviews that analyze facial expression, gesture, posture, and confidence from your camera. We do not claim that capability ships today."
+            },
+            {
                 heading: "Is voice interview available?",
                 body: "Not yet. Practice is text-first today. Voice is on the roadmap and listed as Coming Soon on pricing — we do not pretend it ships already."
             },
@@ -124,6 +132,10 @@ export const MARKETING_PAGES = {
             {
                 heading: "Do I need to install anything?",
                 body: "No. HirePilot AI runs in the browser on desktop, tablet and mobile."
+            },
+            {
+                heading: "How do I contact support?",
+                body: "Sign in and use the Feedback page at /feedback. A public support email will be published when available."
             }
         ]
     },
@@ -142,7 +154,7 @@ export const MARKETING_PAGES = {
                 body: "Receive a match score, skill gaps, technical and behavioural questions with model answers, and a day-by-day roadmap."
             },
             {
-                heading: "3. Practise and improve",
+                heading: "3. Practice and improve",
                 body: "Start a scored mock interview from that plan. Answer one question at a time, review the rubric, and come back until your weak dimensions move."
             }
         ]
@@ -167,7 +179,7 @@ export const MARKETING_PAGES = {
             },
             {
                 heading: "More posts coming",
-                body: "We publish when we have something useful, not on a fake weekly cadence. Subscribe via support@hirepilot.ai if you want updates."
+                body: "We publish when we have something useful, not on a fake weekly cadence. Use the in-app Feedback form after you sign in if you want to suggest topics."
             }
         ]
     },
@@ -175,19 +187,19 @@ export const MARKETING_PAGES = {
     careers: {
         title: "Careers",
         eyebrow: "Join us",
-        description: "We are a small team building AI career coaching from Bengaluru.",
+        description: "We are a small team building AI career coaching.",
         sections: [
             {
                 heading: "Open roles",
-                body: "We are not hiring for full-time roles publicly right now. When we are, listings will appear here with clear responsibilities and INR compensation ranges."
+                body: "We are not hiring for full-time roles publicly right now. When we are, listings will appear here with clear responsibilities and compensation ranges."
             },
             {
                 heading: "How to introduce yourself",
-                body: "Email careers notes to business@hirepilot.ai with a short note on what you want to build and a link to work you are proud of. No cover-letter theatre required."
+                body: "When roles open, instructions will appear on this page. Until then, use the in-app Feedback form after you sign in with a short note on what you want to build and a link to work you are proud of."
             },
             {
                 heading: "Internships",
-                body: "Occasional product, design and engineering internships open around academic calendars. Watch this page."
+                body: "Occasional product, design and engineering internships may open around academic calendars. Watch this page."
             }
         ]
     },
@@ -199,15 +211,15 @@ export const MARKETING_PAGES = {
         sections: [
             {
                 heading: "Help Center",
-                body: "Start with the FAQ for common product questions. For account or billing issues, email support@hirepilot.ai."
+                body: "Start with the FAQ for common product questions. For account or billing issues, sign in and use the Feedback page at /feedback."
             },
             {
-                heading: "What to include in a support email",
+                heading: "What to include in a support message",
                 body: "Your account email, the page URL, what you expected, what happened, and a screenshot if something looks broken."
             },
             {
                 heading: "Response time",
-                body: "We aim to reply within 1–2 business days. Production outages are tracked on the Status page."
+                body: "We aim to reply as soon as we can. Production outages are tracked on the Status page."
             }
         ]
     },
@@ -231,7 +243,7 @@ export const MARKETING_PAGES = {
             },
             {
                 heading: "Reporting a vulnerability",
-                body: "Email security concerns to support@hirepilot.ai with enough detail to reproduce. Please do not publicly disclose before we have had a reasonable chance to fix the issue."
+                body: "Sign in and use the Feedback page at /feedback with enough detail to reproduce. Please do not publicly disclose before we have had a reasonable chance to fix the issue."
             }
         ]
     },
@@ -255,7 +267,7 @@ export const MARKETING_PAGES = {
             },
             {
                 heading: "Incidents",
-                body: "Major incidents will be summarised here. For urgent help during an outage, email support@hirepilot.ai."
+                body: "Major incidents will be summarised here. For urgent help during an outage, sign in and use the Feedback page at /feedback."
             }
         ]
     },
@@ -271,7 +283,7 @@ export const MARKETING_PAGES = {
             },
             {
                 heading: "Run a practice session",
-                body: "From the report, click Practise this interview (or open Practice in the navbar). Choose mode and question count, then answer one question at a time."
+                body: "From the report, click Practice this interview (or open Practice in the navbar). Choose mode and question count, then answer one question at a time."
             },
             {
                 heading: "Profile resume",
@@ -279,7 +291,7 @@ export const MARKETING_PAGES = {
             },
             {
                 heading: "API access",
-                body: "A public partner API is not generally available yet. Partnership enquiries: business@hirepilot.ai."
+                body: "A public partner API is not generally available yet. Use the in-app Feedback form for partnership enquiries."
             }
         ]
     },
@@ -291,7 +303,7 @@ export const MARKETING_PAGES = {
         sections: [
             {
                 heading: "Who we are",
-                body: "HirePilot AI India Private Limited (“HirePilot AI”, “we”, “us”) operates the HirePilot AI web application. Contact: hello@hirepilot.ai."
+                body: "HirePilot AI (“we”, “us”) operates the HirePilot AI web application."
             },
             {
                 heading: "Data we collect",
@@ -315,11 +327,11 @@ export const MARKETING_PAGES = {
             },
             {
                 heading: "Your rights",
-                body: "Depending on applicable law, you may request access, correction or deletion by emailing support@hirepilot.ai from your account email."
+                body: "Depending on applicable law, you may request access, correction or deletion. Send your request through the in-app Feedback form from your signed-in account."
             },
             {
                 heading: "Contact",
-                body: "Privacy questions: support@hirepilot.ai"
+                body: "Questions about this policy can be sent through the in-app Feedback form."
             }
         ]
     },
@@ -359,11 +371,11 @@ export const MARKETING_PAGES = {
             },
             {
                 heading: "Governing law",
-                body: "These Terms are governed by the laws of India. Courts in Bengaluru, Karnataka shall have exclusive jurisdiction, subject to mandatory consumer protections."
+                body: "These Terms are governed by applicable law, subject to mandatory consumer protections where you live."
             },
             {
                 heading: "Contact",
-                body: "legal questions: hello@hirepilot.ai"
+                body: "Questions about this policy can be sent through the in-app Feedback form."
             }
         ]
     },
@@ -388,6 +400,10 @@ export const MARKETING_PAGES = {
             {
                 heading: "Managing cookies",
                 body: "You can clear cookies in your browser. Doing so will sign you out of HirePilot AI."
+            },
+            {
+                heading: "Contact",
+                body: "Questions about this policy can be sent through the in-app Feedback form."
             }
         ]
     }
