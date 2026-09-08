@@ -15,7 +15,7 @@ const Footer = () => {
                         <span className="app-footer__logo">{brand.productName}</span>
                         <p className="app-footer__tagline">{brand.product.tagline}</p>
                         <p className="app-footer__note">
-                            Questions? Sign in and use Feedback — a public support email will appear here when we publish one.
+                            Questions? Use Contact — or sign in and send product Feedback from your account.
                         </p>
                     </div>
 
@@ -23,7 +23,9 @@ const Footer = () => {
                         <div className="app-footer__link-group">
                             <h4>Product</h4>
                             {footer.product.map((link) => (
-                                <Link key={link.href} to={link.href}>{link.label}</Link>
+                                link.href.startsWith("/#")
+                                    ? <a key={link.href} href={link.href}>{link.label}</a>
+                                    : <Link key={link.href} to={link.href}>{link.label}</Link>
                             ))}
                         </div>
                         <div className="app-footer__link-group">
@@ -35,7 +37,9 @@ const Footer = () => {
                         <div className="app-footer__link-group">
                             <h4>Support</h4>
                             {footer.support.map((link) => (
-                                <Link key={link.href} to={link.href}>{link.label}</Link>
+                                link.href.startsWith("/#")
+                                    ? <a key={link.href} href={link.href}>{link.label}</a>
+                                    : <Link key={link.href} to={link.href}>{link.label}</Link>
                             ))}
                             <Link to="/security">Security</Link>
                             <Link to="/documentation">Documentation</Link>

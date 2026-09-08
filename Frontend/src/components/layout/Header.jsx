@@ -30,11 +30,15 @@ const CloseIcon = () => (
     </svg>
 )
 
+// Visitor nav: every item answers a distinct pre-signup question.
+// "Product"/"Features"/"How it works" used to be three labels for the same
+// landing page, and "Resources" pointed at docs nobody needs before signing up.
 const LANDING_LINKS = [
-    { label: "Features", href: "/#features" },
-    { label: "How It Works", href: "/#how-it-works" },
+    { label: "How it works", href: "/#how-it-works" },
+    { label: "Features", href: "/features" },
     { label: "Pricing", href: "/pricing" },
-    { label: "FAQ", href: "/#faq" }
+    { label: "FAQ", href: "/faq" },
+    { label: "Contact", href: "/contact" }
 ]
 
 const APP_LINKS = [
@@ -59,7 +63,7 @@ function scrollToHash(hash) {
 }
 
 const Header = () => {
-    const { user, handleLogout } = useAuth()
+    const { user, bootstrapping, handleLogout } = useAuth()
     const { theme, toggleTheme } = useTheme()
     const navigate = useNavigate()
     const location = useLocation()
@@ -76,6 +80,15 @@ const Header = () => {
         window.addEventListener("scroll", onScroll, { passive: true })
         return () => window.removeEventListener("scroll", onScroll)
     }, [])
+
+    useEffect(() => {
+        if (!isMobileMenuOpen) return
+        const onKey = (event) => {
+            if (event.key === "Escape") closeMenu()
+        }
+        document.addEventListener("keydown", onKey)
+        return () => document.removeEventListener("keydown", onKey)
+    }, [ isMobileMenuOpen ])
 
     // Handle /#section deep links after navigation lands on "/".
     useEffect(() => {
@@ -112,8 +125,14 @@ const Header = () => {
                     <Logo size="md" />
                 </Link>
 
+                {/* One navbar for the whole product: signed-in users always get the
+                    app links + identity, visitors always get the marketing links.
+                    While the session is still resolving we render neither, so a
+                    refresh doesn't flash "Log in / Get Started" at a signed-in user. */}
                 <nav className={`app-header__nav ${isMobileMenuOpen ? "app-header__nav--open" : ""}`} aria-label="Primary">
-                    {user ? (
+                    {bootstrapping ? (
+                        <span className="app-header__nav-placeholder" aria-hidden="true" />
+                    ) : user ? (
                         <>
                             {APP_LINKS.map((link) => (
                                 <NavLink
@@ -130,9 +149,9 @@ const Header = () => {
                                     Admin
                                 </NavLink>
                             )}
-                            <span className="app-header__username">{user.username}</span>
+                            <span className="app-header__username" title={user.username}>{user.username}</span>
                             <Link to="/interview/new" className="button primary-button button-sm" onClick={closeMenu}>
-                                New interview
+                                New Interview
                             </Link>
                             <button type="button" className="button secondary-button button-sm" onClick={onLogout}>
                                 Logout
@@ -141,19 +160,25 @@ const Header = () => {
                     ) : (
                         <>
                             {LANDING_LINKS.map((link) => (
-                                <a
-                                    key={link.href}
-                                    href={link.href}
-                                    onClick={(event) => handleLandingAnchor(event, link.href)}
-                                >
-                                    {link.label}
-                                </a>
+                                link.href.startsWith("/#") ? (
+                                    <a
+                                        key={link.href}
+                                        href={link.href}
+                                        onClick={(event) => handleLandingAnchor(event, link.href)}
+                                    >
+                                        {link.label}
+                                    </a>
+                                ) : (
+                                    <Link key={link.href} to={link.href} onClick={closeMenu}>
+                                        {link.label}
+                                    </Link>
+                                )
                             ))}
                             <Link to="/login" className="button secondary-button button-sm app-header__auth-btn" onClick={closeMenu}>
-                                Login
+                                Log in
                             </Link>
                             <Link to="/register" className="button primary-button button-sm app-header__auth-btn" onClick={closeMenu}>
-                                Get Started
+                                Get started free
                             </Link>
                         </>
                     )}

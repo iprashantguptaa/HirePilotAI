@@ -1,225 +1,138 @@
-// ============================================================================
-// HirePilot AI - Chat Panel (AI Assistant)
-// ============================================================================
-// Using design tokens for consistent, premium UI
-// ============================================================================
-
-@use '../../../styles/design-tokens.scss' as *;
+// AI chat — matches ChatPanel.jsx class names, high contrast.
 
 .chat-panel {
     display: flex;
     flex-direction: column;
-    height: min(700px, 75vh);
-    border: 1px solid var(--color-border-subtle);
-    border-radius: var(--radius-lg);
-    background: var(--color-surface-card);
-    overflow: hidden;
-    box-shadow: var(--shadow-lg);
+    height: min(640px, 70vh);
+    background: var(--color-surface);
+    color: var(--color-text-primary);
 }
 
 .chat-panel__intro {
-    padding: var(--spacing-6);
-    border-bottom: 2px solid var(--color-border-subtle);
-    background: var(--gradient-radial-primary);
+    padding: 1rem 1.15rem;
+    border-bottom: 1px solid var(--color-border);
+    background: var(--color-bg);
 
     h3 {
-        font-size: var(--text-xl);
-        font-weight: var(--font-weight-semibold);
+        margin: 0 0 0.35rem;
+        font-family: var(--font-display);
+        font-size: 1.05rem;
         color: var(--color-text-primary);
-        margin: 0;
-        display: flex;
-        align-items: center;
-        gap: var(--spacing-3);
-        
-        &::before {
-            content: '';
-            width: 32px;
-            height: 32px;
-            background: var(--gradient-primary);
-            border-radius: var(--radius-md);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: var(--shadow-primary);
-        }
     }
 
     p {
-        font-size: var(--text-sm);
+        margin: 0;
+        font-size: var(--font-size-sm);
         color: var(--color-text-secondary);
-        margin-top: var(--spacing-2);
-        line-height: var(--line-height-relaxed);
-        padding-left: 44px;
+        line-height: 1.5;
     }
 }
 
 .chat-panel__messages {
     flex: 1;
     overflow-y: auto;
-    padding: var(--spacing-6);
+    padding: 1rem;
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-4);
-    background: var(--color-surface-base);
-    
-    &::-webkit-scrollbar {
-        width: 8px;
-    }
-    
-    &::-webkit-scrollbar-track {
-        background: var(--color-surface-base);
-    }
-    
-    &::-webkit-scrollbar-thumb {
-        background: var(--color-border-strong);
-        border-radius: var(--radius-sm);
-        
-        &:hover {
-            background: var(--color-border-interactive);
-        }
-    }
+    gap: 0.75rem;
+    background: var(--color-bg);
 }
 
 .chat-panel__muted {
-    color: var(--color-text-faint);
-    font-size: var(--text-base);
+    margin: auto;
+    max-width: 22rem;
     text-align: center;
-    margin-top: var(--spacing-8);
-    padding: var(--spacing-6);
-    background: var(--color-surface-raised);
-    border-radius: var(--radius-md);
-    border: 1px dashed var(--color-border-subtle);
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-sm);
+    line-height: 1.55;
+    padding: 1rem;
 }
 
 .chat-message {
-    max-width: 75%;
-    padding: var(--spacing-4) var(--spacing-5);
+    max-width: min(85%, 36rem);
+    padding: 0.75rem 0.9rem;
     border-radius: var(--radius-lg);
-    font-size: var(--text-base);
-    line-height: var(--line-height-relaxed);
+    font-size: var(--font-size-sm);
+    line-height: 1.55;
     white-space: pre-wrap;
-    animation: messageSlideIn var(--duration-normal) var(--ease-out);
-    box-shadow: var(--shadow-sm);
-    transition: all var(--duration-fast) var(--ease-out);
-    
-    &:hover {
-        transform: translateY(-2px);
-        box-shadow: var(--shadow-md);
-    }
-}
-
-@keyframes messageSlideIn {
-    from {
-        opacity: 0;
-        transform: translateY(8px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.chat-message--user {
-    align-self: flex-end;
-    background: var(--gradient-primary);
     color: var(--color-text-primary);
-    border-bottom-right-radius: var(--radius-sm);
-    box-shadow: var(--shadow-primary);
-}
 
-.chat-message--assistant {
-    align-self: flex-start;
-    background: var(--color-surface-card);
-    border: 1px solid var(--color-border-subtle);
-    border-bottom-left-radius: var(--radius-sm);
-    color: var(--color-text-primary);
-}
+    &--user {
+        align-self: flex-end;
+        background: var(--color-primary-700);
+        color: #fff;
+    }
 
-.chat-message--typing {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: var(--spacing-4) var(--spacing-5);
+    &--assistant {
+        align-self: flex-start;
+        background: var(--color-surface);
+        border: 1px solid var(--color-border);
+        color: var(--color-text-primary);
+    }
+
+    &--typing {
+        display: inline-flex;
+        gap: 0.35rem;
+        align-items: center;
+        min-height: 2.5rem;
+    }
 }
 
 .chat-typing-dot {
-    width: 8px;
-    height: 8px;
+    width: 0.4rem;
+    height: 0.4rem;
     border-radius: 50%;
-    background: var(--color-primary-500);
-    animation: chat-typing-bounce 1.4s infinite ease-in-out;
-    box-shadow: 0 0 8px var(--color-primary-500);
+    background: var(--color-text-tertiary);
+    animation: chatDot 1s ease-in-out infinite;
 
-    &:nth-child(2) { animation-delay: 0.2s; }
-    &:nth-child(3) { animation-delay: 0.4s; }
+    &:nth-child(2) { animation-delay: 0.15s; }
+    &:nth-child(3) { animation-delay: 0.3s; }
 }
 
-@keyframes chat-typing-bounce {
-    0%, 60%, 100% { 
-        transform: translateY(0) scale(1); 
-        opacity: 0.6; 
-    }
-    30% { 
-        transform: translateY(-6px) scale(1.1); 
-        opacity: 1; 
-    }
+@keyframes chatDot {
+    0%, 80%, 100% { opacity: 0.35; transform: translateY(0); }
+    40% { opacity: 1; transform: translateY(-3px); }
 }
 
 .chat-panel__composer {
     display: flex;
-    gap: var(--spacing-3);
-    padding: var(--spacing-6);
-    border-top: 2px solid var(--color-border-subtle);
-    background: var(--color-surface-raised);
+    gap: 0.5rem;
+    padding: 0.85rem;
+    border-top: 1px solid var(--color-border);
+    background: var(--color-surface);
 
     input {
         flex: 1;
-        padding: var(--spacing-3) var(--spacing-5);
-        border-radius: var(--radius-full);
-        border: 1px solid var(--color-border-subtle);
-        background: var(--color-surface-card);
+        min-height: 2.75rem;
+        padding: 0.65rem 0.85rem;
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-md);
+        background: var(--color-bg);
         color: var(--color-text-primary);
-        font-family: var(--font-family-sans);
-        font-size: var(--text-base);
-        transition: all var(--duration-fast) var(--ease-out);
+        font-family: var(--font-sans);
+        font-size: var(--font-size-sm);
 
         &::placeholder {
-            color: var(--color-text-faint);
+            color: var(--color-text-tertiary);
         }
 
         &:focus {
             outline: none;
-            border-color: var(--color-primary-500);
-            box-shadow: var(--shadow-primary);
-            background: var(--color-surface-raised);
-        }
-        
-        &:hover:not(:focus) {
-            border-color: var(--color-border-interactive);
+            border-color: var(--color-border-focus);
+            box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-border-focus) 25%, transparent);
         }
 
-        &:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
+        // The soft ring above is too low-contrast to stand alone as the only
+        // keyboard affordance, so restore a solid outline here.
+        &:focus-visible {
+            outline: 2px solid var(--color-border-focus);
+            outline-offset: 2px;
         }
     }
+}
 
-    .button {
-        border-radius: var(--radius-full);
-        padding: var(--spacing-3) var(--spacing-5);
-        min-width: 48px;
-        height: 48px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: all var(--duration-fast) var(--ease-out);
-        
-        &:hover:not(:disabled) {
-            transform: scale(1.05);
-        }
-        
-        &:active:not(:disabled) {
-            transform: scale(0.95);
-        }
+@media (prefers-reduced-motion: reduce) {
+    .chat-typing-dot {
+        animation: none;
     }
 }

@@ -7,16 +7,17 @@ import api from "../../../lib/apiClient"
 export const generateInterviewReport = async ({ jobDescription, selfDescription, resumeFile }) => {
 
     const formData = new FormData()
-    formData.append("jobDescription", jobDescription)
-    formData.append("selfDescription", selfDescription)
-    formData.append("resume", resumeFile)
+    formData.append("jobDescription", jobDescription || "")
+    formData.append("selfDescription", selfDescription || "")
+    // Only append a real File. Appending null becomes the string "null" and
+    // breaks multer / pdf parsing on the server.
+    if (resumeFile instanceof File) {
+        formData.append("resume", resumeFile)
+    }
 
     const response = await api.post("/api/interview/", formData, {
-        headers: {
-            "Content-Type": "multipart/form-data"
-        },
-        // Plan generation is two parallel AI calls; 60s was too aggressive
-        // when Gemini is slow and caused false "couldn't reach server" errors.
+        // Do NOT set Content-Type manually — the browser must add the multipart
+        // boundary. A bare "multipart/form-data" header makes req.body empty.
         timeout: 180000
     })
 

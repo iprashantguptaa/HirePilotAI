@@ -7,11 +7,8 @@ const STORAGE_KEY = "theme"
 function getInitialTheme() {
     const stored = window.localStorage.getItem(STORAGE_KEY)
     if (stored === "light" || stored === "dark") return stored
-
-    // Dark mode first per the design goals, but respect an explicit
-    // system preference for light mode on first visit.
-    const prefersLight = window.matchMedia("(prefers-color-scheme: light)").matches
-    return prefersLight ? "light" : "dark"
+    // Light-first product default (calmer, more “shipping product” than dark SaaS).
+    return "light"
 }
 
 export const ThemeProvider = ({ children }) => {

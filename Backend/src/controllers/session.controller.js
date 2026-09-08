@@ -91,7 +91,9 @@ async function appendNextQuestion(session, userId) {
         mode: session.mode,
         priorTurns: getAnsweredTurns(session),
         questionNumber,
-        plannedQuestions: session.plannedQuestions
+        plannedQuestions: session.plannedQuestions,
+        focusHint: session.focusHint,
+        starterNote: questionNumber === 1 ? session.starterNote : undefined
     })
 
     session.turns.push({
@@ -184,7 +186,7 @@ async function backfillSessionNarrative(session, userId) {
  * @access private
  */
 const startSessionController = asyncHandler(async function startSessionController(req, res) {
-    const { interviewReportId, mode, plannedQuestions } = req.body
+    const { interviewReportId, mode, plannedQuestions, focusHint, starterNote } = req.body
 
     let title
     let jobDescription
@@ -216,6 +218,13 @@ const startSessionController = asyncHandler(async function startSessionControlle
         ? Math.min(Math.max(requestedQuestions, 3), 15)
         : 6
 
+    const resolvedFocus = typeof focusHint === "string"
+        ? focusHint.trim().slice(0, 120)
+        : ""
+    const resolvedNote = typeof starterNote === "string"
+        ? starterNote.trim().slice(0, 500)
+        : ""
+
     // Create the shell first, then generate Q1. If Q1 fails, delete the empty
     // session so retries (including 3-question starts) don't pile up orphans
     // and confuse the user with "failed" rows in history.
@@ -227,6 +236,8 @@ const startSessionController = asyncHandler(async function startSessionControlle
         resume,
         mode: [ "technical", "behavioral", "mixed" ].includes(mode) ? mode : "mixed",
         plannedQuestions: resolvedCount,
+        focusHint: resolvedFocus || undefined,
+        starterNote: resolvedNote || undefined,
         turns: []
     })
 
@@ -393,7 +404,7 @@ const getAllSessionsController = asyncHandler(async function getAllSessionsContr
     const sessions = await interviewSessionModel
         .find({ user: req.user.id, status: { $ne: "abandoned" } })
         .sort({ createdAt: -1 })
-        .select("title mode status report.overallScore plannedQuestions createdAt completedAt")
+        .select("title mode status report.overallScore plannedQuestions createdAt completedAt interviewReport updatedAt")
 
     res.status(200).json({
         message: "Practice sessions fetched successfully.",

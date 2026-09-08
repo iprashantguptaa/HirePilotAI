@@ -42,9 +42,9 @@
   }
   
   &--primary {
-    background-color: rgba(124, 58, 237, 0.15);
-    color: var(--color-primary-600);
-    border: 1px solid rgba(124, 58, 237, 0.3);
+    background-color: color-mix(in srgb, var(--color-primary-600) 15%, transparent);
+    color: var(--color-primary-700);
+    border: 1px solid color-mix(in srgb, var(--color-primary-600) 30%, transparent);
   }
   
   &--success {
@@ -72,9 +72,11 @@
   }
   
   &--secondary {
-    background-color: rgba(59, 130, 246, 0.15);
-    color: var(--color-secondary-500);
-    border: 1px solid rgba(59, 130, 246, 0.3);
+    // The --color-secondary-* scale has no dark-mode override, so this neutral
+    // badge is built from the text tokens instead to stay legible at night.
+    background-color: color-mix(in srgb, var(--color-text-secondary) 12%, transparent);
+    color: var(--color-text-secondary);
+    border: 1px solid color-mix(in srgb, var(--color-text-secondary) 28%, transparent);
   }
 
   // ============================================================================

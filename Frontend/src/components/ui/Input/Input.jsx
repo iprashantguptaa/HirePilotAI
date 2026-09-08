@@ -2,11 +2,12 @@
 // HirePilot AI Design System - Input Component
 // ============================================================================
 
-import React, { forwardRef, useState } from 'react'
+import React, { forwardRef, useId, useState } from 'react'
 import './Input.scss'
 
 export const Input = forwardRef(({
   type = 'text',
+  id,
   label,
   placeholder,
   value,
@@ -26,6 +27,16 @@ export const Input = forwardRef(({
 }, ref) => {
   const [focused, setFocused] = useState(false)
 
+  const generatedId = useId()
+  const inputId = id || `hp-input-${generatedId}`
+  const errorId = `${inputId}-error`
+  const helperId = `${inputId}-helper`
+  // Point the input at whichever message is actually rendered below it.
+  const describedBy = [
+    error ? errorId : helperText ? helperId : null,
+    props[ 'aria-describedby' ]
+  ].filter(Boolean).join(' ') || undefined
+
   const wrapperClasses = [
     'hp-input-wrapper',
     `hp-input-wrapper--${size}`,
@@ -41,7 +52,7 @@ export const Input = forwardRef(({
   return (
     <div className={wrapperClasses}>
       {label && (
-        <label className="hp-input__label">
+        <label className="hp-input__label" htmlFor={inputId}>
           {label}
           {required && <span className="hp-input__required">*</span>}
         </label>
@@ -56,6 +67,7 @@ export const Input = forwardRef(({
         
         <input
           ref={ref}
+          id={inputId}
           type={type}
           className="hp-input"
           placeholder={placeholder}
@@ -66,7 +78,9 @@ export const Input = forwardRef(({
           disabled={disabled}
           required={required}
           maxLength={maxLength}
+          aria-invalid={error ? true : undefined}
           {...props}
+          aria-describedby={describedBy}
         />
         
         {rightIcon && (
@@ -79,9 +93,9 @@ export const Input = forwardRef(({
       {(error || helperText || showCharacterCount) && (
         <div className="hp-input__footer">
           {error ? (
-            <span className="hp-input__error">{error}</span>
+            <span className="hp-input__error" id={errorId} role="alert">{error}</span>
           ) : helperText ? (
-            <span className="hp-input__helper">{helperText}</span>
+            <span className="hp-input__helper" id={helperId}>{helperText}</span>
           ) : (
             <span></span>
           )}

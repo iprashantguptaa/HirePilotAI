@@ -1,11 +1,13 @@
 const pdfParse = require("pdf-parse")
 const { generateInterviewReport, generateResumePdf, generatePdfFromHtml } = require("../services/ai.service")
 const interviewReportModel = require("../models/interviewReport.model")
+const userModel = require("../models/user.model")
 const aiUsageLogModel = require("../models/aiUsageLog.model")
 const ApiError = require("../utils/ApiError")
 const asyncHandler = require("../utils/asyncHandler")
 const logger = require("../utils/logger")
 const { renderReportHtml } = require("../utils/reportHtmlTemplate")
+const config = require("../config/env")
 
 /**
  * Records AI token usage for the admin panel's usage dashboard. Never
@@ -17,13 +19,24 @@ async function logAiUsage(userId, type, usage) {
         await aiUsageLogModel.create({
             user: userId,
             type,
-            model: "gemini-3-flash-preview",
+            model: config.geminiModel,
             promptTokens: usage?.promptTokens || 0,
             responseTokens: usage?.responseTokens || 0,
             totalTokens: usage?.totalTokens || 0
         })
     } catch (err) {
         logger.warn(`Failed to record AI usage log: ${err.message}`)
+    }
+}
+
+async function extractResumeText(file) {
+    try {
+        const parser = new pdfParse.PDFParse({ data: Uint8Array.from(file.buffer) })
+        const parsed = await parser.getText()
+        return String(parsed?.text || "").trim()
+    } catch (err) {
+        logger.warn(`Resume PDF parse failed: ${err.message}`)
+        throw ApiError.badRequest("Couldn't read that PDF. Please upload a text-based resume PDF (not a scanned image).")
     }
 }
 
@@ -35,25 +48,32 @@ const generateInterViewReportController = asyncHandler(async function generateIn
 
     const { selfDescription, jobDescription } = req.body
 
-    if (!jobDescription || !jobDescription.trim()) {
+    if (!jobDescription || !String(jobDescription).trim()) {
         throw ApiError.badRequest("Job description is required.")
-    }
-
-    if (!req.file && (!selfDescription || !selfDescription.trim())) {
-        throw ApiError.badRequest("Please provide either a resume file or a self description.")
     }
 
     let resumeContent = ""
     if (req.file) {
-        const parsed = await (new pdfParse.PDFParse(Uint8Array.from(req.file.buffer))).getText()
-        resumeContent = parsed.text
+        resumeContent = await extractResumeText(req.file)
     }
 
+    if (!resumeContent && (!selfDescription || !String(selfDescription).trim())) {
+        // Reuse the resume saved on the user profile when the form left both empty.
+        const profile = await userModel.findById(req.user.id).select("resume.text")
+        resumeContent = profile?.resume?.text || ""
+    }
+
+    if (!resumeContent && (!selfDescription || !String(selfDescription).trim())) {
+        throw ApiError.badRequest("Please provide either a resume file or a self description.")
+    }
+
+    const startedAt = Date.now()
     const { data: interViewReportByAi, usage } = await generateInterviewReport({
         resume: resumeContent,
         selfDescription,
         jobDescription
     })
+    logger.info(`interview_report_generate latency_ms=${Date.now() - startedAt} user=${req.user.id}`)
 
     const interviewReport = await interviewReportModel.create({
         user: req.user.id,

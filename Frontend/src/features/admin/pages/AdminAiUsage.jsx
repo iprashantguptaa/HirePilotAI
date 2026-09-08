@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { getAiUsage } from "../services/admin.api"
 import { useToast } from "../../../components/ui/Toast/useToast"
-import { EnhancedMetricCard, SkeletonCard } from "../../../components/ui"
+import { EnhancedMetricCard, ErrorState, SkeletonCard, Button } from "../../../components/ui"
 
 const TYPE_LABELS = {
     interview_report: "Interview Reports",
@@ -12,27 +12,30 @@ const TYPE_LABELS = {
 const AdminAiUsage = () => {
     const [ data, setData ] = useState(null)
     const [ loading, setLoading ] = useState(true)
+    const [ loadError, setLoadError ] = useState(null)
     const toast = useToast()
 
-    useEffect(() => {
-        let cancelled = false
-        async function load() {
-            setLoading(true)
-            try {
-                const res = await getAiUsage()
-                if (!cancelled) setData(res)
-            } catch (error) {
-                toast?.error(error?.response?.data?.message || "Couldn't load AI usage.")
-            } finally {
-                if (!cancelled) setLoading(false)
-            }
+    const load = useCallback(async () => {
+        setLoading(true)
+        setLoadError(null)
+        try {
+            const res = await getAiUsage()
+            setData(res)
+        } catch (error) {
+            const message = error?.response?.data?.message || "Couldn't load AI usage."
+            setLoadError(message)
+            toast?.error(message)
+        } finally {
+            setLoading(false)
         }
+    }, [ toast ])
+
+    useEffect(() => {
         load()
-        return () => { cancelled = true }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
-    if (loading || !data) {
+    if (loading) {
         return (
             <div>
                 <h1>
@@ -46,6 +49,26 @@ const AdminAiUsage = () => {
                     <SkeletonCard height="7.5rem" />
                     <SkeletonCard height="7.5rem" />
                 </div>
+            </div>
+        )
+    }
+
+    if (loadError || !data) {
+        return (
+            <div>
+                <h1>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ verticalAlign: 'middle', marginRight: '12px' }}>
+                        <path d="M12 20v-6M6 20V10M18 20V4"/>
+                    </svg>
+                    AI <span className="highlight">Usage</span>
+                </h1>
+                <ErrorState
+                    title="Couldn't load AI usage"
+                    description="Something went wrong on our end. Check your connection and try again."
+                    action={
+                        <Button variant="primary" size="lg" onClick={load}>Try again</Button>
+                    }
+                />
             </div>
         )
     }

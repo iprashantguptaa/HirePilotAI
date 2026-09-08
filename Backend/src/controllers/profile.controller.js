@@ -5,6 +5,10 @@ const interviewReportModel = require("../models/interviewReport.model")
 const chatConversationModel = require("../models/chatConversation.model")
 const refreshTokenModel = require("../models/refreshToken.model")
 const tokenBlacklistModel = require("../models/blacklist.model")
+const interviewSessionModel = require("../models/interviewSession.model")
+const aiUsageLogModel = require("../models/aiUsageLog.model")
+const feedbackModel = require("../models/feedback.model")
+const config = require("../config/env")
 const ApiError = require("../utils/ApiError")
 const asyncHandler = require("../utils/asyncHandler")
 
@@ -153,11 +157,22 @@ const uploadResumeController = asyncHandler(async function uploadResumeControlle
         throw ApiError.badRequest("Resume file is required.")
     }
 
-    const parsed = await (new pdfParse.PDFParse(Uint8Array.from(req.file.buffer))).getText()
+    let parsedText = ""
+    try {
+        const parser = new pdfParse.PDFParse({ data: Uint8Array.from(req.file.buffer) })
+        const parsed = await parser.getText()
+        parsedText = String(parsed?.text || "").trim()
+    } catch (err) {
+        throw ApiError.badRequest("Couldn't read that PDF. Please upload a text-based resume PDF.")
+    }
+
+    if (!parsedText) {
+        throw ApiError.badRequest("That PDF looks empty. Please upload a text-based resume.")
+    }
 
     const user = await userModel.findByIdAndUpdate(
         req.user.id,
-        { resume: { text: parsed.text, fileName: req.file.originalname, uploadedAt: new Date() } },
+        { resume: { text: parsedText, fileName: req.file.originalname, uploadedAt: new Date() } },
         { new: true }
     )
 
@@ -245,8 +260,11 @@ const deleteAccountController = asyncHandler(async function deleteAccountControl
 
     await Promise.all([
         interviewReportModel.deleteMany({ user: user._id }),
+        interviewSessionModel.deleteMany({ user: user._id }),
         chatConversationModel.deleteMany({ user: user._id }),
         refreshTokenModel.deleteMany({ user: user._id }),
+        aiUsageLogModel.deleteMany({ user: user._id }),
+        feedbackModel.deleteMany({ user: user._id }),
         userModel.findByIdAndDelete(user._id)
     ])
 
@@ -255,8 +273,14 @@ const deleteAccountController = asyncHandler(async function deleteAccountControl
         await tokenBlacklistModel.create({ token: accessToken })
     }
 
-    res.clearCookie("accessToken", { httpOnly: true })
-    res.clearCookie("refreshToken", { httpOnly: true })
+    const cookieOptions = {
+        httpOnly: true,
+        secure: config.isProduction,
+        sameSite: config.isProduction ? "none" : "lax",
+        path: "/"
+    }
+    res.clearCookie("accessToken", cookieOptions)
+    res.clearCookie("refreshToken", cookieOptions)
 
     res.status(200).json({ message: "Account deleted successfully." })
 })

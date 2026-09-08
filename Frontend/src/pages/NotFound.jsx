@@ -1,10 +1,15 @@
 import { Link } from "react-router"
 import { Button } from "../components/ui"
+import { SEO } from "../components/common"
+import { useAuth } from "../features/auth/hooks/useAuth"
 import "./NotFound.scss"
 
 const NotFound = () => {
+    const { user } = useAuth()
+
     return (
         <div className="not-found-page">
+            <SEO title="Page Not Found" description="This page does not exist or has been moved." noIndex />
             <div className="not-found-content">
                 {/* Animated 404 */}
                 <div className="not-found-number">
@@ -28,25 +33,27 @@ const NotFound = () => {
 
                 {/* Actions */}
                 <div className="not-found-actions">
-                    <Link to="/">
-                        <Button variant="primary" size="lg">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '8px' }}>
-                                <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-                                <polyline points="9 22 9 12 15 12 15 22"></polyline>
-                            </svg>
-                            Go Home
+                    <Button as={Link} to="/" variant="primary" size="lg">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '8px' }}>
+                            <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                        </svg>
+                        Go Home
+                    </Button>
+                    {user ? (
+                        <Button as={Link} to="/dashboard" variant="secondary" size="lg">
+                            Go to Dashboard
                         </Button>
-                    </Link>
-                    <Link to="/dashboard">
-                        <Button variant="secondary" size="lg">
-                            View History
+                    ) : (
+                        <Button as={Link} to="/login" variant="secondary" size="lg">
+                            Log in
                         </Button>
-                    </Link>
+                    )}
                 </div>
 
                 {/* Help Text */}
                 <div className="not-found-help">
-                    <p>Need help? <Link to="/feedback" className="not-found-link">Contact support</Link></p>
+                    <p>Need help? <Link to="/contact" className="not-found-link">Contact support</Link></p>
                 </div>
             </div>
         </div>

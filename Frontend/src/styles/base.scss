@@ -29,11 +29,11 @@ html {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
-  color-scheme: dark;
+  color-scheme: light;
 }
 
-[data-theme="light"] {
-  color-scheme: light;
+[data-theme="dark"] {
+  color-scheme: dark;
 }
 
 html,
@@ -180,6 +180,9 @@ ul, ol {
 // BUTTONS & INPUTS
 // ============================================================================
 
+// The `outline: none` resets below are type selectors (specificity 0-0-1), so
+// the `:focus-visible` rule further down (0-1-0) still wins and keyboard focus
+// stays visible. Only class-based `outline: none` needs its own replacement.
 button {
   font-family: inherit;
   font-size: inherit;
@@ -346,5 +349,35 @@ table {
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+.route-guard {
+  min-height: 60vh;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: var(--space-4);
+  padding: var(--space-12) var(--space-4);
+
+  &__spinner {
+    width: 28px;
+    height: 28px;
+    border-radius: 999px;
+    border: 2px solid var(--color-border);
+    border-top-color: var(--color-primary-600);
+    animation: spin 800ms linear infinite;
+  }
+
+  &__text {
+    margin: 0;
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .route-guard__spinner {
+    animation: none;
   }
 }

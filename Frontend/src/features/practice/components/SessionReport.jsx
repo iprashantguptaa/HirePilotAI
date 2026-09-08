@@ -147,13 +147,9 @@ const SessionReport = ({ session }) => {
             </section>
 
             <footer className="session-report__footer">
-                <Link to="/practice">
-                    <Button variant="primary" size="lg">Practice again</Button>
-                </Link>
+                <Button as={Link} to="/practice" variant="primary" size="lg">Practice again</Button>
                 {session.interviewReport && (
-                    <Link to={`/interview/${session.interviewReport}`}>
-                        <Button variant="secondary" size="lg">Back to interview plan</Button>
-                    </Link>
+                    <Button as={Link} to={`/interview/${session.interviewReport}?practiced=${session.turns?.length || 0}`} variant="secondary" size="lg">Back to plan</Button>
                 )}
             </footer>
         </div>

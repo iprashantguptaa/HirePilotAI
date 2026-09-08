@@ -13,7 +13,7 @@ const { extractAccessToken } = require("../middlewares/auth.middleware")
 const OTP_TTL_MS = 10 * 60 * 1000
 
 /**
- * Sends an OTP email. When SMTP is not configured, returns previewOtp so
+ * Sends an OTP email. Outside production, when SMTP is not configured, returns previewOtp so
  * password-reset (and local testing) can still complete without a mailbox.
  * Never echoes the OTP when a real email was sent.
  */
@@ -28,7 +28,10 @@ async function dispatchOtpEmail({ to, subject, rawOtp, purpose }) {
 
     return {
         delivered: Boolean(result?.delivered),
-        previewOtp: result?.loggedOnly ? rawOtp : undefined
+        // Dev convenience only. Returning this in production would let anyone
+        // who knows an email address read the OTP straight out of the response
+        // and take over the account.
+        previewOtp: result?.loggedOnly && config.nodeEnv !== "production" ? rawOtp : undefined
     }
 }
 
@@ -86,6 +89,15 @@ async function issueSession(res, user) {
     res.cookie("refreshToken", refreshToken, refreshCookieOptions)
 
     return { accessToken, refreshToken }
+}
+
+// authUser blocks suspended accounts on every request, but that is useless if a
+// suspended user can just mint a brand new session. Every path that calls
+// issueSession has to check this too.
+function assertAccountActive(user) {
+    if (user.isActive === false) {
+        throw ApiError.forbidden("This account has been suspended. Contact support for help.")
+    }
 }
 
 function publicUser(user) {
@@ -204,11 +216,21 @@ const loginUserController = asyncHandler(async function loginUserController(req,
     const isPasswordValid = await bcrypt.compare(password, user.password)
 
     if (!isPasswordValid) {
-        throw ApiError.badRequest("Invalid email or password")
+        throw ApiError.unauthorized("Invalid email or password")
     }
 
-    // No mail provider configured → do not ask for an OTP the user can never receive.
+    assertAccountActive(user)
+
     if (!config.smtp.host) {
+        // Never silently drop the second factor in production -- a mail
+        // misconfiguration must fail loudly, not disable OTP.
+        if (config.nodeEnv === "production") {
+            throw ApiError.serviceUnavailable(
+                "Login is temporarily unavailable. Please try again shortly."
+            )
+        }
+
+        // Dev only: no mail provider, so don't ask for an OTP nobody can receive.
         const tokens = await issueSession(res, user)
         return res.status(200).json({
             message: "Logged in successfully.",
@@ -283,6 +305,8 @@ const verifyLoginOtpController = asyncHandler(async function verifyLoginOtpContr
         throw ApiError.badRequest("Incorrect OTP. Please try again.")
     }
 
+    assertAccountActive(user)
+
     user.loginOtpHash = undefined
     user.loginOtpExpires = undefined
     await user.save()
@@ -334,6 +358,8 @@ const refreshTokenController = asyncHandler(async function refreshTokenControlle
     if (!user) {
         throw ApiError.unauthorized("Account no longer exists.")
     }
+
+    assertAccountActive(user)
 
     existing.revokedAt = new Date()
     await existing.save()

@@ -4,6 +4,7 @@ import { useAuth } from '../hooks/useAuth'
 import AuthLayout from '../../../components/layout/AuthLayout'
 import AuthFormCard from '../../../components/layout/AuthFormCard'
 import { Button, Alert } from '../../../components/ui'
+import { SEO } from '../../../components/common'
 
 const VerifyEmail = () => {
   const { token } = useParams()
@@ -41,11 +42,13 @@ const VerifyEmail = () => {
   )
 
   return (
+    <>
+    <SEO title="Verify Email" description="Confirm your HirePilot AI email address." />
     <AuthLayout>
       <AuthFormCard
         title="Email Verification"
         footer={
-          <Link to="/">Go to dashboard</Link>
+          <Link to="/dashboard">Go to dashboard</Link>
         }
       >
         {status === "verifying" && (
@@ -65,11 +68,9 @@ const VerifyEmail = () => {
               message="Your email has been successfully verified. You're all set to start using HirePilot AI."
             />
             <div style={{ marginTop: 'var(--space-6)' }}>
-              <Link to="/">
-                <Button variant="primary" size="lg" fullWidth>
-                  Go to Dashboard
-                </Button>
-              </Link>
+              <Button as={Link} to="/dashboard" variant="primary" size="lg" fullWidth>
+                Go to Dashboard
+              </Button>
             </div>
           </div>
         )}
@@ -82,21 +83,18 @@ const VerifyEmail = () => {
               message="This verification link is invalid or has expired. You can request a new verification email from your profile page."
             />
             <div style={{ marginTop: 'var(--space-6)', display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
-              <Link to="/profile">
-                <Button variant="primary" size="lg" fullWidth>
-                  Go to Profile
-                </Button>
-              </Link>
-              <Link to="/">
-                <Button variant="secondary" size="lg" fullWidth>
-                  Go to Dashboard
-                </Button>
-              </Link>
+              <Button as={Link} to="/profile" variant="primary" size="lg" fullWidth>
+                Go to Profile
+              </Button>
+              <Button as={Link} to="/dashboard" variant="secondary" size="lg" fullWidth>
+                Go to Dashboard
+              </Button>
             </div>
           </div>
         )}
       </AuthFormCard>
     </AuthLayout>
+    </>
   )
 }
 

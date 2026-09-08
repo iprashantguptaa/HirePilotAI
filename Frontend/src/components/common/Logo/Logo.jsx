@@ -45,8 +45,8 @@ export const Logo = ({ variant = 'default', size = 'md', className = '' }) => {
           {/* Gradient definition */}
           <defs>
             <linearGradient id="logo-gradient" x1="0" y1="0" x2="40" y2="40" gradientUnits="userSpaceOnUse">
-              <stop offset="0%" stopColor="#7c3aed" />
-              <stop offset="100%" stopColor="#a855f7" />
+              <stop offset="0%" stopColor="#0f766e" />
+              <stop offset="100%" stopColor="#134e4a" />
             </linearGradient>
           </defs>
         </svg>
@@ -94,8 +94,8 @@ export const LogoIcon = ({ size = 'md', className = '' }) => {
         <circle cx="28" cy="24" r="2" fill="url(#icon-gradient)" opacity="0.7" />
         <defs>
           <linearGradient id="icon-gradient" x1="0" y1="0" x2="40" y2="40" gradientUnits="userSpaceOnUse">
-            <stop offset="0%" stopColor="#7c3aed" />
-            <stop offset="100%" stopColor="#a855f7" />
+            <stop offset="0%" stopColor="#0f766e" />
+            <stop offset="100%" stopColor="#134e4a" />
           </linearGradient>
         </defs>
       </svg>

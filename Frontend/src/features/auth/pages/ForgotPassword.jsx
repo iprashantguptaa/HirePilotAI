@@ -4,6 +4,7 @@ import { useAuth } from '../hooks/useAuth'
 import AuthLayout from '../../../components/layout/AuthLayout'
 import AuthFormCard from '../../../components/layout/AuthFormCard'
 import { Input, PasswordInput, Button, Alert } from '../../../components/ui'
+import { SEO } from '../../../components/common'
 
 const ForgotPassword = () => {
   const { handleForgotPassword, handleResetPasswordWithOtp } = useAuth()
@@ -65,6 +66,8 @@ const ForgotPassword = () => {
   )
 
   return (
+    <>
+    <SEO title="Reset Password" description="Request a one-time code to reset your HirePilot AI password." />
     <AuthLayout>
       <AuthFormCard
         title="Reset your password"
@@ -172,6 +175,7 @@ const ForgotPassword = () => {
         )}
       </AuthFormCard>
     </AuthLayout>
+    </>
   )
 }
 

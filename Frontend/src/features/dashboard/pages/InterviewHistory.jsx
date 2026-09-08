@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from "react"
 import { Link } from "react-router"
 import { useInterview } from "../../interview/hooks/useInterview"
-import { EmptyState, SkeletonCard, Button } from "../../../components/ui"
+import { EmptyState, ErrorState, SkeletonCard, Button } from "../../../components/ui"
+import { SEO } from "../../../components/common"
 import "./history.scss"
 
 const scoreClass = (score) => (score >= 80 ? "score--high" : score >= 60 ? "score--mid" : "score--low")
@@ -17,9 +18,16 @@ const InterviewHistory = () => {
     const { reports, loading, getReports } = useInterview()
     const [ search, setSearch ] = useState("")
     const [ sortKey, setSortKey ] = useState("recent")
+    const [ loadError, setLoadError ] = useState(null)
+
+    const loadReports = async () => {
+        setLoadError(null)
+        const list = await getReports()
+        if (!list) setLoadError("Couldn't load your interview history.")
+    }
 
     useEffect(() => {
-        getReports()
+        loadReports()
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
@@ -32,32 +40,35 @@ const InterviewHistory = () => {
 
     return (
         <div className="history-page container">
+            <SEO title="Interview History" description="Every interview plan you have generated." noIndex />
             <header className="history-page__header">
                 <div>
                     <h1>Interview <span className="highlight">History</span></h1>
                     <p>Every interview plan you've generated, in one place.</p>
                 </div>
-                <Link to="/interview/new">
-                    <Button variant="primary" size="lg">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '8px' }}>
-                            <line x1="12" y1="5" x2="12" y2="19"></line>
-                            <line x1="5" y1="12" x2="19" y2="12"></line>
-                        </svg>
-                        New Interview
-                    </Button>
-                </Link>
+                <Button as={Link} to="/interview/new" variant="primary" size="lg">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '8px' }}>
+                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                    New Interview
+                </Button>
             </header>
 
-            {!loading && reports.length > 0 && (
+            {!loading && (reports?.length || 0) > 0 && (
                 <div className="history-page__controls">
                     <input
                         type="search"
+                        id="history-search"
+                        aria-label="Search by title"
                         placeholder="Search by title..."
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
                         className="history-page__search"
                     />
+                    <label className="sr-only" htmlFor="history-sort">Sort by</label>
                     <select
+                        id="history-sort"
                         value={sortKey}
                         onChange={(e) => setSortKey(e.target.value)}
                         className="history-page__sort"
@@ -69,14 +80,22 @@ const InterviewHistory = () => {
                 </div>
             )}
 
-            {loading && !reports.length ? (
+            {loading && !(reports?.length) ? (
                 <div className="history-page__list">
                     <SkeletonCard height="5.5rem" />
                     <SkeletonCard height="5.5rem" />
                     <SkeletonCard height="5.5rem" />
                     <SkeletonCard height="5.5rem" />
                 </div>
-            ) : reports.length === 0 ? (
+            ) : loadError ? (
+                <ErrorState
+                    title="Couldn't load your interview history"
+                    description="Something went wrong on our end. Check your connection and try again."
+                    action={
+                        <Button variant="primary" size="lg" onClick={loadReports}>Try again</Button>
+                    }
+                />
+            ) : !(reports?.length) ? (
                 <EmptyState
                     icon={
                         <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -90,15 +109,13 @@ const InterviewHistory = () => {
                     title="No interviews yet"
                     description="Once you generate an interview plan, it will show up here. Start by creating your first interview preparation plan."
                     action={
-                        <Link to="/interview/new">
-                            <Button variant="primary" size="lg">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '8px' }}>
-                                    <line x1="12" y1="5" x2="12" y2="19"></line>
-                                    <line x1="5" y1="12" x2="19" y2="12"></line>
-                                </svg>
-                                Create your first interview
-                            </Button>
-                        </Link>
+                        <Button as={Link} to="/interview/new" variant="primary" size="lg">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '8px' }}>
+                                <line x1="12" y1="5" x2="12" y2="19"></line>
+                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                            </svg>
+                            Create your first interview
+                        </Button>
                     }
                 />
             ) : visibleReports.length === 0 ? (

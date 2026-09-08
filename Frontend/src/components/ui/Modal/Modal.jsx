@@ -2,7 +2,7 @@
 // HirePilot AI Design System - Modal Component
 // ============================================================================
 
-import React, { useEffect } from 'react'
+import React, { useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import './Modal.scss'
 
@@ -30,16 +30,52 @@ export const Modal = ({
     }
   }, [isOpen])
 
+  const dialogRef = useRef(null)
+  const lastFocusRef = useRef(null)
+
   useEffect(() => {
     const handleEscape = (e) => {
       if (e.key === 'Escape' && isOpen) {
         onClose()
       }
     }
+
+    const trapFocus = (e) => {
+      if (!isOpen || e.key !== 'Tab' || !dialogRef.current) return
+      const focusable = dialogRef.current.querySelectorAll(
+        'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])'
+      )
+      if (!focusable.length) return
+      const first = focusable[0]
+      const last = focusable[focusable.length - 1]
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault()
+        last.focus()
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault()
+        first.focus()
+      }
+    }
     
     document.addEventListener('keydown', handleEscape)
-    return () => document.removeEventListener('keydown', handleEscape)
+    document.addEventListener('keydown', trapFocus)
+    return () => {
+      document.removeEventListener('keydown', handleEscape)
+      document.removeEventListener('keydown', trapFocus)
+    }
   }, [isOpen, onClose])
+
+  useEffect(() => {
+    if (!isOpen) return
+    lastFocusRef.current = document.activeElement
+    const first = dialogRef.current?.querySelector(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    )
+    first?.focus()
+    return () => {
+      if (lastFocusRef.current instanceof HTMLElement) lastFocusRef.current.focus()
+    }
+  }, [isOpen])
 
   if (!isOpen) return null
 
@@ -50,8 +86,9 @@ export const Modal = ({
   }
 
   return createPortal(
-    <div className="hp-modal-overlay" onClick={handleOverlayClick}>
+    <div className="hp-modal-overlay" onClick={handleOverlayClick} role="presentation">
       <div 
+        ref={dialogRef}
         className={`hp-modal hp-modal--${size} ${className}`}
         role="dialog"
         aria-modal="true"

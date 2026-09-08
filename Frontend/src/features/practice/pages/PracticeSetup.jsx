@@ -15,13 +15,20 @@ const PracticeSetup = () => {
     const { reports, loading: loadingReports, getReports } = useInterview()
     const startAbortRef = useRef(null)
 
-    // Deep-linked from an interview report's "Practice this interview" action.
+    // Deep-linked from an interview report's "Practice this" / priority action.
     const preselectedReportId = searchParams.get("report")
+    const focusParam = searchParams.get("focus")
+    const noteParam = searchParams.get("note")
+    const qParam = searchParams.get("q")
+
+    const initialMode = [ "technical", "behavioral", "mixed" ].includes(focusParam)
+        ? focusParam
+        : "mixed"
 
     const [ source, setSource ] = useState(preselectedReportId ? "report" : "jobDescription")
     const [ reportId, setReportId ] = useState(preselectedReportId || "")
     const [ jobDescription, setJobDescription ] = useState("")
-    const [ mode, setMode ] = useState("mixed")
+    const [ mode, setMode ] = useState(initialMode)
     const [ plannedQuestions, setPlannedQuestions ] = useState(6)
     const [ starting, setStarting ] = useState(false)
 
@@ -82,13 +89,33 @@ const PracticeSetup = () => {
         setStarting(true)
         try {
             const count = Number(plannedQuestions) || 6
+            const starterNote = noteParam
+                || (qParam != null && source === "report"
+                    ? `Practice question index ${qParam} from the plan`
+                    : undefined)
             const payload = source === "report"
-                ? { interviewReportId: effectiveReportId, mode, plannedQuestions: count, signal: controller.signal }
-                : { jobDescription: jobDescription.trim(), mode, plannedQuestions: count, signal: controller.signal }
+                ? {
+                    interviewReportId: effectiveReportId,
+                    mode,
+                    plannedQuestions: count,
+                    focusHint: focusParam || mode,
+                    starterNote,
+                    signal: controller.signal
+                }
+                : {
+                    jobDescription: jobDescription.trim(),
+                    mode,
+                    plannedQuestions: count,
+                    focusHint: focusParam || undefined,
+                    starterNote: noteParam || undefined,
+                    signal: controller.signal
+                }
 
             const response = await startSession(payload)
             if (controller.signal.aborted) return
-            navigate(`/practice/${response.session._id}`)
+            const sessionId = response?.session?._id
+            if (!sessionId) throw new Error("Practice session did not start.")
+            navigate(`/practice/${sessionId}`)
         } catch (error) {
             if (
                 controller.signal.aborted
@@ -122,7 +149,7 @@ const PracticeSetup = () => {
     return (
         <>
             <SEO
-                title="Mock Interview Practice | HirePilot AI"
+                title="Mock Interview Practice"
                 description="Practice a real interview one question at a time and get every answer scored against a rubric."
             />
 
@@ -134,6 +161,13 @@ const PracticeSetup = () => {
                         One question at a time. You answer, we score it against a rubric and tell you
                         exactly what was missing, then the next question adapts to how you did.
                     </p>
+                    {(focusParam || noteParam) && (
+                        <p className="practice-setup__focus-hint" role="status">
+                            Focus from your plan
+                            {focusParam ? `: ${focusParam}` : ""}
+                            {noteParam ? ` — ${noteParam.slice(0, 120)}${noteParam.length > 120 ? "…" : ""}` : ""}
+                        </p>
+                    )}
                 </header>
 
                 <section className="practice-setup__card">
@@ -178,9 +212,7 @@ const PracticeSetup = () => {
                         ) : (
                             <div className="practice-setup__inline-empty">
                                 <p>You don't have any interview plans yet.</p>
-                                <Link to="/interview/new">
-                                    <Button variant="secondary">Create an interview plan</Button>
-                                </Link>
+                                <Button as={Link} to="/interview/new" variant="secondary">Create an interview plan</Button>
                             </div>
                         )
                     ) : (

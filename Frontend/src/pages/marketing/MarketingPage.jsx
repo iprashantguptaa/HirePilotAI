@@ -1,10 +1,12 @@
 import { Link } from "react-router"
 import { SEO } from "../../components/common"
+import { useAuth } from "../../features/auth/hooks/useAuth.js"
 import { MARKETING_PAGES } from "./content"
 import "./MarketingPage.scss"
 
 const MarketingPage = ({ slug }) => {
     const page = MARKETING_PAGES[ slug ]
+    const { user } = useAuth()
 
     if (!page) {
         return (
@@ -36,7 +38,12 @@ const MarketingPage = ({ slug }) => {
                 </div>
 
                 <footer className="marketing-page__cta">
-                    <Link to="/register" className="button primary-button">Create free account</Link>
+                    <Link
+                        to={user ? "/interview/new" : "/register"}
+                        className="button primary-button"
+                    >
+                        {user ? "Start a new analysis" : "Create free account"}
+                    </Link>
                     <Link to="/contact" className="button secondary-button">Contact us</Link>
                 </footer>
             </article>

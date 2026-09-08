@@ -16,6 +16,7 @@ export const Button = forwardRef(({
   fullWidth = false,
   className = '',
   type = 'button',
+  as: Component = 'button',
   onClick,
   ...props
 }, ref) => {
@@ -29,13 +30,19 @@ export const Button = forwardRef(({
     className
   ].filter(Boolean).join(' ')
 
+  // Rendering as a link (`as={Link}`) must not emit button-only attributes,
+  // otherwise React warns and `disabled` silently does nothing on an anchor.
+  const isNativeButton = Component === 'button'
+  const inert = disabled || loading
+
   return (
-    <button
+    <Component
       ref={ref}
-      type={type}
+      {...(isNativeButton
+        ? { type, disabled: inert }
+        : { 'aria-disabled': inert || undefined, tabIndex: inert ? -1 : undefined })}
       className={classes}
-      disabled={disabled || loading}
-      onClick={onClick}
+      onClick={inert && !isNativeButton ? (e) => e.preventDefault() : onClick}
       {...props}
     >
       {loading && (
@@ -65,7 +72,7 @@ export const Button = forwardRef(({
           {rightIcon}
         </span>
       )}
-    </button>
+    </Component>
   )
 })
 

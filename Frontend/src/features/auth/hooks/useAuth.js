@@ -40,11 +40,11 @@ function getErrorMessage(error, fallback) {
 export const useAuth = () => {
 
     const context = useContext(AuthContext)
-    const { user, setUser, loading, setLoading } = context
+    const { user, setUser, bootstrapping, submitting, setSubmitting } = context
     const toast = useToast()
 
     const handleLogin = async ({ email, password }) => {
-        setLoading(true)
+        setSubmitting(true)
         try {
             const data = await login({ email, password })
             // New flow: password OK → OTP required. Old flow safety net if
@@ -67,12 +67,12 @@ export const useAuth = () => {
             toast?.error(getErrorMessage(err, "Couldn't log in. Please check your email and password."))
             return false
         } finally {
-            setLoading(false)
+            setSubmitting(false)
         }
     }
 
     const handleVerifyLoginOtp = async ({ email, otp }) => {
-        setLoading(true)
+        setSubmitting(true)
         try {
             const data = await verifyLoginOtp({ email, otp })
             setUser(data.user)
@@ -81,12 +81,12 @@ export const useAuth = () => {
             toast?.error(getErrorMessage(err, "Couldn't verify that OTP. Please try again."))
             return false
         } finally {
-            setLoading(false)
+            setSubmitting(false)
         }
     }
 
     const handleRegister = async ({ username, email, password }) => {
-        setLoading(true)
+        setSubmitting(true)
         try {
             const data = await register({ username, email, password })
             setUser(data.user)
@@ -95,12 +95,12 @@ export const useAuth = () => {
             toast?.error(getErrorMessage(err, "Couldn't create your account. Please try again."))
             return false
         } finally {
-            setLoading(false)
+            setSubmitting(false)
         }
     }
 
     const handleLogout = async () => {
-        setLoading(true)
+        setSubmitting(true)
         try {
             await logout()
             clearTokens()
@@ -112,7 +112,7 @@ export const useAuth = () => {
             toast?.error(getErrorMessage(err, "Couldn't log out. Please try again."))
             return false
         } finally {
-            setLoading(false)
+            setSubmitting(false)
         }
     }
 
@@ -173,7 +173,12 @@ export const useAuth = () => {
     }
 
     return {
-        user, loading,
+        user,
+        // Session resolving (Protected screens)
+        loading: bootstrapping,
+        bootstrapping,
+        // Auth form buttons
+        submitting,
         handleRegister, handleLogin, handleVerifyLoginOtp, handleLogout,
         handleForgotPassword, handleResetPasswordWithOtp, handleResetPassword,
         handleVerifyEmail, handleResendVerification

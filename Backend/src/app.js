@@ -42,6 +42,7 @@ const allowedOrigins = new Set([
     // Known production frontend — kept as a safety net so a missing/wrong
     // FRONTEND_URL on Render does not take auth offline again.
     "https://hirepilot-frontend-mu.vercel.app",
+    "https://thehirepilot.vercel.app",
     "http://localhost:5173",
     "http://localhost:5174",
     "http://localhost:5175",

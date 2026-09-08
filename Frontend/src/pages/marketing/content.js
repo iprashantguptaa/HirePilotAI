@@ -255,7 +255,7 @@ export const MARKETING_PAGES = {
         sections: [
             {
                 heading: "Web application",
-                body: "Operational when https://hirepilot-frontend-mu.vercel.app loads and authenticates successfully."
+                body: "Operational when https://hirepilot.ai loads and authenticates successfully."
             },
             {
                 heading: "API",

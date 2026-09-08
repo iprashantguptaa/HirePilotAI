@@ -6,6 +6,7 @@ const aiUsageLogModel = require("../models/aiUsageLog.model")
 const featureFlagModel = require("../models/featureFlag.model")
 const feedbackModel = require("../models/feedback.model")
 const auditLogModel = require("../models/auditLog.model")
+const interviewSessionModel = require("../models/interviewSession.model")
 const ApiError = require("../utils/ApiError")
 const asyncHandler = require("../utils/asyncHandler")
 const { recordAuditLog } = require("../utils/auditLog")
@@ -148,8 +149,11 @@ const deleteUserController = asyncHandler(async function deleteUserController(re
 
     await Promise.all([
         interviewReportModel.deleteMany({ user: userId }),
+        interviewSessionModel.deleteMany({ user: userId }),
         chatConversationModel.deleteMany({ user: userId }),
         refreshTokenModel.deleteMany({ user: userId }),
+        aiUsageLogModel.deleteMany({ user: userId }),
+        feedbackModel.deleteMany({ user: userId }),
         userModel.findByIdAndDelete(userId)
     ])
 

@@ -6,12 +6,13 @@ import AvatarUploader from "../components/AvatarUploader"
 import SkillsInput from "../components/SkillsInput"
 import ExperienceEditor from "../components/ExperienceEditor"
 import EducationEditor from "../components/EducationEditor"
-import { SkeletonCard } from "../../../components/ui"
+import { Button, ErrorState, SkeletonCard } from "../../../components/ui"
+import { SEO } from "../../../components/common"
 import "./profile.scss"
 
 const Profile = () => {
     const {
-        profile, loading, saving, updatePersonalInfo, updateNotifications,
+        profile, loading, loadError, saving, reload, updatePersonalInfo, updateNotifications,
         changeAvatar, removeAvatar, uploadResume, removeResume, changePassword, deleteAccount
     } = useProfile()
     const { handleLogout, handleResendVerification } = useAuth()
@@ -36,11 +37,25 @@ const Profile = () => {
         }
     }, [ profile ])
 
-    if (loading || !form) {
+    if (loading || (!form && !loadError)) {
         return (
             <div className="profile-page container">
                 <SkeletonCard height="8rem" />
                 <SkeletonCard height="16rem" />
+            </div>
+        )
+    }
+
+    if (loadError) {
+        return (
+            <div className="profile-page container">
+                <ErrorState
+                    title="Couldn't load your profile"
+                    description="Something went wrong on our end. Check your connection and try again."
+                    action={
+                        <Button variant="primary" size="lg" onClick={reload}>Try again</Button>
+                    }
+                />
             </div>
         )
     }
@@ -69,12 +84,14 @@ const Profile = () => {
     const handleDeleteAccount = async () => {
         const ok = await deleteAccount(deletePassword)
         if (ok) {
-            navigate("/login")
+            await handleLogout()
+            navigate("/login", { replace: true })
         }
     }
 
     return (
         <div className="profile-page container">
+            <SEO title="Profile" description="Manage your HirePilot AI profile, resume, and account." noIndex />
             {/* Premium Profile Header Card */}
             <div className="profile-hero">
                 <div className="profile-hero__avatar">
@@ -120,7 +137,7 @@ const Profile = () => {
                 <div className="profile-card__header">
                     <h2 className="profile-card__title">About</h2>
                     <button type="submit" className="button primary-button button-sm" disabled={saving}>
-                        {saving ? 'Saving...' : 'Save Changes'}
+                        {saving ? 'Saving…' : 'Save Changes'}
                     </button>
                 </div>
                 
@@ -182,6 +199,11 @@ const Profile = () => {
                 </div>
                 <div className="profile-card__body">
                     <SkillsInput skills={form.skills} onChange={(skills) => setForm({ ...form, skills })} />
+                    <div className="profile-card__footer">
+                        <button type="button" className="button primary-button button-sm" disabled={saving} onClick={handleSavePersonalInfo}>
+                            {saving ? 'Saving…' : 'Save skills'}
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -198,6 +220,11 @@ const Profile = () => {
                 </div>
                 <div className="profile-card__body">
                     <ExperienceEditor experience={form.experience} onChange={(experience) => setForm({ ...form, experience })} />
+                    <div className="profile-card__footer">
+                        <button type="button" className="button primary-button button-sm" disabled={saving} onClick={handleSavePersonalInfo}>
+                            {saving ? 'Saving…' : 'Save experience'}
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -214,6 +241,11 @@ const Profile = () => {
                 </div>
                 <div className="profile-card__body">
                     <EducationEditor education={form.education} onChange={(education) => setForm({ ...form, education })} />
+                    <div className="profile-card__footer">
+                        <button type="button" className="button primary-button button-sm" disabled={saving} onClick={handleSavePersonalInfo}>
+                            {saving ? 'Saving…' : 'Save education'}
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -248,7 +280,7 @@ const Profile = () => {
                                         Uploaded {new Date(profile.resume.uploadedAt).toLocaleDateString()}
                                     </span>
                                 </div>
-                                <button type="button" className="resume-badge__remove" onClick={removeResume}>
+                                <button type="button" className="resume-badge__remove" onClick={removeResume} aria-label="Remove resume">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                         <path d="M3 6h18M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>
                                     </svg>

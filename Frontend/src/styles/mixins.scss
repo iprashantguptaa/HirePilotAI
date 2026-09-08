@@ -182,7 +182,14 @@
   &:focus {
     outline: none;
     border-color: var(--color-border-focus);
-    box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-border-focus) 25%, transparent);
+  }
+
+  // The soft ring above is too low-contrast to stand alone as the only
+  // keyboard affordance, so restore a solid outline here.
+  &:focus-visible {
+    outline: 2px solid var(--color-border-focus);
+    outline-offset: 2px;
   }
 
   &:disabled {
@@ -324,8 +331,11 @@
 
 @mixin focus-ring-inset {
   &:focus-visible {
+    // Replaces the outline entirely, so the ring needs a solid core to stay
+    // as visible as the global :focus-visible outline.
     outline: none;
-    box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.2);
+    box-shadow: 0 0 0 2px var(--color-border-focus),
+                0 0 0 5px color-mix(in srgb, var(--color-border-focus) 25%, transparent);
   }
 }
 

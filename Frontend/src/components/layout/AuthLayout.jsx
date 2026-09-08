@@ -30,18 +30,16 @@ const AuthLayout = ({ children }) => {
       <div className="auth-layout__brand">
         <div className="auth-layout__brand-content">
           <h2 className="auth-layout__brand-title">
-            Master Your Interview,<br />
-            <span className="text-gradient">Land Your Dream Job</span>
+            Know where you stand<br />
+            before the interview.
           </h2>
           
           <p className="auth-layout__brand-subtitle">
-            Upload your resume, paste a job description, and practice with answers scored on five dimensions.
+            {brand.product?.description || "Resume + job description in. Match score, roadmap, and scored practice out."}
           </p>
 
-          {/* Animated gradient mesh background */}
           <div className="auth-layout__mesh" aria-hidden="true" />
           
-          {/* Product truths — not fabricated vanity metrics */}
           <div className="auth-layout__features">
             <div className="auth-feature">
               <div className="auth-feature__icon">

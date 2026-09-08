@@ -1,6 +1,7 @@
 import { useState } from "react"
 import { submitFeedback } from "../services/feedback.api"
 import { useToast } from "../../../components/ui/Toast/useToast"
+import { SEO } from "../../../components/common"
 import "./feedback.scss"
 
 const CATEGORIES = [
@@ -36,10 +37,11 @@ const Feedback = () => {
 
     return (
         <div className="feedback-page container">
+            <SEO title="Feedback" description="Report bugs, suggest features, or tell us what is confusing." noIndex />
             <header className="feedback-page__header">
                 <div className="feedback-page__header-content">
                     <h1>Share Your <span className="text-gradient">Feedback</span></h1>
-                    <p>Help us build a better product. Your insights drive our roadmap.</p>
+                    <p>Report bugs, suggest features, or tell us what is confusing.</p>
                 </div>
             </header>
 

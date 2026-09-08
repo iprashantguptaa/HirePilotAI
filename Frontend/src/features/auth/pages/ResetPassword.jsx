@@ -4,6 +4,7 @@ import { useAuth } from '../hooks/useAuth'
 import AuthLayout from '../../../components/layout/AuthLayout'
 import AuthFormCard from '../../../components/layout/AuthFormCard'
 import { PasswordInput, Button } from '../../../components/ui'
+import { SEO } from '../../../components/common'
 
 const ResetPassword = () => {
   const { token } = useParams()
@@ -51,6 +52,8 @@ const ResetPassword = () => {
   }
 
   return (
+    <>
+    <SEO title="Choose a New Password" description="Set a new password for your HirePilot AI account." />
     <AuthLayout>
       <AuthFormCard
         title="Create a new password"
@@ -102,6 +105,7 @@ const ResetPassword = () => {
         </form>
       </AuthFormCard>
     </AuthLayout>
+    </>
   )
 }
 

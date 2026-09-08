@@ -4,21 +4,20 @@ import Footer from "./Footer"
 
 const AppLayout = () => {
     const location = useLocation()
-    // Landing owns its own full-bleed composition; app pages use the
-    // standard content shell. Header and Footer are shared everywhere so
-    // the product feels like one application.
     const isLandingPage = location.pathname === "/"
-    // Focused interview UI — hide the marketing footer so long AI waits
-    // don't end with an accidental click on "System Status" / other links.
+    // Focused interview UI — hide marketing chrome so long AI waits don't end
+    // with an accidental click on an unrelated link.
     const isPracticeSession = /^\/practice\/[^/]+/.test(location.pathname)
+    const isReportWorkspace = /^\/interview\/(?!new$).+/.test(location.pathname)
 
     return (
         <>
-            <Header />
-            <main className={isLandingPage ? "landing-shell" : "app-content"}>
+            <a href="#main-content" className="skip-link">Skip to main content</a>
+            {!isPracticeSession && <Header />}
+            <main id="main-content" className={isLandingPage ? "landing-shell" : "app-content"} tabIndex={-1}>
                 <Outlet />
             </main>
-            {!isPracticeSession && <Footer />}
+            {!isPracticeSession && !isReportWorkspace && <Footer />}
         </>
     )
 }

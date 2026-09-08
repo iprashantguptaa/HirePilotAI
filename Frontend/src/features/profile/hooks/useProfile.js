@@ -9,16 +9,20 @@ function getErrorMessage(error, fallback) {
 export function useProfile() {
     const [ profile, setProfile ] = useState(null)
     const [ loading, setLoading ] = useState(true)
+    const [ loadError, setLoadError ] = useState(null)
     const [ saving, setSaving ] = useState(false)
     const toast = useToast()
 
     const loadProfile = useCallback(async () => {
         setLoading(true)
+        setLoadError(null)
         try {
             const response = await profileApi.getProfile()
             setProfile(response.profile)
         } catch (error) {
-            toast?.error(getErrorMessage(error, "Couldn't load your profile."))
+            const message = getErrorMessage(error, "Couldn't load your profile.")
+            setLoadError(message)
+            toast?.error(message)
         } finally {
             setLoading(false)
         }
@@ -90,6 +94,7 @@ export function useProfile() {
     return {
         profile,
         loading,
+        loadError,
         saving,
         reload: loadProfile,
         updatePersonalInfo,

@@ -79,7 +79,9 @@ async function callModel(request, label) {
             try {
                 return await ai.models.generateContent({
                     ...request,
-                    model: modelName
+                    model: modelName,
+                    // Fail closed if Gemini hangs — otherwise the request stays open forever.
+                    abortSignal: AbortSignal.timeout(90_000)
                 })
             } catch (error) {
                 lastError = error
@@ -323,6 +325,13 @@ ${jdText || "Not provided."}`
 
 
 
+function sanitizeResumeHtml(html) {
+    return String(html || "")
+        .replace(/<script[\s\S]*?>[\s\S]*?<\/script>/gi, "")
+        .replace(/<iframe[\s\S]*?>[\s\S]*?<\/iframe>/gi, "")
+        .replace(/\son\w+\s*=\s*("[^"]*"|'[^']*'|[^\s>]+)/gi, "")
+}
+
 async function generatePdfFromHtml(htmlContent) {
     // --no-sandbox / --disable-setuid-sandbox are required on most
     // containerized hosts (Render, Railway, Docker) -- the sandbox needs
@@ -331,21 +340,29 @@ async function generatePdfFromHtml(htmlContent) {
     const browser = await puppeteer.launch({
         args: [ "--no-sandbox", "--disable-setuid-sandbox" ]
     })
-    const page = await browser.newPage();
-    await page.setContent(htmlContent, { waitUntil: "networkidle0" })
 
-    const pdfBuffer = await page.pdf({
-        format: "A4", margin: {
-            top: "20mm",
-            bottom: "20mm",
-            left: "15mm",
-            right: "15mm"
-        }
-    })
+    try {
+        const page = await browser.newPage()
+        await page.setJavaScriptEnabled(false)
+        await page.setRequestInterception(true)
+        page.on("request", (req) => {
+            if (req.resourceType() === "document") req.continue()
+            else req.abort()
+        })
+        await page.setContent(sanitizeResumeHtml(htmlContent), { waitUntil: "domcontentloaded" })
 
-    await browser.close()
-
-    return pdfBuffer
+        return await page.pdf({
+            format: "A4",
+            margin: {
+                top: "20mm",
+                bottom: "20mm",
+                left: "15mm",
+                right: "15mm"
+            }
+        })
+    } finally {
+        await browser.close()
+    }
 }
 
 async function generateResumePdf({ resume, selfDescription, jobDescription }) {
@@ -487,7 +504,16 @@ function fallbackOpeningQuestion(mode) {
     }
 }
 
-async function generateSessionQuestion({ resume, jobDescription, mode, priorTurns, questionNumber, plannedQuestions }) {
+async function generateSessionQuestion({
+    resume,
+    jobDescription,
+    mode,
+    priorTurns,
+    questionNumber,
+    plannedQuestions,
+    focusHint,
+    starterNote
+}) {
     // Only the last 3 turns matter for follow-up decisions — full history
     // makes every later question slower without improving quality much.
     const recentTurns = (priorTurns || []).filter((turn) => turn.answer).slice(-3)
@@ -504,9 +530,18 @@ Score: ${turn.overallScore ?? "n/a"}/100. Missing: ${clipText(turn.feedback?.wha
         mixed: "This is a mixed interview. Blend technical and behavioral questions across the session."
     }[ mode ] || "This is a mixed interview."
 
+    const focusLine = focusHint
+        ? `\nSession focus hint from the candidate's prep plan: lean into "${clipText(focusHint, 120)}" when choosing topics.`
+        : ""
+    const starterLine = starterNote && questionNumber === 1
+        ? `\nOpening focus: the candidate wants to practice around this prompt or gap — ask a closely related first question (paraphrase, do not copy verbatim):\n${clipText(starterNote, 400)}`
+        : ""
+
     const prompt = `You are conducting a live mock interview. Decide the next question to ask.
 
 ${modeInstruction}
+${focusLine}
+${starterLine}
 
 This is question ${questionNumber} of approximately ${plannedQuestions}.
 

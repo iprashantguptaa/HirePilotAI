@@ -162,10 +162,10 @@
 // Glow animation (for premium brand moments)
 @keyframes glow {
   0%, 100% {
-    box-shadow: 0 0 20px rgba(124, 58, 237, 0.3);
+    box-shadow: 0 0 20px color-mix(in srgb, var(--color-border-focus) 30%, transparent);
   }
   50% {
-    box-shadow: 0 0 30px rgba(124, 58, 237, 0.6);
+    box-shadow: 0 0 30px color-mix(in srgb, var(--color-border-focus) 60%, transparent);
   }
 }
 
@@ -283,7 +283,7 @@
   transition: box-shadow var(--duration-base) var(--ease-out);
 
   &:hover:not(:disabled) {
-    box-shadow: 0 0 20px rgba(124, 58, 237, 0.4);
+    box-shadow: 0 0 20px color-mix(in srgb, var(--color-border-focus) 25%, transparent);
   }
 }
 
@@ -402,4 +402,22 @@
   .hover-scale:hover:not(:disabled) {
     transform: none !important;
   }
+
+  .motion-enter,
+  .motion-crossfade {
+    animation: none !important;
+  }
+}
+
+/* Shared enter / exit helpers (CSS only) */
+.motion-enter {
+  animation: fadeIn 320ms ease-out, slideInUp 320ms ease-out;
+}
+
+.motion-crossfade {
+  animation: fadeIn 280ms ease-out;
+}
+
+.motion-exit {
+  animation: fadeOut 200ms ease-in forwards;
 }

@@ -4,7 +4,18 @@ import { InterviewContext } from "../interview.context"
 import { useToast } from "../../../components/ui/Toast/useToast"
 
 function getErrorMessage(error, fallback) {
-    return error?.response?.data?.message || fallback
+    const apiMessage = error?.response?.data?.message
+    if (typeof apiMessage === "string" && apiMessage.trim()) return apiMessage
+
+    if (error?.code === "ECONNABORTED" || /timeout/i.test(error?.message || "")) {
+        return "The AI took too long to respond. Please try again in a minute."
+    }
+
+    if (error?.message === "Network Error" || !error?.response) {
+        return "Can't reach the server. Check that the backend is running, then try again."
+    }
+
+    return fallback
 }
 
 export const useInterview = () => {
@@ -39,6 +50,7 @@ export const useInterview = () => {
             setReport(response.interviewReport)
             return response.interviewReport
         } catch (error) {
+            setReport(null)
             toast?.error(getErrorMessage(error, "Couldn't load that interview report."))
             return null
         } finally {
@@ -50,11 +62,14 @@ export const useInterview = () => {
         setLoading(true)
         try {
             const response = await getAllInterviewReports()
-            setReports(response.interviewReports)
-            return response.interviewReports
+            const list = Array.isArray(response?.interviewReports) ? response.interviewReports : []
+            setReports(list)
+            return list
         } catch (error) {
+            setReports([])
             toast?.error(getErrorMessage(error, "Couldn't load your interview history."))
-            return []
+            // Returning null (not []) lets callers tell a failed load from an empty history.
+            return null
         } finally {
             setLoading(false)
         }
@@ -97,6 +112,15 @@ export const useInterview = () => {
         }
     }
 
-    return { loading, report, reports, generateReport, getReportById, getReports, getResumePdf, getReportPdf }
+    return {
+        loading,
+        report,
+        reports: Array.isArray(reports) ? reports : [],
+        generateReport,
+        getReportById,
+        getReports,
+        getResumePdf,
+        getReportPdf
+    }
 
 }

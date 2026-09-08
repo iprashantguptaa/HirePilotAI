@@ -36,6 +36,15 @@ function validateEnv() {
 
         throw new Error(message)
     }
+
+    // Falling back to development defaults in production is not a harmless
+    // convenience: cookies ship with secure=false and every email links to
+    // localhost. Fail at boot instead.
+    if (process.env.NODE_ENV === "production" && !process.env.FRONTEND_URL) {
+        throw new Error(
+            "FRONTEND_URL must be set in production -- verification and password reset emails would otherwise link to http://localhost:5173."
+        )
+    }
 }
 
 validateEnv()

@@ -1,6 +1,7 @@
 import { Link } from "react-router"
 import { SEO } from "../../components/common"
 import { useToast } from "../../components/ui/Toast/useToast"
+import { useAuth } from "../../features/auth/hooks/useAuth.js"
 import "./MarketingPage.scss"
 
 const CheckIcon = () => (
@@ -28,6 +29,7 @@ const COMING_SOON_FEATURES = [
 
 const PricingPage = () => {
     const toast = useToast()
+    const { user } = useAuth()
 
     return (
         <>
@@ -63,7 +65,12 @@ const PricingPage = () => {
                             ))}
                         </ul>
                         <div className="plan-card__cta">
-                            <Link to="/register" className="button primary-button">Get started free</Link>
+                            <Link
+                                to={user ? "/interview/new" : "/register"}
+                                className="button primary-button"
+                            >
+                                {user ? "Start a new analysis" : "Get started free"}
+                            </Link>
                         </div>
                     </div>
 

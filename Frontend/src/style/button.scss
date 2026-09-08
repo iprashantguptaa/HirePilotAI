@@ -77,9 +77,10 @@
         color: var(--color-text-inverse);
 
         &:hover:not(:disabled) {
-            background-color: #dc2626;
-            box-shadow: 0 10px 15px -3px rgb(239 68 68 / 0.3),
-                        0 4px 6px -2px rgb(239 68 68 / 0.2);
+            // Mixing toward the body text colour deepens the red in light mode
+            // and brightens it in dark mode, so the label stays legible in both.
+            background-color: color-mix(in srgb, var(--color-error) 85%, var(--color-text-primary));
+            box-shadow: var(--shadow-error);
         }
     }
 

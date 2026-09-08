@@ -8,7 +8,7 @@ import AuthFormCard from '../../../components/layout/AuthFormCard'
 import { Input, PasswordInput, Button, Alert } from '../../../components/ui'
 
 const Login = () => {
-  const { loading, handleLogin, handleVerifyLoginOtp } = useAuth()
+  const { submitting, handleLogin, handleVerifyLoginOtp } = useAuth()
   const brand = useBrand()
   const navigate = useNavigate()
   const location = useLocation()
@@ -126,7 +126,7 @@ const Login = () => {
                 <Link to="/forgot-password">Forgot password?</Link>
               </div>
 
-              <Button type="submit" variant="primary" size="lg" fullWidth loading={loading}>
+              <Button type="submit" variant="primary" size="lg" fullWidth loading={submitting}>
                 Continue
               </Button>
             </form>
@@ -157,7 +157,7 @@ const Login = () => {
                 autoComplete="one-time-code"
               />
 
-              <Button type="submit" variant="primary" size="lg" fullWidth loading={loading}>
+              <Button type="submit" variant="primary" size="lg" fullWidth loading={submitting}>
                 Verify and sign in
               </Button>
 

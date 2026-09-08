@@ -5,6 +5,8 @@ import ForgotPassword from "./features/auth/pages/ForgotPassword";
 import ResetPassword from "./features/auth/pages/ResetPassword";
 import VerifyEmail from "./features/auth/pages/VerifyEmail";
 import Protected from "./features/auth/components/Protected";
+import GuestOnly from "./features/auth/components/GuestOnly";
+import RouteError from "./components/common/RouteError";
 import Home from "./features/interview/pages/Home";
 import Interview from "./features/interview/pages/Interview";
 import Dashboard from "./features/dashboard/pages/Dashboard";
@@ -34,15 +36,18 @@ export const router = createBrowserRouter([
     // Auth routes (no AppLayout wrapper — AuthLayout owns the chrome)
     {
         path: "/login",
-        element: <Login />
+        element: <GuestOnly><Login /></GuestOnly>,
+        errorElement: <RouteError />
     },
     {
         path: "/register",
-        element: <Register />
+        element: <GuestOnly><Register /></GuestOnly>,
+        errorElement: <RouteError />
     },
     {
         path: "/forgot-password",
-        element: <ForgotPassword />
+        element: <GuestOnly><ForgotPassword /></GuestOnly>,
+        errorElement: <RouteError />
     },
     {
         path: "/reset-password/:token",
@@ -56,6 +61,7 @@ export const router = createBrowserRouter([
     {
         path: "/",
         element: <AppLayout />,
+        errorElement: <RouteError />,
         children: [
             { index: true, element: <Landing /> },
             { path: "dashboard", element: <Protected><Dashboard /></Protected> },

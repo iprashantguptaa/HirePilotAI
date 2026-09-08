@@ -8,27 +8,6 @@
 @use './animations.scss';
 
 // ============================================================================
-// GLASSMORPHISM
-// ============================================================================
-
-.glass {
-  background: var(--glass-bg);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
-  border: 1px solid var(--glass-border);
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-
-  &--light {
-    background: var(--glass-bg-light);
-  }
-
-  &--card {
-    border-radius: var(--radius-xl);
-    padding: var(--space-6);
-  }
-}
-
-// ============================================================================
 // GRADIENTS
 // ============================================================================
 
@@ -49,10 +28,6 @@
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-}
-
-.gradient-mesh {
-  background: var(--gradient-mesh);
 }
 
 // ============================================================================
@@ -247,14 +222,6 @@
   }
 }
 
-.hover-glow {
-  transition: box-shadow var(--duration-fast) var(--ease-out);
-
-  &:hover {
-    box-shadow: var(--shadow-primary);
-  }
-}
-
 // ============================================================================
 // INTERACTIVE STATES
 // ============================================================================
@@ -271,18 +238,6 @@
   &:focus-visible {
     outline: 2px solid var(--color-primary-600);
     outline-offset: 2px;
-  }
-}
-
-// ============================================================================
-// FOCUS STATES
-// ============================================================================
-
-.focus-ring {
-  &:focus-visible {
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
-    border-color: var(--color-primary-600);
   }
 }
 
@@ -405,17 +360,32 @@
 
 .skip-link {
   position: absolute;
-  top: -40px;
-  left: 0;
-  background: var(--color-primary-600);
-  color: white;
-  padding: var(--space-3) var(--space-4);
-  text-decoration: none;
-  border-radius: var(--radius-md);
-  z-index: 9999;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+  // Keyboard-only: mouse users never see this. Tab once and it appears.
 
-  &:focus {
+  &:focus,
+  &:focus-visible {
+    width: auto;
+    height: auto;
+    margin: 0;
+    clip: auto;
+    overflow: visible;
     top: var(--space-4);
     left: var(--space-4);
+    z-index: 10000;
+    padding: var(--space-3) var(--space-4);
+    border-radius: var(--radius-md);
+    background: var(--color-primary-600);
+    color: var(--color-text-inverse);
+    text-decoration: none;
+    outline: 2px solid var(--color-border-focus);
+    outline-offset: 2px;
   }
 }

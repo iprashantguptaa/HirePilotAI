@@ -18,9 +18,7 @@ export const updateNotificationPreferences = async (payload) => {
 export const uploadAvatar = async (file) => {
     const formData = new FormData()
     formData.append("avatar", file)
-    const response = await api.post("/api/profile/avatar", formData, {
-        headers: { "Content-Type": "multipart/form-data" }
-    })
+    const response = await api.post("/api/profile/avatar", formData)
     return response.data
 }
 
@@ -32,9 +30,7 @@ export const deleteAvatar = async () => {
 export const uploadProfileResume = async (file) => {
     const formData = new FormData()
     formData.append("resume", file)
-    const response = await api.post("/api/profile/resume", formData, {
-        headers: { "Content-Type": "multipart/form-data" }
-    })
+    const response = await api.post("/api/profile/resume", formData)
     return response.data
 }
 

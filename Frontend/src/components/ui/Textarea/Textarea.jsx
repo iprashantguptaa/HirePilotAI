@@ -2,10 +2,11 @@
 // HirePilot AI Design System - Textarea Component
 // ============================================================================
 
-import React, { forwardRef, useState } from 'react'
+import React, { forwardRef, useId, useState } from 'react'
 import './Textarea.scss'
 
 export const Textarea = forwardRef(({
+  id,
   label,
   placeholder,
   value,
@@ -23,6 +24,16 @@ export const Textarea = forwardRef(({
   ...props
 }, ref) => {
   const [focused, setFocused] = useState(false)
+
+  const generatedId = useId()
+  const textareaId = id || `hp-textarea-${generatedId}`
+  const errorId = `${textareaId}-error`
+  const helperId = `${textareaId}-helper`
+  // Point the textarea at whichever message is actually rendered below it.
+  const describedBy = [
+    error ? errorId : helperText ? helperId : null,
+    props[ 'aria-describedby' ]
+  ].filter(Boolean).join(' ') || undefined
 
   const wrapperClasses = [
     'hp-textarea-wrapper',
@@ -43,7 +54,7 @@ export const Textarea = forwardRef(({
   return (
     <div className={wrapperClasses}>
       {label && (
-        <label className="hp-textarea__label">
+        <label className="hp-textarea__label" htmlFor={textareaId}>
           {label}
           {required && <span className="hp-textarea__required">*</span>}
         </label>
@@ -51,6 +62,7 @@ export const Textarea = forwardRef(({
       
       <textarea
         ref={ref}
+        id={textareaId}
         className={textareaClasses}
         placeholder={placeholder}
         value={value}
@@ -61,15 +73,17 @@ export const Textarea = forwardRef(({
         required={required}
         maxLength={maxLength}
         rows={rows}
+        aria-invalid={error ? true : undefined}
         {...props}
+        aria-describedby={describedBy}
       />
       
       {(error || helperText || showCharacterCount) && (
         <div className="hp-textarea__footer">
           {error ? (
-            <span className="hp-textarea__error">{error}</span>
+            <span className="hp-textarea__error" id={errorId} role="alert">{error}</span>
           ) : helperText ? (
-            <span className="hp-textarea__helper">{helperText}</span>
+            <span className="hp-textarea__helper" id={helperId}>{helperText}</span>
           ) : (
             <span></span>
           )}

@@ -5,12 +5,14 @@ import { clearTokens } from "../../lib/tokenStorage"
 export const AuthContext = createContext()
 
 /**
- * Bootstraps the session once for the whole app. Previously every useAuth()
- * caller fired getMe on mount, which raced signup and cleared the user.
+ * Bootstraps the session once for the whole app.
+ * `bootstrapping` = initial getMe (must NOT drive login/register button spinners).
+ * `submitting` = explicit auth actions (login/register/logout).
  */
 export const AuthProvider = ({ children }) => {
     const [ user, setUser ] = useState(null)
-    const [ loading, setLoading ] = useState(true)
+    const [ bootstrapping, setBootstrapping ] = useState(true)
+    const [ submitting, setSubmitting ] = useState(false)
 
     useEffect(() => {
         let cancelled = false
@@ -25,7 +27,7 @@ export const AuthProvider = ({ children }) => {
                     setUser(null)
                 }
             } finally {
-                if (!cancelled) setLoading(false)
+                if (!cancelled) setBootstrapping(false)
             }
         }
 
@@ -34,7 +36,16 @@ export const AuthProvider = ({ children }) => {
     }, [])
 
     return (
-        <AuthContext.Provider value={{ user, setUser, loading, setLoading }}>
+        <AuthContext.Provider value={{
+            user,
+            setUser,
+            bootstrapping,
+            submitting,
+            setSubmitting,
+            // Back-compat: Protected means "session resolving"
+            loading: bootstrapping,
+            setLoading: setSubmitting
+        }}>
             {children}
         </AuthContext.Provider>
     )

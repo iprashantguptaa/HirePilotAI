@@ -68,7 +68,7 @@ const PracticeSession = () => {
                 <div className="practice-session__missing">
                     <h1>Session not found</h1>
                     <p>This practice session doesn't exist, or it belongs to another account.</p>
-                    <Link to="/practice"><Button variant="primary">Start a new session</Button></Link>
+                    <Button as={Link} to="/practice" variant="primary">Start a new session</Button>
                 </div>
             </div>
         )
@@ -79,7 +79,7 @@ const PracticeSession = () => {
     if (isComplete && !reveal) {
         return (
             <>
-                <SEO title={`${session.title} — Practice Report | HirePilot AI`} />
+                <SEO title={`${session.title} — Practice Report`} noIndex />
                 <div className="practice-session container">
                     <SessionReport session={session} />
                 </div>
@@ -95,7 +95,7 @@ const PracticeSession = () => {
 
     return (
         <>
-            <SEO title={`${session.title} — Mock Interview | HirePilot AI`} />
+            <SEO title={`${session.title} — Mock Interview`} noIndex />
 
             <div className="practice-session container">
                 <header className="practice-session__header">

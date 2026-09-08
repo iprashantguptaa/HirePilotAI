@@ -211,6 +211,13 @@
             box-shadow: var(--shadow-primary);
             background: var(--color-surface-card);
         }
+
+        // --shadow-primary is a soft drop shadow, not a ring, so keyboard
+        // focus needs the solid outline restored here.
+        &:focus-visible {
+            outline: 2px solid var(--color-border-focus);
+            outline-offset: 2px;
+        }
         
         &:hover:not(:focus) {
             border-color: var(--color-border-interactive);

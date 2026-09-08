@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+Disallow: /dashboard
+Disallow: /history
+Disallow: /interview
+Disallow: /practice
+Disallow: /profile
+Disallow: /feedback
+Disallow: /admin
+
+Sitemap: https://hirepilot.ai/sitemap.xml

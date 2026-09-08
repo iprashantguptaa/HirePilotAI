@@ -12,8 +12,8 @@ export const BRAND = {
   
   product: {
     name: 'HirePilot AI',
-    tagline: 'Master Your Interview, Land Your Dream Job',
-    description: 'AI-powered interview preparation platform that helps you ace technical and behavioral interviews with personalized coaching, real-time feedback, and comprehensive skill assessment.',
+    tagline: 'Your AI-powered career copilot.',
+    description: 'Upload a resume, paste a job description, get a match score and prep plan, then practice answers with scored feedback — so you know exactly what to fix before the real interview.',
     version: '1.0.0'
   },
 
@@ -71,16 +71,16 @@ export const BRAND = {
   
   theme: {
     primary: {
-      name: 'Confident Purple',
-      hex: '#7c3aed',
-      rgb: 'rgb(124, 58, 237)',
+      name: 'Forest',
+      hex: '#24483A',
+      rgb: 'rgb(15, 118, 110)',
       cssVar: '--color-primary-600'
     },
     secondary: {
-      name: 'Trust Blue',
-      hex: '#3b82f6',
-      rgb: 'rgb(59, 130, 246)',
-      cssVar: '--color-secondary-500'
+      name: 'Ink Slate',
+      hex: '#0f172a',
+      rgb: 'rgb(15, 23, 42)',
+      cssVar: '--color-secondary-800'
     },
     accent: {
       name: 'Growth Green',
@@ -142,7 +142,7 @@ export const BRAND = {
       'interview feedback'
     ],
     author: 'HirePilot AI Team',
-    themeColor: '#7c3aed',
+    themeColor: '#24483A',
     locale: 'en_US',
     siteName: 'HirePilot AI'
   },
@@ -299,7 +299,7 @@ export const BRAND = {
       product: [
         { label: 'Features', href: '/features' },
         { label: 'Pricing', href: '/pricing' },
-        { label: 'How it Works', href: '/how-it-works' },
+        { label: 'How it Works', href: '/#how-it-works' },
         { label: 'FAQ', href: '/faq' }
       ],
       company: [
@@ -309,10 +309,10 @@ export const BRAND = {
         { label: 'Contact', href: '/contact' }
       ],
       resources: [
-        { label: 'How it Works', href: '/how-it-works' },
+        { label: 'How it Works', href: '/#how-it-works' },
         { label: 'FAQ', href: '/faq' },
         { label: 'Documentation', href: '/documentation' },
-        { label: 'Feedback', href: '/feedback' }
+        { label: 'Contact', href: '/contact' }
       ],
       legal: [
         { label: 'Privacy Policy', href: '/legal/privacy' },
@@ -324,7 +324,7 @@ export const BRAND = {
         { label: 'Help Center', href: '/support' },
         { label: 'Contact Support', href: '/contact' },
         { label: 'FAQ', href: '/faq' },
-        { label: 'Feedback', href: '/feedback' }
+        { label: 'Contact', href: '/contact' }
       ]
     }
   },
@@ -357,6 +357,9 @@ export const BRAND = {
  */
 export const getPageTitle = (pageTitle) => {
   if (!pageTitle) return BRAND.seo.defaultTitle
+  // Callers that already include the brand (or the template suffix) should
+  // not get "HirePilot AI | HirePilot AI".
+  if (/hirepilot ai/i.test(pageTitle)) return pageTitle
   return BRAND.seo.titleTemplate.replace('%s', pageTitle)
 }
 

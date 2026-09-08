@@ -29,7 +29,7 @@
     width: 2.5rem;
     height: 2.5rem;
     border-radius: var(--radius-md);
-    background-color: rgba(124, 58, 237, 0.1);
+    background-color: color-mix(in srgb, var(--color-primary-600) 12%, transparent);
     color: var(--color-primary-600);
     flex-shrink: 0;
     

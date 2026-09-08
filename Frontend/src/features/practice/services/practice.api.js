@@ -12,6 +12,8 @@ export const startSession = async ({
     title,
     mode,
     plannedQuestions,
+    focusHint,
+    starterNote,
     signal
 }) => {
     const response = await api.post("/api/session", {
@@ -19,7 +21,9 @@ export const startSession = async ({
         jobDescription,
         title,
         mode,
-        plannedQuestions
+        plannedQuestions,
+        focusHint,
+        starterNote
     }, {
         // First question is one AI call — allow cold-start + generation time.
         timeout: 180000,

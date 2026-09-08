@@ -1,15 +1,25 @@
 const express = require("express")
+const rateLimit = require("express-rate-limit")
 const authMiddleware = require("../middlewares/auth.middleware")
 const sessionController = require("../controllers/session.controller")
 
 const sessionRouter = express.Router()
+
+const aiSessionLimiter = rateLimit({
+    windowMs: 60 * 60 * 1000,
+    limit: 60,
+    standardHeaders: true,
+    legacyHeaders: false,
+    keyGenerator: (req) => req.user?.id || req.ip,
+    message: { message: "You have scored enough answers for now. Try again in an hour." }
+})
 
 /**
  * @route POST /api/session/
  * @description start a live practice interview session and get its first question.
  * @access private
  */
-sessionRouter.post("/", authMiddleware.authUser, sessionController.startSessionController)
+sessionRouter.post("/", authMiddleware.authUser, aiSessionLimiter, sessionController.startSessionController)
 
 /**
  * @route GET /api/session/
@@ -30,14 +40,14 @@ sessionRouter.get("/:sessionId", authMiddleware.authUser, sessionController.getS
  * @description submit an answer, get it scored, and receive the next question.
  * @access private
  */
-sessionRouter.post("/:sessionId/answer", authMiddleware.authUser, sessionController.submitAnswerController)
+sessionRouter.post("/:sessionId/answer", authMiddleware.authUser, aiSessionLimiter, sessionController.submitAnswerController)
 
 /**
  * @route POST /api/session/:sessionId/complete
  * @description end a session early and generate its performance report.
  * @access private
  */
-sessionRouter.post("/:sessionId/complete", authMiddleware.authUser, sessionController.completeSessionController)
+sessionRouter.post("/:sessionId/complete", authMiddleware.authUser, aiSessionLimiter, sessionController.completeSessionController)
 
 /**
  * @route DELETE /api/session/:sessionId

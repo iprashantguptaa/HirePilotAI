@@ -17,6 +17,7 @@ export {
 } from './Card/Card'
 export { Skeleton, SkeletonCard } from './Skeleton/Skeleton'
 export { EmptyState } from './EmptyState/EmptyState'
+export { ErrorState } from './ErrorState/ErrorState'
 export { Modal } from './Modal/Modal'
 export { Badge } from './Badge/Badge'
 export { Alert } from './Alert/Alert'

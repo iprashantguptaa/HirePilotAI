@@ -109,6 +109,17 @@ const interviewSessionSchema = new mongoose.Schema({
         min: 3,
         max: 15
     },
+    // Optional coaching hint from Results Hub / deep-link (no extra provider).
+    focusHint: {
+        type: String,
+        maxlength: 120,
+        default: undefined
+    },
+    starterNote: {
+        type: String,
+        maxlength: 500,
+        default: undefined
+    },
     status: {
         type: String,
         enum: [ "in_progress", "completed", "abandoned" ],

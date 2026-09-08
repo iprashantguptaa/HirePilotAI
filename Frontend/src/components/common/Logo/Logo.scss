@@ -39,6 +39,7 @@
     display: flex;
     align-items: center;
     gap: var(--space-2);
+    font-family: var(--font-display);
     font-weight: var(--font-weight-bold);
     letter-spacing: var(--letter-spacing-tight);
   }
@@ -53,10 +54,9 @@
   }
   
   &__pilot {
-    background: var(--gradient-primary);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    color: var(--color-primary-700);
+    background: none;
+    -webkit-text-fill-color: unset;
   }
   
   &__ai {

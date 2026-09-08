@@ -1,6 +1,7 @@
-import { useState, useRef } from 'react'
+import { useState } from 'react'
 import { useNavigate } from 'react-router'
 import { useInterview } from '../hooks/useInterview.js'
+import { SEO } from '../../../components/common'
 import { Button, Textarea, FileUpload, Alert } from '../../../components/ui'
 import "../style/home.scss"
 
@@ -72,7 +73,7 @@ const Home = () => {
               <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
             </svg>
           </div>
-          <h2>Generating your interview plan…</h2>
+          <h1>Generating your interview plan…</h1>
           <p>Usually under a minute — scoring your fit and building questions in parallel.</p>
         </div>
       </div>
@@ -81,10 +82,11 @@ const Home = () => {
 
   return (
     <div className='home-page'>
+      <SEO title="New Interview Plan" description="Upload a resume and job description to generate a match score, skill gaps, and practice plan." noIndex />
       {/* Hero Section */}
       <header className='home-page__hero'>
-        <h1>Create Your Custom <span className="text-gradient">Interview Plan</span></h1>
-        <p>Let our AI analyze the job requirements and your unique profile to build a winning strategy.</p>
+        <h1>Create your interview <span className="text-gradient">plan</span></h1>
+        <p>Paste the job description and add your resume or a short self-description. We’ll build a match score, gaps, roadmap, and practice set.</p>
       </header>
 
       {/* Main Form Card */}
@@ -103,6 +105,8 @@ const Home = () => {
             </div>
 
             <Textarea
+              label="Target Job Description"
+              required
               placeholder="Paste the full job description here...&#10;&#10;Example: 'Senior Frontend Engineer at Infosys requires proficiency in React, TypeScript, Node.js, and experience working on large-scale enterprise applications...'"
               value={jobDescription}
               onChange={(e) => {
@@ -177,7 +181,7 @@ const Home = () => {
         <div className='home-page__footer'>
           <div className='home-page__footer-info'>
             <SparklesIcon />
-            <span>AI-Powered Strategy Generation • Approx 30s</span>
+            <span>AI-Powered Strategy Generation • Usually under a minute</span>
           </div>
           <Button
             variant="primary"

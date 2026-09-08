@@ -1,28 +1,31 @@
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { getStats } from "../services/admin.api"
 import { useToast } from "../../../components/ui/Toast/useToast"
-import { EnhancedMetricCard, SkeletonCard } from "../../../components/ui"
+import { EnhancedMetricCard, ErrorState, SkeletonCard, Button } from "../../../components/ui"
 
 const AdminDashboard = () => {
     const [ stats, setStats ] = useState(null)
     const [ loading, setLoading ] = useState(true)
+    const [ loadError, setLoadError ] = useState(null)
     const toast = useToast()
 
-    useEffect(() => {
-        let cancelled = false
-        async function load() {
-            setLoading(true)
-            try {
-                const res = await getStats()
-                if (!cancelled) setStats(res.stats)
-            } catch (error) {
-                toast?.error(error?.response?.data?.message || "Couldn't load admin stats.")
-            } finally {
-                if (!cancelled) setLoading(false)
-            }
+    const load = useCallback(async () => {
+        setLoading(true)
+        setLoadError(null)
+        try {
+            const res = await getStats()
+            setStats(res.stats)
+        } catch (error) {
+            const message = error?.response?.data?.message || "Couldn't load admin stats."
+            setLoadError(message)
+            toast?.error(message)
+        } finally {
+            setLoading(false)
         }
+    }, [ toast ])
+
+    useEffect(() => {
         load()
-        return () => { cancelled = true }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
@@ -39,6 +42,14 @@ const AdminDashboard = () => {
                     <SkeletonCard height="7.5rem" />
                     <SkeletonCard height="7.5rem" />
                 </div>
+            ) : loadError || !stats ? (
+                <ErrorState
+                    title="Couldn't load admin stats"
+                    description="Something went wrong on our end. Check your connection and try again."
+                    action={
+                        <Button variant="primary" size="lg" onClick={load}>Try again</Button>
+                    }
+                />
             ) : (
                 <div className="admin-stats-grid">
                     <EnhancedMetricCard 
@@ -93,7 +104,7 @@ const AdminDashboard = () => {
                     <EnhancedMetricCard 
                         label="New Signups (30d)" 
                         value={stats.signupsLast30Days}
-                        trend={{ value: 12, isPositive: true }}
+                        trend={null}
                         icon={
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                 <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
