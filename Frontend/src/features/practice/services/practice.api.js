@@ -1,4 +1,4 @@
-import api from "../../../lib/apiClient"
+import api, { resolveDirectApiBaseURL } from "../../../lib/apiClient"
 
 /**
  * @description Start a live practice interview session. Resolves with the session
@@ -26,6 +26,8 @@ export const startSession = async ({
         starterNote
     }, {
         // First question is one AI call — allow cold-start + generation time.
+        // Skip the Vercel rewrite proxy so a 120s first-byte limit cannot kill it.
+        baseURL: resolveDirectApiBaseURL(),
         timeout: 180000,
         signal
     })
@@ -40,7 +42,7 @@ export const submitAnswer = async (sessionId, answer) => {
     const response = await api.post(
         `/api/session/${sessionId}/answer`,
         { answer },
-        { timeout: 120000 }
+        { baseURL: resolveDirectApiBaseURL(), timeout: 120000 }
     )
     return response.data
 }
@@ -49,7 +51,10 @@ export const submitAnswer = async (sessionId, answer) => {
  * @description End a session early and generate its report from what was answered.
  */
 export const completeSession = async (sessionId) => {
-    const response = await api.post(`/api/session/${sessionId}/complete`)
+    const response = await api.post(`/api/session/${sessionId}/complete`, null, {
+        baseURL: resolveDirectApiBaseURL(),
+        timeout: 180000
+    })
     return response.data
 }
 
@@ -58,7 +63,10 @@ export const completeSession = async (sessionId) => {
  */
 export const getSession = async (sessionId) => {
     // May trigger next-question generation (self-heal) — allow longer wait.
-    const response = await api.get(`/api/session/${sessionId}`, { timeout: 120000 })
+    const response = await api.get(`/api/session/${sessionId}`, {
+        baseURL: resolveDirectApiBaseURL(),
+        timeout: 120000
+    })
     return response.data
 }
 

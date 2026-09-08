@@ -1,6 +1,18 @@
 import axios from "axios"
 import { clearTokens, getAccessToken, getRefreshToken, saveTokens } from "./tokenStorage"
 
+const PRODUCTION_API_ORIGIN = "https://hirepilotai-whej.onrender.com"
+
+function configuredApiOrigin() {
+    return String(import.meta.env.VITE_API_DIRECT_URL || import.meta.env.VITE_API_URL || "")
+        .trim()
+        .replace(/\/$/, "")
+}
+
+function isRemoteHttpsOrigin(url) {
+    return /^https:\/\//i.test(url) && !/localhost|127\.0\.0\.1/i.test(url)
+}
+
 /**
  * Resolve API base URL.
  * On the Vercel frontend, always call same-origin `/api/...` so Vercel can
@@ -8,7 +20,7 @@ import { clearTokens, getAccessToken, getRefreshToken, saveTokens } from "./toke
  * on other devices / Safari). Locally, hit the Express server directly.
  */
 function resolveBaseURL() {
-    const configured = String(import.meta.env.VITE_API_URL || "").trim().replace(/\/$/, "")
+    const configured = configuredApiOrigin()
 
     if (typeof window !== "undefined") {
         const host = window.location.hostname
@@ -18,6 +30,22 @@ function resolveBaseURL() {
     if (configured === "" || configured === "same" || configured === "/") return ""
     if (configured) return configured
     return "http://localhost:3000"
+}
+
+/**
+ * Long Gemini calls must skip the Vercel rewrite proxy. A trailing-slash
+ * `/api/interview/` request is rewritten to the SPA (or hangs), and even a
+ * correct rewrite is killed after 120s before the first response byte.
+ * Bearer tokens still authenticate on Render; cookies stay on Vercel.
+ */
+export function resolveDirectApiBaseURL() {
+    if (typeof window !== "undefined" && window.location.hostname.endsWith(".vercel.app")) {
+        const configured = configuredApiOrigin()
+        if (isRemoteHttpsOrigin(configured)) return configured
+        return PRODUCTION_API_ORIGIN
+    }
+
+    return resolveBaseURL()
 }
 
 const apiClient = axios.create({

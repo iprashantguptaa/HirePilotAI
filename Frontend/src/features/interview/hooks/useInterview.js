@@ -7,6 +7,14 @@ function getErrorMessage(error, fallback) {
     const apiMessage = error?.response?.data?.message
     if (typeof apiMessage === "string" && apiMessage.trim()) return apiMessage
 
+    const status = error?.response?.status
+    const body = error?.response?.data
+    const looksLikeHtml = typeof body === "string" && /<!DOCTYPE|<html/i.test(body)
+
+    if (status === 502 || status === 503 || status === 504 || looksLikeHtml) {
+        return "The server timed out while generating your report. Please try again in a minute."
+    }
+
     if (error?.code === "ECONNABORTED" || /timeout/i.test(error?.message || "")) {
         return "The AI took too long to respond. Please try again in a minute."
     }

@@ -11,7 +11,7 @@ const aiReportLimiter = rateLimit({
     limit: 5,
     standardHeaders: true,
     legacyHeaders: false,
-    keyGenerator: (req) => req.user?.id || req.ip,
+    keyGenerator: (req) => String(req.user?.id || "anonymous"),
     message: { message: "You have generated enough reports for now. Try again in an hour." }
 })
 
@@ -20,7 +20,7 @@ const aiPdfLimiter = rateLimit({
     limit: 20,
     standardHeaders: true,
     legacyHeaders: false,
-    keyGenerator: (req) => req.user?.id || req.ip,
+    keyGenerator: (req) => String(req.user?.id || "anonymous"),
     message: { message: "PDF generation is temporarily limited. Try again later." }
 })
 

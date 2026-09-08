@@ -1,4 +1,4 @@
-import api from "../../../lib/apiClient"
+import api, { resolveDirectApiBaseURL } from "../../../lib/apiClient"
 
 
 /**
@@ -15,9 +15,11 @@ export const generateInterviewReport = async ({ jobDescription, selfDescription,
         formData.append("resume", resumeFile)
     }
 
-    const response = await api.post("/api/interview/", formData, {
+    const response = await api.post("/api/interview", formData, {
         // Do NOT set Content-Type manually — the browser must add the multipart
         // boundary. A bare "multipart/form-data" header makes req.body empty.
+        // Hit Render directly on Vercel so the 120s rewrite proxy cannot drop this.
+        baseURL: resolveDirectApiBaseURL(),
         timeout: 180000
     })
 
@@ -40,7 +42,7 @@ export const getInterviewReportById = async (interviewId) => {
  * @description Service to get all interview reports of logged in user.
  */
 export const getAllInterviewReports = async () => {
-    const response = await api.get("/api/interview/")
+    const response = await api.get("/api/interview")
 
     return response.data
 }
@@ -51,6 +53,8 @@ export const getAllInterviewReports = async () => {
  */
 export const generateResumePdf = async ({ interviewReportId }) => {
     const response = await api.post(`/api/interview/resume/pdf/${interviewReportId}`, null, {
+        baseURL: resolveDirectApiBaseURL(),
+        timeout: 180000,
         responseType: "blob"
     })
 
@@ -62,6 +66,8 @@ export const generateResumePdf = async ({ interviewReportId }) => {
  */
 export const generateReportPdf = async ({ interviewReportId }) => {
     const response = await api.post(`/api/interview/report/pdf/${interviewReportId}`, null, {
+        baseURL: resolveDirectApiBaseURL(),
+        timeout: 180000,
         responseType: "blob"
     })
 

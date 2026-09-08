@@ -10,7 +10,7 @@ const aiSessionLimiter = rateLimit({
     limit: 60,
     standardHeaders: true,
     legacyHeaders: false,
-    keyGenerator: (req) => req.user?.id || req.ip,
+    keyGenerator: (req) => String(req.user?.id || "anonymous"),
     message: { message: "You have scored enough answers for now. Try again in an hour." }
 })
 

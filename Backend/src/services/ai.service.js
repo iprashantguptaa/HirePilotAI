@@ -29,6 +29,16 @@ const MAX_ANSWER_CHARS = 3500
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
 
+function abortAfter(ms) {
+    if (typeof AbortSignal !== "undefined" && typeof AbortSignal.timeout === "function") {
+        return AbortSignal.timeout(ms)
+    }
+
+    const controller = new AbortController()
+    setTimeout(() => controller.abort(), ms)
+    return controller.signal
+}
+
 function clipText(value, maxChars) {
     if (!value || typeof value !== "string") return ""
     const trimmed = value.trim()
@@ -81,7 +91,7 @@ async function callModel(request, label) {
                     ...request,
                     model: modelName,
                     // Fail closed if Gemini hangs — otherwise the request stays open forever.
-                    abortSignal: AbortSignal.timeout(90_000)
+                    abortSignal: abortAfter(90_000)
                 })
             } catch (error) {
                 lastError = error
