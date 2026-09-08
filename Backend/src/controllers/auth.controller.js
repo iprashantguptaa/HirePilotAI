@@ -222,15 +222,7 @@ const loginUserController = asyncHandler(async function loginUserController(req,
     assertAccountActive(user)
 
     if (!config.smtp.host) {
-        // Never silently drop the second factor in production -- a mail
-        // misconfiguration must fail loudly, not disable OTP.
-        if (config.nodeEnv === "production") {
-            throw ApiError.serviceUnavailable(
-                "Login is temporarily unavailable. Please try again shortly."
-            )
-        }
-
-        // Dev only: no mail provider, so don't ask for an OTP nobody can receive.
+        // No mail provider: password login only. OTP cannot be delivered.
         const tokens = await issueSession(res, user)
         return res.status(200).json({
             message: "Logged in successfully.",
